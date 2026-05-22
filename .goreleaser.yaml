@@ -1,0 +1,20 @@
+version: 2
+project_name: kp
+builds:
+  - id: kp
+    main: ./cmd/kp
+    binary: kp
+    goos: [darwin]
+    goarch: [amd64, arm64]
+    ldflags:
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}}
+archives:
+  - formats: [tar.gz]
+    files: [LICENSE, README.md]
+brew:
+  - repository:
+      owner: jamesonstone
+      name: homebrew-tap
+    homepage: https://github.com/jamesonstone/kp
+    description: CLI prompt utilities
+    license: MIT
