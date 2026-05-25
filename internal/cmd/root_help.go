@@ -39,13 +39,13 @@ func renderRootHelp(cmd *cobra.Command) error {
 	if _, err := fmt.Fprintln(out, style.title("🚀", "Usage")); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(out, "  %s\n", cmd.CommandPath()); err != nil {
+	if _, err := fmt.Fprintf(out, "  %s                 open launcher\n", cmd.CommandPath()); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(out, "  %s <prompt>\n", cmd.CommandPath()); err != nil {
+	if _, err := fmt.Fprintf(out, "  %s <prompt>        print and copy prompt\n", cmd.CommandPath()); err != nil {
 		return err
 	}
-	if _, err := fmt.Fprintf(out, "  %s [command]\n", cmd.CommandPath()); err != nil {
+	if _, err := fmt.Fprintf(out, "  %s [command]       run command\n", cmd.CommandPath()); err != nil {
 		return err
 	}
 

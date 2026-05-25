@@ -77,6 +77,7 @@ type Options struct {
 	ClipboardFactory func() clipboard.Clipboard
 	LookPath         func(file string) (string, error)
 	FZFRunner        func(prompts []prompt.Prompt) (string, error)
+	LauncherRunner   func(items []LauncherItem) (string, error)
 	Getenv           func(key string) string
 	EditorRunner     func(name string, args []string, path string) error
 }
@@ -124,6 +125,7 @@ type app struct {
 	clipboardFactory func() clipboard.Clipboard
 	lookPath         func(file string) (string, error)
 	fzfRunner        func(prompts []prompt.Prompt) (string, error)
+	launcherRunner   func(items []LauncherItem) (string, error)
 	getenv           func(key string) string
 	editorRunner     func(name string, args []string, path string) error
 
@@ -178,6 +180,7 @@ func newApp(opts Options) *app {
 		clipboardFactory: opts.ClipboardFactory,
 		lookPath:         opts.LookPath,
 		fzfRunner:        opts.FZFRunner,
+		launcherRunner:   opts.LauncherRunner,
 		getenv:           opts.Getenv,
 		editorRunner:     opts.EditorRunner,
 	}
@@ -185,7 +188,7 @@ func newApp(opts Options) *app {
 
 func (a *app) runRoot(cmd *cobra.Command, args []string) error {
 	if len(args) == 0 {
-		return cmd.Help()
+		return a.runLauncher(cmd)
 	}
 	if len(args) != 1 {
 		return NewExitError(ExitUser, fmt.Errorf("expected one prompt name"))

@@ -39,10 +39,10 @@ func TestListVerbose(t *testing.T) {
 	}
 }
 
-func TestRootShowsHelpWithoutSideEffects(t *testing.T) {
+func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 	var registryCalled bool
 	var clipboardCalled bool
-	stdout, _, err := executeTestCommand(t, func(opts *Options) {
+	stdout, _, err := executeTestCommand(t, "--help", func(opts *Options) {
 		opts.RegistryFactory = func(string) (prompt.Registry, error) {
 			registryCalled = true
 			return nil, nil
@@ -95,7 +95,7 @@ func TestRootHelpUsesKitStyleWhenTerminal(t *testing.T) {
 		terminalWriterCheck = previous
 	})
 
-	stdout, _, err := executeTestCommand(t)
+	stdout, _, err := executeTestCommand(t, "--help")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,6 +112,119 @@ func TestRootHelpUsesKitStyleWhenTerminal(t *testing.T) {
 		if !strings.Contains(stdout, text) {
 			t.Fatalf("stdout missing %q:\n%s", text, stdout)
 		}
+	}
+}
+
+func TestRootLaunchesInteractiveSelectorForPrompt(t *testing.T) {
+	fake := &fakeClipboard{}
+	var sawClarify bool
+	var sawScaffold bool
+	stdout, stderr, err := executeTestCommand(t,
+		withClipboard(fake),
+		withLauncher(func(items []LauncherItem) (string, error) {
+			for _, item := range items {
+				switch item.ID {
+				case "prompt:clarify":
+					sawClarify = item.Emoji == "🧠" &&
+						item.Command == "kp clarify" &&
+						item.Description == "Print and copy prompt"
+				case "command:scaffold":
+					sawScaffold = item.Emoji == "🏗️" &&
+						item.Command == "kp scaffold" &&
+						item.Description == "Show scaffold help"
+				}
+			}
+			return "prompt:clarify", nil
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !sawClarify || !sawScaffold {
+		t.Fatalf("launcher items missing expected entries: sawClarify=%v sawScaffold=%v", sawClarify, sawScaffold)
+	}
+	if !strings.HasPrefix(stdout, "Clarify before implementing.") {
+		t.Fatalf("stdout = %q", stdout)
+	}
+	if !strings.Contains(stderr, "✅ 📋 Prompt \"clarify\" copied to clipboard.") {
+		t.Fatalf("stderr = %q", stderr)
+	}
+	if fake.copied == "" || fake.verified == "" {
+		t.Fatalf("clipboard copied=%q verified=%q", fake.copied, fake.verified)
+	}
+}
+
+func TestRootLauncherShowsHelpForSideEffectCommands(t *testing.T) {
+	fake := &fakeClipboard{}
+	stdout, _, err := executeTestCommand(t,
+		withClipboard(fake),
+		withLauncher(func(items []LauncherItem) (string, error) {
+			return "command:scaffold", nil
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(stdout, "Create repo support files") || !strings.Contains(stdout, "--dry-run") {
+		t.Fatalf("stdout = %q", stdout)
+	}
+	if fake.copied != "" || fake.verified != "" || fake.pasted {
+		t.Fatalf("clipboard side effects copied=%q verified=%q pasted=%v", fake.copied, fake.verified, fake.pasted)
+	}
+}
+
+func TestRootLauncherShowsStaticHelp(t *testing.T) {
+	stdout, _, err := executeTestCommand(t,
+		withLauncher(func(items []LauncherItem) (string, error) {
+			return "command:help", nil
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(stdout, "Usage") || !strings.Contains(stdout, "Prompt Commands") {
+		t.Fatalf("stdout = %q", stdout)
+	}
+}
+
+func TestRootLauncherPrintsVersion(t *testing.T) {
+	stdout, _, err := executeTestCommand(t,
+		withLauncher(func(items []LauncherItem) (string, error) {
+			return "command:version", nil
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stdout != "version=test commit=abc123\n" {
+		t.Fatalf("stdout = %q", stdout)
+	}
+}
+
+func TestRootLauncherFZFMissingDoesNotLoadRegistryOrClipboard(t *testing.T) {
+	var registryCalled bool
+	var clipboardCalled bool
+	_, _, err := executeTestCommand(t, func(opts *Options) {
+		opts.RegistryFactory = func(string) (prompt.Registry, error) {
+			registryCalled = true
+			return nil, nil
+		}
+		opts.ClipboardFactory = func() clipboard.Clipboard {
+			clipboardCalled = true
+			return nil
+		}
+		opts.LookPath = func(string) (string, error) {
+			return "", errors.New("not found")
+		}
+	})
+	if ExitCode(err) != ExitConfig {
+		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
+	}
+	if !strings.Contains(err.Error(), "brew install fzf") || !strings.Contains(err.Error(), "kp --help") {
+		t.Fatalf("err = %v", err)
+	}
+	if registryCalled || clipboardCalled {
+		t.Fatalf("registryCalled=%v clipboardCalled=%v", registryCalled, clipboardCalled)
 	}
 }
 
@@ -724,6 +837,12 @@ func withFZF(selection string, runErr error) func(*Options) {
 			}
 			return selection, runErr
 		}
+	}
+}
+
+func withLauncher(run func(items []LauncherItem) (string, error)) func(*Options) {
+	return func(opts *Options) {
+		opts.LauncherRunner = run
 	}
 }
 

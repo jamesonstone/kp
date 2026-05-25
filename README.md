@@ -45,8 +45,11 @@ kp --version
 ## Quick Start
 
 ```sh
-# see the grouped help page
+# open the interactive launcher
 kp
+
+# see the grouped help page
+kp --help
 
 # print and copy a built-in prompt
 kp clarify
@@ -65,7 +68,8 @@ kp scaffold --dry-run
 
 | Command | What It Does | Best Used In | Status |
 | ------- | ------------ | ------------ | ------ |
-| `kp` | Show the grouped help page. | Terminal discovery | ✅ ready |
+| `kp` | Open the emoji-enhanced launcher for prompts and common commands. | Interactive terminals | ✅ ready |
+| `kp --help` | Show the grouped help page without opening the launcher. | Terminal discovery, docs, scripts | ✅ ready |
 | `kp clarify` | Print and copy the clarify-before-implementing prompt. | Coding-agent chats | ✅ ready |
 | `kp instructions` | Print and copy the implementation-instructions prompt. | Coding-agent chats | ✅ ready |
 | `kp parentthread` | Print and copy the parent-thread response prompt. | Coding-agent chats | ✅ ready |
@@ -161,7 +165,7 @@ Not created by `kp scaffold`: `.kit.yaml`, `.kit/`, global Kit config,
 | macOS 13+ on `darwin/arm64` or `darwin/amd64` | Clipboard support uses macOS tools. |
 | Go 1.22+ | Builds the local binary. |
 | `pbcopy` and `pbpaste` | Copy and verify prompt bodies. |
-| `fzf` | Powers `kp list`; install with `brew install fzf`. |
+| `fzf` | Powers `kp` and `kp list`; install with `brew install fzf`. |
 | `KP_EDITOR`, `EDITOR`, or `vi` | Opens prompts for `new` and `edit`. |
 
 ## Development
