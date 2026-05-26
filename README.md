@@ -71,7 +71,7 @@ kp scaffold --dry-run
 | `kp` | Open the emoji-enhanced launcher for prompts and common commands. | Interactive terminals | ✅ ready |
 | `kp --help` | Show the grouped help page without opening the launcher. | Terminal discovery, docs, scripts | ✅ ready |
 | `kp clarify` | Print and copy the clarify-before-implementing prompt. | Coding-agent chats | ✅ ready |
-| `kp instructions` | Print and copy the implementation-instructions prompt. | Coding-agent chats | ✅ ready |
+| `kp handoff` | Print and copy the coding-agent handoff prompt. | Coding-agent chats | ✅ ready |
 | `kp parentthread` | Print and copy the parent-thread response prompt. | Coding-agent chats | ✅ ready |
 | `kp <name> --copy` | Copy a prompt without printing it. | Shell aliases, scripts | ✅ ready |
 | `kp <name> --print` | Print a prompt without touching the clipboard. | Pipes, inspection | ✅ ready |
@@ -95,7 +95,7 @@ kp scaffold --dry-run
 | Prompt | Label | Status |
 | ------ | ----- | ------ |
 | `clarify` | Clarify before implementing | ✅ embedded |
-| `instructions` | Coding agent instructions | ✅ embedded |
+| `handoff` | Coding agent handoff | ✅ embedded |
 | `parentthread` | Parent thread response | ✅ embedded |
 
 Prompt names are bare commands. There is no `kp prompt ...` namespace.

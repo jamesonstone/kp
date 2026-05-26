@@ -20,7 +20,7 @@ func TestListPlain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stdout != "clarify\ninstructions\nparentthread\n" {
+	if stdout != "clarify\nhandoff\nparentthread\n" {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -34,7 +34,7 @@ func TestListVerbose(t *testing.T) {
 	if !strings.Contains(stdout, "clarify\tClarify before implementing\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
-	if !strings.Contains(stdout, "instructions\tCoding agent instructions\tbuiltin\n") {
+	if !strings.Contains(stdout, "handoff\tCoding agent handoff\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -61,7 +61,7 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"kp <prompt>",
 		"Prompt Commands",
 		"kp clarify",
-		"kp instructions",
+		"kp handoff",
 		"Prompt Library",
 		"kp list",
 		"kp list --plain",
@@ -199,6 +199,65 @@ func TestRootLauncherPrintsVersion(t *testing.T) {
 	if stdout != "version=test commit=abc123\n" {
 		t.Fatalf("stdout = %q", stdout)
 	}
+}
+
+func TestLauncherDisplayRowsAlignColumns(t *testing.T) {
+	items := []LauncherItem{
+		{
+			ID:          "prompt:clarify",
+			Emoji:       "🧠",
+			Title:       "Clarify before implementing",
+			Command:     "kp clarify",
+			Description: "Print and copy prompt",
+		},
+		{
+			ID:          "command:new",
+			Emoji:       "✨",
+			Title:       "New prompt",
+			Command:     "kp new <name>",
+			Description: "Show creation help",
+		},
+		{
+			ID:          "command:version",
+			Emoji:       "🛠️",
+			Title:       "Version",
+			Command:     "kp --version",
+			Description: "Print version metadata",
+		},
+	}
+
+	rows := launcherDisplayRows(items)
+	clarify := rows["prompt:clarify"]
+	newPrompt := rows["command:new"]
+	version := rows["command:version"]
+
+	commandColumn := displayColumn(t, clarify, "kp clarify")
+	descriptionColumn := displayColumn(t, clarify, "Print and copy prompt")
+	descriptions := map[string]string{
+		"new":     "Show creation help",
+		"version": "Print version metadata",
+	}
+	for name, row := range map[string]string{
+		"new":     newPrompt,
+		"version": version,
+	} {
+		if got := displayColumn(t, row, "kp "); got != commandColumn {
+			t.Fatalf("%s command column = %d, want %d\nclarify: %q\nrow: %q", name, got, commandColumn, clarify, row)
+		}
+		if got := displayColumn(t, row, descriptions[name]); got != descriptionColumn {
+			t.Fatalf("%s description column = %d, want %d\nclarify: %q\nrow: %q", name, got, descriptionColumn, clarify, row)
+		}
+	}
+}
+
+func displayColumn(t *testing.T, row string, needle string) int {
+	t.Helper()
+
+	index := strings.Index(row, needle)
+	if index < 0 {
+		t.Fatalf("row %q missing %q", row, needle)
+	}
+	return displayWidth(row[:index])
 }
 
 func TestRootLauncherFZFMissingDoesNotLoadRegistryOrClipboard(t *testing.T) {
@@ -581,7 +640,7 @@ func TestNewCreatesPromptWithEditor(t *testing.T) {
 
 func TestNewRejectsBuiltinCollision(t *testing.T) {
 	_, _, err := executeTestCommand(t,
-		"new", "instructions",
+		"new", "handoff",
 		withEditor(func(string, []string, string) error { return nil }),
 	)
 	if ExitCode(err) != ExitUser {
@@ -691,7 +750,7 @@ func TestRMUserPrompt(t *testing.T) {
 }
 
 func TestRMBuiltinFails(t *testing.T) {
-	_, _, err := executeTestCommand(t, "rm", "instructions")
+	_, _, err := executeTestCommand(t, "rm", "handoff")
 	if ExitCode(err) != ExitUser {
 		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
 	}

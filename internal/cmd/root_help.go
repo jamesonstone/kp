@@ -106,7 +106,7 @@ func builtInPromptRows(commandPath string) []helpRow {
 	if err != nil {
 		return []helpRow{
 			{command: commandPath + " clarify", summary: "Clarify before implementing"},
-			{command: commandPath + " instructions", summary: "Coding agent instructions"},
+			{command: commandPath + " handoff", summary: "Coding agent handoff"},
 		}
 	}
 

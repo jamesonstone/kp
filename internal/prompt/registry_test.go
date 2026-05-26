@@ -13,7 +13,7 @@ func TestRegistry_ListSorted(t *testing.T) {
 
 	prompts := reg.List()
 	got := []string{prompts[0].Name, prompts[1].Name}
-	want := []string{"clarify", "instructions"}
+	want := []string{"clarify", "handoff"}
 	for i := range want {
 		if got[i] != want[i] {
 			t.Fatalf("names = %v, want %v", got, want)
@@ -23,13 +23,13 @@ func TestRegistry_ListSorted(t *testing.T) {
 
 func TestRegistry_UserOverrides(t *testing.T) {
 	dir := t.TempDir()
-	writePrompt(t, dir, "instructions.md", "---\nlabel: User instructions\n---\nuser body")
+	writePrompt(t, dir, "handoff.md", "---\nlabel: User handoff\n---\nuser body")
 
 	reg, err := NewRegistry(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := reg.Get("instructions")
+	p, err := reg.Get("handoff")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestRegistry_UserOverrides(t *testing.T) {
 	if p.Source != SourceUser {
 		t.Fatalf("Source = %v, want SourceUser", p.Source)
 	}
-	if p.Label != "User instructions" {
+	if p.Label != "User handoff" {
 		t.Fatalf("Label = %q", p.Label)
 	}
 	if p.Body != "user body" {
@@ -57,7 +57,7 @@ func TestRegistry_AddRejectsEmpty(t *testing.T) {
 func TestRegistry_AddRejectsCollision(t *testing.T) {
 	reg := newTestRegistry(t)
 
-	_, err := reg.Add("instructions", "body")
+	_, err := reg.Add("handoff", "body")
 	if !errors.Is(err, ErrExists) {
 		t.Fatalf("Add error = %v, want ErrExists", err)
 	}
@@ -92,7 +92,7 @@ func TestRegistry_AddCreatesUserPrompt(t *testing.T) {
 func TestRegistry_RemoveBuiltinFails(t *testing.T) {
 	reg := newTestRegistry(t)
 
-	err := reg.Remove("instructions")
+	err := reg.Remove("handoff")
 	if !errors.Is(err, ErrBuiltIn) {
 		t.Fatalf("Remove error = %v, want ErrBuiltIn", err)
 	}

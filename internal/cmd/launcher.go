@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"unicode"
 
 	"github.com/jamesonstone/kp/internal/prompt"
 	"github.com/spf13/cobra"
@@ -176,11 +177,12 @@ func runLauncherFZF(items []LauncherItem) (string, error) {
 	defer os.RemoveAll(previewDir)
 
 	var input strings.Builder
+	displayRows := launcherDisplayRows(items)
 	for _, item := range items {
 		if err := os.WriteFile(filepath.Join(previewDir, item.ID), []byte(item.Preview), 0o600); err != nil {
 			return "", err
 		}
-		fmt.Fprintf(&input, "%s\t%s\t%s\t%s\t%s\n", item.ID, item.Emoji, item.Title, item.Command, item.Description)
+		fmt.Fprintf(&input, "%s\t%s\t%s\t%s\t%s\n", item.ID, displayRows[item.ID], item.Title, item.Command, item.Description)
 	}
 
 	cmd := exec.Command(
@@ -192,8 +194,8 @@ func runLauncherFZF(items []LauncherItem) (string, error) {
 		"--pointer", "👉",
 		"--header", "enter: select · tab/shift-tab/arrows: move · esc: cancel",
 		"--delimiter", "\t",
-		"--with-nth", "2,3,4,5",
-		"--nth", "3,4,5",
+		"--with-nth", "2",
+		"--nth", "2,3,4,5",
 		"--bind", "tab:down,btab:up",
 		"--preview", "cat "+shellQuote(previewDir)+"/{1}",
 	)
@@ -214,6 +216,56 @@ func runLauncherFZF(items []LauncherItem) (string, error) {
 		return "", fmt.Errorf("invalid launcher selection")
 	}
 	return id, nil
+}
+
+func launcherDisplayRows(items []LauncherItem) map[string]string {
+	titleWidth := displayWidth("Item")
+	commandWidth := displayWidth("Command")
+	for _, item := range items {
+		titleWidth = max(titleWidth, displayWidth(item.Title))
+		commandWidth = max(commandWidth, displayWidth(item.Command))
+	}
+
+	rows := make(map[string]string, len(items))
+	for _, item := range items {
+		rows[item.ID] = fmt.Sprintf(
+			"%s  %s  %s  %s",
+			padDisplay(item.Emoji, 2),
+			padDisplay(item.Title, titleWidth),
+			padDisplay(item.Command, commandWidth),
+			item.Description,
+		)
+	}
+	return rows
+}
+
+func padDisplay(value string, width int) string {
+	padding := width - displayWidth(value)
+	if padding <= 0 {
+		return value
+	}
+	return value + strings.Repeat(" ", padding)
+}
+
+func displayWidth(value string) int {
+	width := 0
+	for _, r := range value {
+		switch {
+		case r == '\uFE0F':
+			continue
+		case unicode.Is(unicode.Mn, r):
+			continue
+		case r < 0x20:
+			continue
+		case r >= 0x1F300 && r <= 0x1FAFF:
+			width += 2
+		case r >= 0x2600 && r <= 0x27BF:
+			width += 2
+		default:
+			width++
+		}
+	}
+	return width
 }
 
 func launcherPromptEmoji(p prompt.Prompt) string {
