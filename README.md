@@ -20,6 +20,7 @@ that feel good in a shell.
 - 📋 Copy prompt bodies only after `pbpaste` matches the expected text.
 - 🪶 Use bare commands such as `kp clarify`, not a heavy command tree.
 - 🧰 Create and edit your own Markdown prompts.
+- 🔍 Inspect and stop processes by port when you need to clean up a dev server.
 - 🏗️ Scaffold lightweight agent/review docs for other repos.
 - 🔒 Stay local-only: no network calls, telemetry, or cloud storage.
 
@@ -57,6 +58,9 @@ kp clarify
 # browse prompts interactively
 kp list
 
+# inspect listeners on a port
+kp find-port 4005
+
 # add your own prompt
 kp new rubber-duck
 
@@ -75,6 +79,8 @@ kp scaffold --dry-run
 | `kp parentthread` | Print and copy the parent-thread response prompt. | Coding-agent chats | ✅ ready |
 | `kp <name> --copy` | Copy a prompt without printing it. | Shell aliases, scripts | ✅ ready |
 | `kp <name> --print` | Print a prompt without touching the clipboard. | Pipes, inspection | ✅ ready |
+| `kp find-port <port>` | Inspect processes listening on a port and choose an action. | Dev-server cleanup | ✅ ready |
+| `kp port-find <port>` | Alias for `kp find-port <port>`. | Dev-server cleanup | ✅ ready |
 | `kp list` | Open the emoji-enhanced `fzf` prompt picker. | Interactive terminals | ✅ ready |
 | `kp list --no-fzf` | Use the numbered fallback picker. | Minimal terminals | ✅ ready |
 | `kp list --plain` | Print prompt names, one per line. | Scripts, completion experiments | ✅ ready |

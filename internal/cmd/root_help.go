@@ -66,6 +66,14 @@ func renderRootHelp(cmd *cobra.Command) error {
 		return err
 	}
 
+	portRows := []helpRow{
+		{command: cmd.CommandPath() + " find-port <port>", summary: "Inspect a process on a port"},
+		{command: cmd.CommandPath() + " port-find <port>", summary: "Alias for find-port"},
+	}
+	if err := renderHelpSection(out, style, "🔍", "Port Tools", portRows); err != nil {
+		return err
+	}
+
 	setupRows := []helpRow{
 		{command: cmd.CommandPath() + " scaffold", summary: "Create repo support files"},
 		{command: cmd.CommandPath() + " scaffold --dry-run", summary: "Preview scaffold actions"},

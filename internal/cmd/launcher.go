@@ -67,6 +67,14 @@ func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []LauncherI
 
 	items = append(items,
 		LauncherItem{
+			ID:          "command:find-port",
+			Emoji:       "🔍",
+			Title:       "Find port",
+			Command:     commandPath + " find-port <port>",
+			Description: "Inspect a port and act on the process",
+			Preview:     "Search TCP and UDP listeners on a port, inspect the matching process details, copy values, or stop the process after confirmation.",
+		},
+		LauncherItem{
 			ID:          "command:list",
 			Emoji:       "📚",
 			Title:       "Prompt picker",
@@ -134,6 +142,8 @@ func (a *app) runLauncherSelection(cmd *cobra.Command, selection string) error {
 	switch selection {
 	case "command:list":
 		return a.runPicker()
+	case "command:find-port":
+		return a.runFindPort("")
 	case "command:new":
 		return showCommandHelp(cmd, "new")
 	case "command:edit":

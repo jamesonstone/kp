@@ -78,6 +78,8 @@ type Options struct {
 	LookPath         func(file string) (string, error)
 	FZFRunner        func(prompts []prompt.Prompt) (string, error)
 	LauncherRunner   func(items []LauncherItem) (string, error)
+	PortLookup       func(port int) ([]PortProcess, error)
+	PortStop         func(pid int, force bool) error
 	Getenv           func(key string) string
 	EditorRunner     func(name string, args []string, path string) error
 }
@@ -109,6 +111,7 @@ func NewRoot(opts Options) *cobra.Command {
 	cmd.AddCommand(app.newNewCommand())
 	cmd.AddCommand(app.newEditCommand())
 	cmd.AddCommand(app.newRMCommand())
+	cmd.AddCommand(app.newFindPortCommand())
 	cmd.AddCommand(app.newScaffoldCommand())
 	configureRootHelp(cmd)
 
@@ -119,6 +122,7 @@ type app struct {
 	version          string
 	commit           string
 	stdin            io.Reader
+	inputReader      *bufio.Reader
 	stdout           io.Writer
 	stderr           io.Writer
 	registryFactory  func(userDir string) (prompt.Registry, error)
@@ -126,6 +130,8 @@ type app struct {
 	lookPath         func(file string) (string, error)
 	fzfRunner        func(prompts []prompt.Prompt) (string, error)
 	launcherRunner   func(items []LauncherItem) (string, error)
+	portLookup       func(port int) ([]PortProcess, error)
+	portStopper      func(pid int, force bool) error
 	getenv           func(key string) string
 	editorRunner     func(name string, args []string, path string) error
 
@@ -139,6 +145,10 @@ type app struct {
 	scaffoldDir    string
 	scaffoldDryRun bool
 	scaffoldForce  bool
+
+	portCopy  string
+	portStop  bool
+	portForce bool
 }
 
 func newApp(opts Options) *app {
@@ -169,6 +179,12 @@ func newApp(opts Options) *app {
 	if opts.Getenv == nil {
 		opts.Getenv = os.Getenv
 	}
+	if opts.PortLookup == nil {
+		opts.PortLookup = lookupPortProcesses
+	}
+	if opts.PortStop == nil {
+		opts.PortStop = stopPortProcess
+	}
 
 	return &app{
 		version:          opts.Version,
@@ -176,11 +192,14 @@ func newApp(opts Options) *app {
 		stdin:            opts.Stdin,
 		stdout:           opts.Stdout,
 		stderr:           opts.Stderr,
+		inputReader:      bufio.NewReader(opts.Stdin),
 		registryFactory:  opts.RegistryFactory,
 		clipboardFactory: opts.ClipboardFactory,
 		lookPath:         opts.LookPath,
 		fzfRunner:        opts.FZFRunner,
 		launcherRunner:   opts.LauncherRunner,
+		portLookup:       opts.PortLookup,
+		portStopper:      opts.PortStop,
 		getenv:           opts.Getenv,
 		editorRunner:     opts.EditorRunner,
 	}
@@ -459,7 +478,7 @@ func (a *app) pickNumbered(prompts []prompt.Prompt) (string, error) {
 		fmt.Fprintf(a.stderr, "%d\t%s\t%s\n", i+1, p.Name, p.Label)
 	}
 
-	line, err := bufio.NewReader(a.stdin).ReadString('\n')
+	line, err := a.inputReader.ReadString('\n')
 	if err != nil && !(errors.Is(err, io.EOF) && line != "") {
 		if errors.Is(err, io.EOF) {
 			return "", NewExitError(ExitCancel, errors.New("picker cancelled"))
