@@ -70,39 +70,41 @@ kp scaffold --dry-run
 
 ## Command Guide
 
-| Command | What It Does | Best Used In | Status |
-| ------- | ------------ | ------------ | ------ |
-| `kp` | Open the emoji-enhanced launcher for prompts and common commands. | Interactive terminals | ✅ ready |
-| `kp --help` | Show the grouped help page without opening the launcher. | Terminal discovery, docs, scripts | ✅ ready |
-| `kp clarify` | Print and copy the clarify-before-implementing prompt. | Coding-agent chats | ✅ ready |
-| `kp handoff` | Print and copy the coding-agent handoff prompt. | Coding-agent chats | ✅ ready |
-| `kp parentthread` | Print and copy the parent-thread response prompt. | Coding-agent chats | ✅ ready |
-| `kp <name> --copy` | Copy a prompt without printing it. | Shell aliases, scripts | ✅ ready |
-| `kp <name> --print` | Print a prompt without touching the clipboard. | Pipes, inspection | ✅ ready |
-| `kp find-port <port>` | Inspect processes listening on a port and choose an action. | Dev-server cleanup | ✅ ready |
-| `kp port-find <port>` | Alias for `kp find-port <port>`. | Dev-server cleanup | ✅ ready |
-| `kp list` | Open the emoji-enhanced `fzf` prompt picker. | Interactive terminals | ✅ ready |
-| `kp list --no-fzf` | Use the numbered fallback picker. | Minimal terminals | ✅ ready |
-| `kp list --plain` | Print prompt names, one per line. | Scripts, completion experiments | ✅ ready |
-| `kp list --verbose` | Print `name`, `label`, and `source`. | Prompt audits | ✅ ready |
-| `kp new <name>` | Create a user prompt in your editor. | Prompt authoring | ✅ ready |
-| `kp edit <name>` | Edit a user prompt or promote a built-in first. | Prompt tuning | ✅ ready |
-| `kp rm <name>` | Remove a user prompt; built-ins stay protected. | Prompt cleanup | ✅ ready |
-| `kp scaffold` | Create reusable repo support files. | New or lightly configured repos | ✅ ready |
-| `kp scaffold --dry-run` | Preview scaffold actions without writing files. | Before touching a repo | ✅ ready |
-| `kp scaffold --dir <path>` | Scaffold a specific directory. | Scripts, test checkouts | ✅ ready |
-| `kp scaffold --force` | Overwrite scaffold files except `.gitignore`. | Refreshing support files | ✅ ready |
-| `kp --version` | Print version and commit metadata. | Diagnostics | ✅ ready |
-| Release packaging | Homebrew, Goreleaser, GitHub releases. | Release automation | 🚫 out of scope |
-| Automatic paste | Cmd+V injection into GUI apps. | Focused apps | 🚫 out of scope |
+| Command                    | What It Does                                                      | Best Used In                      | Status          |
+| -------------------------- | ----------------------------------------------------------------- | --------------------------------- | --------------- |
+| `kp`                       | Open the emoji-enhanced launcher for prompts and common commands. | Interactive terminals             | ✅ ready        |
+| `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
+| `kp clarify`               | Print and copy the clarify-before-implementing prompt.            | Coding-agent chats                | ✅ ready        |
+| `kp handoff`               | Print and copy the coding-agent handoff prompt.                   | Coding-agent chats                | ✅ ready        |
+| `kp parentthread`          | Print and copy the parent-thread response prompt.                 | Coding-agent chats                | ✅ ready        |
+| `kp pr`                    | Print and copy the issue/branch/pull-request workflow prompt.     | Coding-agent chats, repo handoff  | ✅ ready        |
+| `kp <name> --copy`         | Copy a prompt without printing it.                                | Shell aliases, scripts            | ✅ ready        |
+| `kp <name> --print`        | Print a prompt without touching the clipboard.                    | Pipes, inspection                 | ✅ ready        |
+| `kp find-port <port>`      | Inspect processes listening on a port and choose an action.       | Dev-server cleanup                | ✅ ready        |
+| `kp port-find <port>`      | Alias for `kp find-port <port>`.                                  | Dev-server cleanup                | ✅ ready        |
+| `kp list`                  | Open the emoji-enhanced `fzf` prompt picker.                      | Interactive terminals             | ✅ ready        |
+| `kp list --no-fzf`         | Use the numbered fallback picker.                                 | Minimal terminals                 | ✅ ready        |
+| `kp list --plain`          | Print prompt names, one per line.                                 | Scripts, completion experiments   | ✅ ready        |
+| `kp list --verbose`        | Print `name`, `label`, and `source`.                              | Prompt audits                     | ✅ ready        |
+| `kp new <name>`            | Create a user prompt in your editor.                              | Prompt authoring                  | ✅ ready        |
+| `kp edit <name>`           | Edit a user prompt or promote a built-in first.                   | Prompt tuning                     | ✅ ready        |
+| `kp rm <name>`             | Remove a user prompt; built-ins stay protected.                   | Prompt cleanup                    | ✅ ready        |
+| `kp scaffold`              | Create reusable repo support files.                               | New or lightly configured repos   | ✅ ready        |
+| `kp scaffold --dry-run`    | Preview scaffold actions without writing files.                   | Before touching a repo            | ✅ ready        |
+| `kp scaffold --dir <path>` | Scaffold a specific directory.                                    | Scripts, test checkouts           | ✅ ready        |
+| `kp scaffold --force`      | Overwrite scaffold files except `.gitignore`.                     | Refreshing support files          | ✅ ready        |
+| `kp --version`             | Print version and commit metadata.                                | Diagnostics                       | ✅ ready        |
+| Release packaging          | Homebrew, Goreleaser, GitHub releases.                            | Release automation                | 🚫 out of scope |
+| Automatic paste            | Cmd+V injection into GUI apps.                                    | Focused apps                      | 🚫 out of scope |
 
 ## Built-In Prompts
 
-| Prompt | Label | Status |
-| ------ | ----- | ------ |
-| `clarify` | Clarify before implementing | ✅ embedded |
-| `handoff` | Coding agent handoff | ✅ embedded |
-| `parentthread` | Parent thread response | ✅ embedded |
+| Prompt         | Label                       | Status      |
+| -------------- | --------------------------- | ----------- |
+| `clarify`      | Clarify before implementing | ✅ embedded |
+| `handoff`      | Coding agent handoff        | ✅ embedded |
+| `parentthread` | Parent thread response      | ✅ embedded |
+| `pr`           | Pull request workflow       | ✅ embedded |
 
 Prompt names are bare commands. There is no `kp prompt ...` namespace.
 
@@ -125,6 +127,7 @@ Prompt files are Markdown with optional YAML frontmatter:
 ---
 label: Clarify before implementing
 ---
+
 Clarify before implementing. Stay in planning mode.
 ```
 
@@ -166,13 +169,13 @@ Not created by `kp scaffold`: `.kit.yaml`, `.kit/`, global Kit config,
 
 ## Requirements
 
-| Requirement | Why |
-| ----------- | --- |
-| macOS 13+ on `darwin/arm64` or `darwin/amd64` | Clipboard support uses macOS tools. |
-| Go 1.22+ | Builds the local binary. |
-| `pbcopy` and `pbpaste` | Copy and verify prompt bodies. |
-| `fzf` | Powers `kp` and `kp list`; install with `brew install fzf`. |
-| `KP_EDITOR`, `EDITOR`, or `vi` | Opens prompts for `new` and `edit`. |
+| Requirement                                   | Why                                                         |
+| --------------------------------------------- | ----------------------------------------------------------- |
+| macOS 13+ on `darwin/arm64` or `darwin/amd64` | Clipboard support uses macOS tools.                         |
+| Go 1.22+                                      | Builds the local binary.                                    |
+| `pbcopy` and `pbpaste`                        | Copy and verify prompt bodies.                              |
+| `fzf`                                         | Powers `kp` and `kp list`; install with `brew install fzf`. |
+| `KP_EDITOR`, `EDITOR`, or `vi`                | Opens prompts for `new` and `edit`.                         |
 
 ## Development
 
@@ -199,13 +202,13 @@ Before opening a PR:
 
 ## Exit Codes
 
-| Code | Meaning |
-| ---- | ------- |
-| 0 | Success |
-| 1 | User input or prompt data error |
-| 2 | Clipboard, platform, or system-command failure |
-| 3 | Config, filesystem bootstrap, editor lookup, or missing `fzf` failure |
-| 130 | User cancellation |
+| Code | Meaning                                                               |
+| ---- | --------------------------------------------------------------------- |
+| 0    | Success                                                               |
+| 1    | User input or prompt data error                                       |
+| 2    | Clipboard, platform, or system-command failure                        |
+| 3    | Config, filesystem bootstrap, editor lookup, or missing `fzf` failure |
+| 130  | User cancellation                                                     |
 
 ## License
 

@@ -115,6 +115,7 @@ func builtInPromptRows(commandPath string) []helpRow {
 		return []helpRow{
 			{command: commandPath + " clarify", summary: "Clarify before implementing"},
 			{command: commandPath + " handoff", summary: "Coding agent handoff"},
+			{command: commandPath + " pr", summary: "Pull request workflow"},
 		}
 	}
 

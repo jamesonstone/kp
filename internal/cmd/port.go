@@ -153,7 +153,7 @@ func (a *app) choosePortTarget(processes []PortProcess) ([]PortProcess, error) {
 	if err != nil {
 		return nil, err
 	}
-	if choice == 0 {
+	if choice == 1 {
 		return processes, nil
 	}
 	return []PortProcess{processes[choice-2]}, nil

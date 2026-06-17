@@ -20,7 +20,7 @@ func TestListPlain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stdout != "clarify\nhandoff\nparentthread\n" {
+	if stdout != "clarify\nhandoff\nparentthread\npr\n" {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -35,6 +35,9 @@ func TestListVerbose(t *testing.T) {
 		t.Fatalf("stdout = %q", stdout)
 	}
 	if !strings.Contains(stdout, "handoff\tCoding agent handoff\tbuiltin\n") {
+		t.Fatalf("stdout = %q", stdout)
+	}
+	if !strings.Contains(stdout, "pr\tPull request workflow\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -62,6 +65,7 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"Prompt Commands",
 		"kp clarify",
 		"kp handoff",
+		"kp pr",
 		"Prompt Library",
 		"kp list",
 		"kp list --plain",
@@ -303,6 +307,39 @@ func TestFindPortBarePromptsForPortAndUsesMenu(t *testing.T) {
 	}
 }
 
+func TestFindPortSelectingAllProcessesDoesNotPanic(t *testing.T) {
+	fake := &fakeClipboard{}
+	processes := []PortProcess{
+		{
+			PID:            1234,
+			Command:        "/usr/local/bin/node server.js",
+			ExecutablePath: "/usr/local/bin/node",
+			CWD:            "/Users/test/app",
+			Sockets:        []string{"TCP *:4005 (LISTEN)"},
+		},
+		{
+			PID:            5678,
+			Command:        "/usr/local/bin/python app.py",
+			ExecutablePath: "/usr/local/bin/python",
+			CWD:            "/Users/test/other",
+			Sockets:        []string{"UDP *:4005"},
+		},
+	}
+
+	_, _, err := executeTestCommand(t,
+		"find-port",
+		withStdin("4005\n1\n1\n"),
+		withClipboard(fake),
+		withPortLookup(processes, nil),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fake.copied != "1234\n5678" {
+		t.Fatalf("clipboard copied=%q", fake.copied)
+	}
+}
+
 func TestFindPortCopyPidCopiesMatchingProcesses(t *testing.T) {
 	fakeClipboard := &fakeClipboard{}
 	processes := []PortProcess{
@@ -466,6 +503,21 @@ func TestPromptPrint(t *testing.T) {
 		t.Fatalf("stdout includes frontmatter: %q", stdout)
 	}
 	if strings.Contains(stderr, "copied to clipboard") {
+		t.Fatalf("stderr = %q", stderr)
+	}
+}
+
+func TestPRPromptPrintsApprovedInstructions(t *testing.T) {
+	stdout, stderr, err := executeTestCommand(t, "pr", "--print")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := "create issues, branches, and pull requests for this work, in all project-repositories effected as per our repository and kit-defined rulesets."
+	if strings.TrimSpace(stdout) != want {
+		t.Fatalf("stdout = %q, want %q", strings.TrimSpace(stdout), want)
+	}
+	if stderr != "" {
 		t.Fatalf("stderr = %q", stderr)
 	}
 }
