@@ -42,3 +42,6 @@ go.work.sum
 .kit/temp/
 .kit/*.tmp
 .kit/*.lock
+
+# Kit local generated environment, cache, and scratch artifacts
+.kit/loops/

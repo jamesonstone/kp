@@ -8,13 +8,24 @@
 - Use `docs/agents/RLM.md` when full-context loading would be noisy or wasteful
 - Keep context minimal and source-attributed
 
+## Pasted Text Attachments
+
+- If the user message includes an attached pasted-text file and the visible message is empty or minimal, treat the attachment as the active task instructions unless the user says otherwise
+- If the attachment appears Kit-generated, follow it directly without asking what the attachment is for
+
 ## Runtime Routing
 
 - `docs/agents/README.md` — classify the task and choose the next document
 - `docs/agents/WORKFLOWS.md` — workflow and source-of-truth rules
 - `docs/agents/GUARDRAILS.md` — hard completion and safety rules
 - `docs/agents/RLM.md` — just-in-time context routing
-- `docs/agents/TOOLING.md` — skills, dispatch, worktrees, and secondary inputs
+- `docs/agents/TOOLING.md` — skills, dispatch, project-directory workflow, and secondary inputs
+
+## GitHub Delivery Hard Gate
+
+- In Kit-managed projects, issue, branch, staging, commit, push, and PR actions are mutation boundaries
+- Before any GitHub delivery mutation, load `docs/agents/GUARDRAILS.md` and the relevant `docs/references/rules/*` delivery rules
+- Repo-local Kit rules outrank global GitHub/plugin defaults; do not use generic branches, commits, PR bodies, or draft defaults when Kit defines the contract
 
 ## Non-Negotiable Rules
 
@@ -30,7 +41,7 @@
 - `docs/agents/README.md` — repo-local entrypoint
 - `docs/agents/WORKFLOWS.md` — work classification and execution flow
 - `docs/agents/RLM.md` — progressive-disclosure pattern for broad discovery
-- `docs/agents/TOOLING.md` — skills, dispatch, worktrees, and secondary globals
+- `docs/agents/TOOLING.md` — skills, dispatch, project-directory workflow, and secondary globals
 - `docs/agents/GUARDRAILS.md` — hard rules and completion bar
 - `docs/references/README.md` — durable repo-local references
 - `docs/specs/<feature>/` — feature source of truth

@@ -327,15 +327,16 @@ Rules:
 
 ## CONSTRAINTS
 
-- Keep changes minimal and reversible.
-- Prefer explicit error handling over silent failure.
-- Keep top-level routing files short and aligned with `docs/agents/*`.
-- Keep command parsing and process exits at the CLI edge.
-- Keep feature progress tracking synchronized with the highest evidence-backed
-  artifact or implementation state.
-- Keep runtime behavior local-only unless a future spec requires network,
-  service, or release behavior.
 
+### Kit-Managed Baseline Rules
+
+<!-- BEGIN KIT-MANAGED BASELINE RULES -->
+- Treat `docs/CONSTITUTION.md` as the canonical project contract.
+- Keep `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` aligned with the repo-local docs tree.
+- Prefer implementation/source code files around 300 lines or less when splitting improves clarity and ownership.
+- Do not apply the code-file size guideline to documentation files, all `docs/**`, all `.kit/**`, or `.kit.yaml`.
+- Do not split or rewrite docs, generated state, or Kit config artifacts solely because they exceed 300 lines.
+<!-- END KIT-MANAGED BASELINE RULES -->
 ## Non-Negotiable Constraints
 
 - Keep changes minimal and reversible.

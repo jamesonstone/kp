@@ -8,8 +8,8 @@ Goal: convert a long, non-linear brainstorm thread built from notes, links, disc
 
 Hard constraints:
 
-- Maximum 650 words total for `Context Synthesis`, `Source Map`, and `Coding Agent Instructions` only.
-- Exclude `Resource Links` from the 650-word limit.
+- Context Synthesis, Source Map, and Coding Agent Instructions must contain only signal. Remove any sentence where deletion doesn't degrade the agent's ability to execute correctly.
+- Acceptance Criteria: List success criteria in bullet-list form (however many items required for comprehensive coverage). Each criterion must be binary verifiable.
 - Use paragraph + list form: include at least one paragraph and one numbered list.
 - Do not include preamble, postamble, commentary, TODO, FIXME, XXX, placeholders, or ambiguous wording.
 - Do not use hedging or uncertainty words such as “appropriate,” “as needed,” “if relevant,” “where applicable,” “etc.,” “various,” “some,” “might,” “could,” or “consider.”
@@ -18,7 +18,8 @@ Hard constraints:
 1. Context Synthesis
 2. Source Map
 3. Coding Agent Instructions
-4. Resource Links
+4. Acceptance Criteria
+5. Resource Links
 
 - Every non-trivial claim in `Context Synthesis` and `Coding Agent Instructions` MUST include one or more source tags such as `[S1]`.
 - When evidence is missing, write `UNKNOWN` and add a concrete repository inspection action.
@@ -34,9 +35,10 @@ Section requirements:
 2. reconcile brainstorm decisions with actual code behavior,
 3. produce a complete, fully detailed implementation strategy grounded in current codebase context,
 4. enumerate concrete file edits, interfaces, data model changes, dependency updates, configuration changes, migration steps, validation commands, and tests,
-5. define acceptance checks with expected command outputs,
+5. tie validation commands and expected outputs to the Acceptance Criteria,
 6. state risks, open questions, and explicit assumptions with mitigation and owner.
 
+- Acceptance Criteria: bullet list of success criteria for the overall task. Include however many bullet-list items are required for comprehensive coverage. Each criterion MUST be binary verifiable.
 - Resource Links: bullet list of entries labeled `[R1]`, `[R2]`, and so on. Each entry MUST include title, URL, and one-line relevance. Include all external resources referenced in the thread plus directly related official documentation discovered from those references. If none exist, output `- NONE`.
 
 Output quality requirements:
