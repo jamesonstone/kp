@@ -534,6 +534,11 @@ func TestHandoffPromptIncludesAcceptanceCriteriaWithoutWordLimit(t *testing.T) {
 		"Acceptance Criteria: List success criteria in bullet-list form",
 		"Each criterion must be binary verifiable.",
 		"Remove any sentence where deletion doesn't degrade the agent's ability to execute correctly.",
+		"audit the conversation for ambiguities, contradictions, missing requirements, hidden assumptions",
+		"Assume the coding agent has not seen the original conversation.",
+		"Include in-scope, out-of-scope, and deferred future work",
+		"error handling, logging and observability, security and authorization, compatibility, rollback, operator visibility",
+		"List decisions already made as implementation constraints",
 	}
 	for _, text := range expected {
 		if !strings.Contains(stdout, text) {
