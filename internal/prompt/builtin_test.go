@@ -14,11 +14,11 @@ func TestBuiltIn_LoadsApprovedPrompts(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(prompts) != 4 {
-		t.Fatalf("len(prompts) = %d, want 4", len(prompts))
+	if len(prompts) != 5 {
+		t.Fatalf("len(prompts) = %d, want 5", len(prompts))
 	}
-	if prompts[0].Name != "clarify" || prompts[1].Name != "handoff" || prompts[2].Name != "parentthread" || prompts[3].Name != "pr" {
-		t.Fatalf("prompt names = %q, %q, %q, %q", prompts[0].Name, prompts[1].Name, prompts[2].Name, prompts[3].Name)
+	if prompts[0].Name != "clarify" || prompts[1].Name != "continue" || prompts[2].Name != "handoff" || prompts[3].Name != "parentthread" || prompts[4].Name != "pr" {
+		t.Fatalf("prompt names = %q, %q, %q, %q, %q", prompts[0].Name, prompts[1].Name, prompts[2].Name, prompts[3].Name, prompts[4].Name)
 	}
 	for _, p := range prompts {
 		if p.Source != SourceBuiltIn {
@@ -37,7 +37,7 @@ func TestBuiltIn_LoadsApprovedPrompts(t *testing.T) {
 }
 
 func TestBuiltIn_SourceFilesAreUsablePromptDocuments(t *testing.T) {
-	for _, name := range []string{"clarify.md", "handoff.md", "parentthread.md", "pr.md"} {
+	for _, name := range []string{"clarify.md", "continue.md", "handoff.md", "parentthread.md", "pr.md"} {
 		t.Run(name, func(t *testing.T) {
 			got, err := os.ReadFile(filepath.Join("..", "..", "prompts", name))
 			if err != nil {

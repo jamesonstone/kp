@@ -20,7 +20,7 @@ func TestListPlain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stdout != "clarify\nhandoff\nparentthread\npr\n" {
+	if stdout != "clarify\ncontinue\nhandoff\nparentthread\npr\n" {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -32,6 +32,9 @@ func TestListVerbose(t *testing.T) {
 	}
 
 	if !strings.Contains(stdout, "clarify\tClarify before implementing\tbuiltin\n") {
+		t.Fatalf("stdout = %q", stdout)
+	}
+	if !strings.Contains(stdout, "continue\tContinue autonomously\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
 	if !strings.Contains(stdout, "handoff\tCoding agent handoff\tbuiltin\n") {
@@ -64,6 +67,7 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"kp <prompt>",
 		"Prompt Commands",
 		"kp clarify",
+		"kp continue",
 		"kp handoff",
 		"kp pr",
 		"Prompt Library",
@@ -516,6 +520,21 @@ func TestPRPromptPrintsApprovedInstructions(t *testing.T) {
 	want := "create issues, branches, and pull requests for this work, in all project-repositories effected as per our repository and kit-defined rulesets."
 	if strings.TrimSpace(stdout) != want {
 		t.Fatalf("stdout = %q, want %q", strings.TrimSpace(stdout), want)
+	}
+	if stderr != "" {
+		t.Fatalf("stderr = %q", stderr)
+	}
+}
+
+func TestContinuePromptPrintsApprovedInstructions(t *testing.T) {
+	stdout, stderr, err := executeTestCommand(t, "continue", "--print")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := "Resolve all issues autonomously and continue until the goal is fully complete; ask permission only before large-scale deletion or deleting sensitive files.\n"
+	if stdout != want {
+		t.Fatalf("stdout = %q, want %q", stdout, want)
 	}
 	if stderr != "" {
 		t.Fatalf("stderr = %q", stderr)
