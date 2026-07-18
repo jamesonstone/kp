@@ -75,6 +75,7 @@ kp scaffold --dry-run
 | `kp`                       | Open the emoji-enhanced launcher for prompts and common commands. | Interactive terminals             | ✅ ready        |
 | `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
 | `kp clarify`               | Print and copy the clarify-before-implementing prompt.            | Coding-agent chats                | ✅ ready        |
+| `kp continue`              | Print and copy the autonomous-continuation prompt.                | Coding-agent chats                | ✅ ready        |
 | `kp handoff`               | Print and copy the coding-agent handoff prompt.                   | Coding-agent chats                | ✅ ready        |
 | `kp parentthread`          | Print and copy the parent-thread response prompt.                 | Coding-agent chats                | ✅ ready        |
 | `kp pr`                    | Print and copy the issue/branch/pull-request workflow prompt.     | Coding-agent chats, repo handoff  | ✅ ready        |
@@ -102,6 +103,7 @@ kp scaffold --dry-run
 | Prompt         | Label                       | Status      |
 | -------------- | --------------------------- | ----------- |
 | `clarify`      | Clarify before implementing | ✅ embedded |
+| `continue`     | Continue autonomously       | ✅ embedded |
 | `handoff`      | Coding agent handoff        | ✅ embedded |
 | `parentthread` | Parent thread response      | ✅ embedded |
 | `pr`           | Pull request workflow       | ✅ embedded |
