@@ -53,7 +53,7 @@ func (a *app) runLauncher(cmd *cobra.Command) error {
 }
 
 func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []LauncherItem {
-	items := make([]LauncherItem, 0, len(prompts)+7)
+	items := make([]LauncherItem, 0, len(prompts)+2)
 	for _, p := range prompts {
 		items = append(items, LauncherItem{
 			ID:          "prompt:" + p.Name,
@@ -75,60 +75,12 @@ func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []LauncherI
 			Preview:     "Search TCP and UDP listeners on a port, inspect the matching process details, copy values, or stop the process after confirmation.",
 		},
 		LauncherItem{
-			ID:          "command:list",
-			Emoji:       "📚",
-			Title:       "Prompt picker",
-			Command:     commandPath + " list",
-			Description: "Browse prompts only",
-			Preview:     "Open the prompt-only picker. Selecting a prompt prints it and copies it to the clipboard after verification.",
-		},
-		LauncherItem{
-			ID:          "command:new",
-			Emoji:       "✨",
-			Title:       "New prompt",
-			Command:     commandPath + " new <name>",
-			Description: "Show creation help",
-			Preview:     "Create a user prompt file and open it in the configured editor.",
-		},
-		LauncherItem{
-			ID:          "command:edit",
-			Emoji:       "✏️",
-			Title:       "Edit prompt",
-			Command:     commandPath + " edit <name>",
-			Description: "Show edit help",
-			Preview:     "Edit a user prompt. Built-ins are promoted to the user prompt directory before editing.",
-		},
-		LauncherItem{
-			ID:          "command:rm",
-			Emoji:       "🗑️",
-			Title:       "Remove prompt",
-			Command:     commandPath + " rm <name>",
-			Description: "Show removal help",
-			Preview:     "Remove a user prompt. Built-in prompts cannot be deleted.",
-		},
-		LauncherItem{
-			ID:          "command:scaffold",
-			Emoji:       "🏗️",
-			Title:       "Repo scaffold",
-			Command:     commandPath + " scaffold",
-			Description: "Show scaffold help",
-			Preview:     "Create repo support files such as agent instructions, review config, PR template, and local env files.",
-		},
-		LauncherItem{
-			ID:          "command:version",
-			Emoji:       "🛠️",
-			Title:       "Version",
-			Command:     commandPath + " --version",
-			Description: "Print version metadata",
-			Preview:     "Print the current version and commit metadata.",
-		},
-		LauncherItem{
 			ID:          "command:help",
 			Emoji:       "❓",
 			Title:       "Help",
 			Command:     commandPath + " --help",
-			Description: "Show help menu",
-			Preview:     "Show the non-interactive grouped help menu.",
+			Description: "Show all commands",
+			Preview:     "Show every command, including prompt management, repo scaffolding, and version information.",
 		},
 	)
 	return items
@@ -140,34 +92,13 @@ func (a *app) runLauncherSelection(cmd *cobra.Command, selection string) error {
 	}
 
 	switch selection {
-	case "command:list":
-		return a.runPicker()
 	case "command:find-port":
 		return a.runFindPort("")
-	case "command:new":
-		return showCommandHelp(cmd, "new")
-	case "command:edit":
-		return showCommandHelp(cmd, "edit")
-	case "command:rm":
-		return showCommandHelp(cmd, "rm")
-	case "command:scaffold":
-		return showCommandHelp(cmd, "scaffold")
-	case "command:version":
-		_, err := fmt.Fprintln(a.stdout, cmd.Version)
-		return err
 	case "command:help":
 		return cmd.Help()
 	default:
 		return NewExitError(ExitUser, fmt.Errorf("invalid launcher selection %q", selection))
 	}
-}
-
-func showCommandHelp(root *cobra.Command, name string) error {
-	cmd, _, err := root.Find([]string{name})
-	if err != nil {
-		return NewExitError(ExitUser, err)
-	}
-	return cmd.Help()
 }
 
 func launcherHasSelection(items []LauncherItem, selection string) bool {
@@ -195,20 +126,7 @@ func runLauncherFZF(items []LauncherItem) (string, error) {
 		fmt.Fprintf(&input, "%s\t%s\t%s\t%s\t%s\n", item.ID, displayRows[item.ID], item.Title, item.Command, item.Description)
 	}
 
-	cmd := exec.Command(
-		"fzf",
-		"--height", "70%",
-		"--reverse",
-		"--cycle",
-		"--prompt", "🎛️ kp › ",
-		"--pointer", "👉",
-		"--header", "enter: select · tab/shift-tab/arrows: move · esc: cancel",
-		"--delimiter", "\t",
-		"--with-nth", "2",
-		"--nth", "2,3,4,5",
-		"--bind", "tab:down,btab:up",
-		"--preview", "cat "+shellQuote(previewDir)+"/{1}",
-	)
+	cmd := exec.Command("fzf", launcherFZFArgs(previewDir)...)
 	cmd.Stdin = strings.NewReader(input.String())
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
@@ -228,22 +146,39 @@ func runLauncherFZF(items []LauncherItem) (string, error) {
 	return id, nil
 }
 
+func launcherFZFArgs(previewDir string) []string {
+	return []string{
+		"--height", "70%",
+		"--reverse",
+		"--cycle",
+		"--info", "hidden",
+		"--no-separator",
+		"--no-hscroll",
+		"--prompt", "🎛️ kp › ",
+		"--pointer", "👉",
+		"--header", "j/k or arrows: move · enter: select · esc: close",
+		"--delimiter", "\t",
+		"--with-nth", "2",
+		"--nth", "2,3,4,5",
+		"--bind", "j:down,k:up,tab:down,btab:up",
+		"--preview", "cat " + shellQuote(previewDir) + "/{1}",
+		"--preview-window", "right,55%,wrap",
+	}
+}
+
 func launcherDisplayRows(items []LauncherItem) map[string]string {
 	titleWidth := displayWidth("Item")
-	commandWidth := displayWidth("Command")
 	for _, item := range items {
 		titleWidth = max(titleWidth, displayWidth(item.Title))
-		commandWidth = max(commandWidth, displayWidth(item.Command))
 	}
 
 	rows := make(map[string]string, len(items))
 	for _, item := range items {
 		rows[item.ID] = fmt.Sprintf(
-			"%s  %s  %s  %s",
+			"%s  %s  %s",
 			padDisplay(item.Emoji, 2),
 			padDisplay(item.Title, titleWidth),
-			padDisplay(item.Command, commandWidth),
-			item.Description,
+			item.Command,
 		)
 	}
 	return rows

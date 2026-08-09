@@ -130,8 +130,8 @@ func TestRootHelpUsesKitStyleWhenTerminal(t *testing.T) {
 func TestRootLaunchesInteractiveSelectorForPrompt(t *testing.T) {
 	fake := &fakeClipboard{}
 	var sawClarify bool
-	var sawScaffold bool
 	var sawFindPort bool
+	var sawHelp bool
 	stdout, stderr, err := executeTestCommand(t,
 		withClipboard(fake),
 		withLauncher(func(items []LauncherItem) (string, error) {
@@ -141,14 +141,14 @@ func TestRootLaunchesInteractiveSelectorForPrompt(t *testing.T) {
 					sawClarify = item.Emoji == "🧠" &&
 						item.Command == "kp clarify" &&
 						item.Description == "Print and copy prompt"
-				case "command:scaffold":
-					sawScaffold = item.Emoji == "🏗️" &&
-						item.Command == "kp scaffold" &&
-						item.Description == "Show scaffold help"
 				case "command:find-port":
 					sawFindPort = item.Emoji == "🔍" &&
 						item.Command == "kp find-port <port>" &&
 						item.Description == "Inspect a port and act on the process"
+				case "command:help":
+					sawHelp = item.Emoji == "❓" &&
+						item.Command == "kp --help" &&
+						item.Description == "Show all commands"
 				}
 			}
 			return "prompt:clarify", nil
@@ -157,8 +157,8 @@ func TestRootLaunchesInteractiveSelectorForPrompt(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !sawClarify || !sawScaffold || !sawFindPort {
-		t.Fatalf("launcher items missing expected entries: sawClarify=%v sawScaffold=%v sawFindPort=%v", sawClarify, sawScaffold, sawFindPort)
+	if !sawClarify || !sawFindPort || !sawHelp {
+		t.Fatalf("launcher items missing expected entries: sawClarify=%v sawFindPort=%v sawHelp=%v", sawClarify, sawFindPort, sawHelp)
 	}
 	if !strings.HasPrefix(stdout, "Clarify before implementing.") {
 		t.Fatalf("stdout = %q", stdout)
@@ -171,50 +171,37 @@ func TestRootLaunchesInteractiveSelectorForPrompt(t *testing.T) {
 	}
 }
 
-func TestRootLauncherShowsHelpForSideEffectCommands(t *testing.T) {
-	fake := &fakeClipboard{}
-	stdout, _, err := executeTestCommand(t,
-		withClipboard(fake),
-		withLauncher(func(items []LauncherItem) (string, error) {
-			return "command:scaffold", nil
-		}),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(stdout, "Create repo support files") || !strings.Contains(stdout, "--dry-run") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if fake.copied != "" || fake.verified != "" || fake.pasted {
-		t.Fatalf("clipboard side effects copied=%q verified=%q pasted=%v", fake.copied, fake.verified, fake.pasted)
-	}
-}
-
 func TestRootLauncherShowsStaticHelp(t *testing.T) {
+	secondaryCommands := map[string]bool{
+		"command:list":     false,
+		"command:new":      false,
+		"command:edit":     false,
+		"command:rm":       false,
+		"command:scaffold": false,
+		"command:version":  false,
+	}
 	stdout, _, err := executeTestCommand(t,
 		withLauncher(func(items []LauncherItem) (string, error) {
+			for _, item := range items {
+				if _, hidden := secondaryCommands[item.ID]; hidden {
+					secondaryCommands[item.ID] = true
+				}
+			}
 			return "command:help", nil
 		}),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(stdout, "Usage") || !strings.Contains(stdout, "Prompt Commands") {
-		t.Fatalf("stdout = %q", stdout)
+	for id, visible := range secondaryCommands {
+		if visible {
+			t.Fatalf("secondary command %q should be hidden from the launcher", id)
+		}
 	}
-}
-
-func TestRootLauncherPrintsVersion(t *testing.T) {
-	stdout, _, err := executeTestCommand(t,
-		withLauncher(func(items []LauncherItem) (string, error) {
-			return "command:version", nil
-		}),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if stdout != "version=test commit=abc123\n" {
-		t.Fatalf("stdout = %q", stdout)
+	for _, text := range []string{"Usage", "Prompt Commands", "kp new <name>", "kp edit <name>", "kp rm <name>", "kp scaffold", "kp --version"} {
+		if !strings.Contains(stdout, text) {
+			t.Fatalf("stdout missing %q:\n%s", text, stdout)
+		}
 	}
 }
 
@@ -249,20 +236,38 @@ func TestLauncherDisplayRowsAlignColumns(t *testing.T) {
 	version := rows["command:version"]
 
 	commandColumn := displayColumn(t, clarify, "kp clarify")
-	descriptionColumn := displayColumn(t, clarify, "Print and copy prompt")
-	descriptions := map[string]string{
-		"new":     "Show creation help",
-		"version": "Print version metadata",
-	}
-	for name, row := range map[string]string{
+	rowsToAlign := map[string]string{
 		"new":     newPrompt,
 		"version": version,
-	} {
+	}
+	for name, row := range rowsToAlign {
 		if got := displayColumn(t, row, "kp "); got != commandColumn {
 			t.Fatalf("%s command column = %d, want %d\nclarify: %q\nrow: %q", name, got, commandColumn, clarify, row)
 		}
-		if got := displayColumn(t, row, descriptions[name]); got != descriptionColumn {
-			t.Fatalf("%s description column = %d, want %d\nclarify: %q\nrow: %q", name, got, descriptionColumn, clarify, row)
+	}
+	for id, row := range rows {
+		for _, item := range items {
+			if strings.Contains(row, item.Description) {
+				t.Fatalf("%s row includes description %q: %q", id, item.Description, row)
+			}
+		}
+	}
+}
+
+func TestLauncherFZFArgsUseConciseWrappingLayoutAndVimNavigation(t *testing.T) {
+	args := launcherFZFArgs("/tmp/kp preview")
+	joined := strings.Join(args, " ")
+
+	for _, expected := range []string{
+		"--bind j:down,k:up,tab:down,btab:up",
+		"--header j/k or arrows: move · enter: select · esc: close",
+		"--info hidden",
+		"--no-separator",
+		"--no-hscroll",
+		"--preview-window right,55%,wrap",
+	} {
+		if !strings.Contains(joined, expected) {
+			t.Fatalf("args missing %q: %q", expected, joined)
 		}
 	}
 }
