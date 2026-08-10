@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -40,7 +41,7 @@ func (a *app) runLauncher(cmd *cobra.Command) error {
 	if a.launcherRunner != nil {
 		selection, err = a.launcherRunner(items)
 	} else {
-		selection, err = runLauncherFZF(items)
+		selection, err = runLauncherFZF(cmd.Context(), items)
 	}
 	if err != nil {
 		return mapPickerError(err)
@@ -110,7 +111,7 @@ func launcherHasSelection(items []LauncherItem, selection string) bool {
 	return false
 }
 
-func runLauncherFZF(items []LauncherItem) (string, error) {
+func runLauncherFZF(ctx context.Context, items []LauncherItem) (string, error) {
 	previewDir, err := os.MkdirTemp("", "kp-launcher-preview-*")
 	if err != nil {
 		return "", err
@@ -126,7 +127,7 @@ func runLauncherFZF(items []LauncherItem) (string, error) {
 		fmt.Fprintf(&input, "%s\t%s\t%s\t%s\t%s\n", item.ID, displayRows[item.ID], item.Title, item.Command, item.Description)
 	}
 
-	cmd := exec.Command("fzf", launcherFZFArgs(previewDir)...)
+	cmd := exec.CommandContext(ctx, "fzf", launcherFZFArgs(previewDir)...)
 	cmd.Stdin = strings.NewReader(input.String())
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout

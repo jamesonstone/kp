@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"context"
 	"errors"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -151,6 +154,28 @@ func TestLauncherFZFArgsUseConciseWrappingLayoutAndVimNavigation(t *testing.T) {
 		if !strings.Contains(joined, expected) {
 			t.Fatalf("args missing %q: %q", expected, joined)
 		}
+	}
+}
+
+func TestLauncherFZFDoesNotStartWhenContextIsCanceled(t *testing.T) {
+	tempDir := t.TempDir()
+	markerPath := filepath.Join(tempDir, "started")
+	fzfPath := filepath.Join(tempDir, "fzf")
+	script := "#!/bin/sh\nprintf started > \"$KP_MARKER\"\nprintf 'prompt:test\\n'\n"
+	if err := os.WriteFile(fzfPath, []byte(script), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("KP_MARKER", markerPath)
+	t.Setenv("PATH", tempDir+string(os.PathListSeparator)+os.Getenv("PATH"))
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	_, err := runLauncherFZF(ctx, []LauncherItem{{ID: "prompt:test", Title: "Test", Preview: "test"}})
+	if err == nil {
+		t.Fatal("runLauncherFZF returned nil error for canceled context")
+	}
+	if _, statErr := os.Stat(markerPath); !os.IsNotExist(statErr) {
+		t.Fatalf("fzf started after cancellation: %v", statErr)
 	}
 }
 
