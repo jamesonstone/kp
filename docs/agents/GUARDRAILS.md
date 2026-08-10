@@ -38,6 +38,7 @@ Before creating or mutating issues, branches, staging, commits, pushes, or PRs, 
    - issue reuse/create rules
    - branch naming convention
    - base branch refresh and staleness rules
+   - self-review and no-known-errors gate before staging or commit
    - staging rule
    - commit message format
    - PR draft/ready convention
@@ -57,6 +58,7 @@ Delivery Contract:
 - Issue number/link:
 - Branch name:
 - Branch base:
+- Worktree path:
 - Branch/status/staleness check:
 - Staging method:
 - Commit format:
@@ -69,6 +71,9 @@ Delivery Contract:
 ```
 
 If any field is unknown, stop.
+
+The `PR title format` field must resolve to Conventional Commits title format with the GitHub issue as scope:
+`<type>(<issue_number>): <gitmoji> <short title message>`.
 
 ## No Generic GitHub Defaults In Kit Projects
 
@@ -85,6 +90,17 @@ Do not create:
 
 unless the repo-local Kit rules explicitly require them or the user explicitly overrides the Kit contract.
 
+## Infrastructure Change Approval Hard Gate
+
+- Before mutating public-cloud resources, Kubernetes resources or cluster state, or infrastructure-as-code source, configuration, or state, load `docs/references/rules/infrastructure-change-approval.md`.
+- Read-only discovery may precede confirmation only when it does not alter cloud resources, Kubernetes objects, remote state, or repository-owned infrastructure source.
+- Put one consolidated outline of the target context, resource actions, execution boundary, material impact and risk, rollback or recovery, and validation evidence into the task plan when planning is used; otherwise present it once before the first covered mutation. Obtain one explicit user confirmation for the complete bounded batch.
+- Approval of a task plan containing the complete outline counts as confirmation. A sufficiently detailed initial request may also count only when it clearly authorizes the exact bounded batch and the batch does not delete or remove infrastructure.
+- Deleting, destroying, or removing infrastructure always requires explicit confirmation after the consolidated outline, even when the initial request asked for it; one confirmation covers every deletion named in that batch.
+- After confirmation, execute the exact approved batch and continue the rest of the task to completion in one pass without routine command-by-command approval.
+- If additional covered infrastructure changes become necessary, collect all then-known changes into one follow-up outline, obtain one confirmation, and execute that follow-up batch in one pass. Do not re-confirm actions already included in an approved batch.
+- Treat a material change to target identity, environment, region or cluster, resource set, action type, impact, or recovery as a follow-up batch; compatible tools, commands, and retries inside the approved boundary do not require another prompt.
+
 ## AWS Context Hard Gate
 
 When .kit.yaml defines an enabled aws context, agents must:
@@ -98,7 +114,8 @@ When .kit.yaml defines an enabled aws context, agents must:
 
 ## Completion Bar
 
-- Populate all required sections in `BRAINSTORM.md`, `SPEC.md`, `PLAN.md`, and `TASKS.md`
+- For v2 feature work, populate all required `SPEC.md` sections and keep front matter `workflow_version`, `phase`, references, relationships, and skills current
+- For legacy staged workflows, populate all required sections in the staged artifact being used
 - Replace placeholder-only sections with `not applicable`, `not required`, or `no additional information required`
 - Always update affected documentation and ensure touched docs are current and properly formatted before calling work complete
 - Never claim tests passed unless they ran
@@ -106,18 +123,31 @@ When .kit.yaml defines an enabled aws context, agents must:
 - Never guess file contents, APIs, or behavior
 - If validation cannot run, state why
 - Fix relevant lint and test failures before calling work complete
+- Before staging or committing, self-review the diff against the ask, acceptance criteria, and repo-local rules; fix known relevant errors first
 - Keep canonical front matter references and relationships current when those docs are touched
 
 ## Code Hygiene
 
 - Remove dead code, unused exports, and public surfaces that are not strictly necessary
 - If a symbol is only used locally, reduce its visibility instead of keeping it exported
-- Keep implementation/source code files around 300 lines or less when splitting improves clarity
-- Do not apply the 300-line guideline to documentation files, `docs/**`, `.kit/**`, or `.kit.yaml`
+- Load `docs/references/rules/source-file-size.md` before editing implementation/source or test files
+- Keep every version-control-eligible handwritten implementation/source and test file at 300 physical lines or less
+- Before delivery, audit the complete affected source/test scope; whole-project reconcile and scheduled maintenance audit the entire repository
+- Exclude documentation files, `docs/**`, `.kit/**`, `.kit.yaml`, ignored files, vendored dependencies, and proven generated files
+- Split oversized files by semantic responsibility while preserving stable public entry points and behavior; do not use minification or arbitrary numbered chunks
+- If a safe split cannot be completed, report the exact file and blocker instead of silently accepting the violation
 
 ## Safety
 
 - Prefer explicit error handling over silent failure
 - Keep changes minimal and reversible
-- Do not run `git add` or `git commit` without explicit approval
+- Preserve the checkout that owns each lane; put separate lanes only beneath `~/worktrees/<owner>/<repository>/<lane>` and never inside a repository
+- Use native `git worktree` commands and ordinary filesystem operations as the portable authority; do not require a wrapper, alias, or plugin
+- Never stash, reset, clean, force-remove, or delete a branch to create or clear a worktree
+- Link the primary checkout's `.env` and `.envrc` into writable lanes by default when each exists, using only exact verified symlinks; omit both links when isolation is required
+- Never copy environment contents or overwrite destination environment material; preserve a repository- or user-supplied `.envrc`, and remember that direnv approval remains path-specific; keep runtime services, databases, ports, Temporal state, process supervision, and sibling repositories outside the worktree workflow
+- Resolve all in-scope issues autonomously and continue until the goal is fully complete or a genuine blocker remains; diagnose before retrying, preserve target and scope, and verify the recovered state
+- Do not ask for routine approval to switch supported tools, including authenticated `gh`, when the authorized mutation is unchanged
+- Outside explicit repo-local approval gates, ask permission only before large-scale deletion or deleting sensitive files
+- Treat missing credentials, ambiguous identity or target, conflicting user-owned changes, and required external authorization as blockers requiring the smallest missing input, not as routine retry-permission requests
 - Do not run `coderabbit --prompt-only` unless explicitly requested or approved

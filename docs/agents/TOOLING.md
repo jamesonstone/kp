@@ -17,23 +17,30 @@
 
 ## Dispatch
 
-- Use `kit dispatch` when broad work must be turned into safe multi-lane execution
+- Use `kit dispatch` when broad work must be turned into a safe Agent Team Plan
+- Load `docs/references/rules/agent-team-orchestration.md` when dispatch, direct subagent execution, or read-only verification topology affects the task
+- Keep one accountable supervisor responsible for scope, integration, validation, evidence, delivery gating, and final reporting
 - Use subagents when the work cleanly separates into low-overlap lanes after discovery
+- Keep single-lane work in one supervisor lane when the task is trivial, tightly coupled, high-overlap, high-ambiguity, cannot spawn subagents, or the user requested single-agent execution
+- Default to at most 3 concurrent lanes; never exceed 4
 - Keep broad or noisy discovery in RLM first; use dispatch or direct subagent execution only after the relevant workstreams are narrow enough to predict overlap
 - Predict overlap conservatively before parallelizing
-- Keep the main agent responsible for synthesis, integration, validation, and communication
+- Use read-only verification subagents by default after implementation unless a recorded exception applies
 
 ## PR Review Feedback
 
-- Use `kit pr fix` as the default PR review feedback entrypoint when current PR review feedback should become an editable dispatch prompt.
+- Use `kit pr fix` as the default PR review feedback entrypoint when current PR review feedback should become a copied dispatch prompt.
 - With no `--pr`, `kit pr fix` lists open pull requests in the current repository and asks which one to repair.
 - Use `kit pr fix --pr <target>` when the PR is known; accepted targets match dispatch PR intake: URL, Markdown link, `owner/repo#number`, or current-repo number.
-- `kit pr fix` uses the prompt-producing `kit dispatch --pr` path: it pre-populates the editor with unresolved review feedback, lets the user edit the task list, and copies the resulting dispatch prompt for a coding agent.
+- `kit pr fix` uses the prompt-producing `kit dispatch --pr` path and copies the resulting dispatch prompt directly for a coding agent.
+- Before producing a PR repair prompt, Kit resolves the same-repository PR head and reuses or creates its exact writable worktree; the user does not need to navigate to that lane first.
+- If the resolved lane is dirty, Kit asks whether those changes belong in the repair and records `include` or `exclude`, the porcelain status, remote/local head SHAs, and the exact push target in the prompt.
+- Pass `--edit` to review and change the task list in the default editor before copying; `--vim` and `--editor <cmd>` also opt into editing.
 - The generated PR-fix prompt requires a post-push reflection cycle before review-thread resolution: the coding agent must review the pushed diff in context, confirm the PR head still matches the commit it pushed, and only then resolve verified addressed conversations.
-- `kit pr fix` does not run the loop agent, edit files, write `.kit/loops` evidence, stage, commit, push, post PR comments, or resolve review threads.
+- `kit pr fix` remains prompt-producing: except for preparing the writable worktree and its exact `.env` link when needed, it does not run the loop agent, edit source files, write `.kit/loops` evidence, stage, commit, push, post PR comments, or resolve review threads.
 - Use `kit loop review` when changed code should be locally reviewed and repaired by the configured loop agent until the final response reports at least 95% correctness and ends with `done`.
 - Without `--pr`, `kit loop review` reviews current-branch changes relative to `origin/main`, falling back to local `main`, plus staged and unstaged changes.
-- Use `kit loop review --pr <target>` when current unresolved CodeRabbit PR feedback should be opportunistically folded into the repair loop while local review starts immediately.
+- Use `kit loop review --pr <target>` when current unresolved CodeRabbit PR feedback should be opportunistically folded into the repair loop; Kit runs the configured agent from the resolved writable PR-head worktree.
 - Use `kit loop review --pr <target> --watch` or `--wait-for-coderabbit` only when finalization should block for CodeRabbit completion.
 - Review prompts use one agent by default; pass `--subagents` to let the parent review agent pre-analyze the diff and choose subagents only when the lanes are clearly independent under `agent-team-orchestration` limits.
 - Use `kit dispatch --loop --pr <target>` when current unresolved CodeRabbit PR review feedback should become a human-reviewed dispatch prompt instead of an agent repair loop.
@@ -43,18 +50,14 @@
 - Resolve only feedback verified as fixed or intentionally no-op; do not resolve unfixed, uncertain, stale, or unrelated feedback.
 - `kit dispatch --pr <target> --resolve --yes` is an explicit GitHub mutation and must not be run speculatively.
 
-## Project Directory
-
-- Work in the existing project directory by default
-- Do not create or use git worktrees for agent work
-- If the current branch or dirty state is unsuitable, stop and ask the user how to proceed instead of creating an alternate checkout
-
 ## Project Worktrees
 
 - Work in the existing checkout when it already owns the requested lane
 - For a separate lane, reuse or create `~/worktrees/<owner>/<repository>/<lane>`; never put a worktree inside a repository
 - Use exact `GH-<number>` for durable issue lanes and uppercase detached `PR-<number>` only for temporary pull-request inspection
 - Reuse the pull request head branch for writable repair; never edit the detached `PR-<number>` view
+- For target-bearing Kit repair commands, let Kit resolve the exact PR or branch lane from command context; do not require the user to navigate to it first
+- When Kit reports a dirty target lane, ask whether its existing changes belong in the repair and carry that explicit include-or-exclude decision into the generated agent instructions
 - Use native `git worktree` commands as the portable authority for creation, reuse, detached inspection, repair, removal, pruning, and migration; do not require `git-wt`, an alias, or another wrapper
 - Optional wrappers are manual conveniences only and must preserve the same path and safety contract
 - Keep the root checkout on the protected default branch and work directly in the assigned durable lane

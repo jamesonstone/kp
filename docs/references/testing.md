@@ -2,13 +2,10 @@
 
 ## Purpose
 
+- Record the project's durable commands, suites, environments, automation, and evidence expectations
 - Follow `rules/testing-and-environment-validation.md` for the mandatory cross-project testing and production-safety contract
-- Record durable repo-wide testing guidance that is broader than one feature
-- Keep feature-specific testing details in the current feature's `PLAN.md` or `TASKS.md`
+- Keep feature-specific testing details in the current feature's `SPEC.md` Validation Map and Evidence sections; legacy staged flows may still use `PLAN.md` or `TASKS.md`
 
-## Current State
-
-- add project-specific testing guidance here when it becomes stable enough to reuse across features
 ## Code-Level Validation
 
 | Layer | Command | PR workflow or check | Required | Notes |

@@ -192,6 +192,7 @@ Include:
 - Detached `PR-<number>` inspection lanes do not create environment links; migration preserves existing files and links without creating new ones.
 - Never nest worktrees inside a repository or use stash, reset, clean, force removal, branch deletion, or substring-based selection to create or clear a lane.
 - Remove a worktree only after successful delivery and only when exact-path checks prove it has no tracked, untracked, ignored, or unpushed state. Verified expected `.env` and `.envrc` symlinks targeting the matching primary-checkout sources are the sole narrow exceptions: remove only those links before ordinary non-force `git worktree remove` and restore them if removal fails.
+- Kit's explicit merged-lane sync has one additional build-output exception: after merged same-repository PR and exact-head proof, it may recheck and discard an actual ignored repository-root `bin/` directory before ordinary non-force worktree removal. Manual cleanup and every other ignored path retain the preceding rule.
 - Keep application startup, databases, port allocation, Temporal state, process supervision, and multi-repository runtime orchestration outside the worktree workflow.
 
 ### Branch Workflow
@@ -295,6 +296,7 @@ Type to gitmoji mapping is deterministic:
 - Classify a change as documentation-only from the complete branch and pull request diff against the base branch, including staged and unstaged work, not from the latest commit or command name alone.
 - A qualifying diff may contain prose documentation, agent instruction files, registry rulesets, and non-executable scaffold or registry metadata that cannot change product runtime, build, test, release, deployment, or CI behavior.
 - Product code, tests, dependency manifests or locks, executable scripts, generated runtime artifacts, GitHub workflow files, and runtime, build, test, release, deployment, or CI configuration disqualify the entire pull request.
+- Source-changing pull requests are not eligible for Kit-only CI skips, including behavior-preserving source-file-size splits and their tests.
 - `kit reconcile` is a candidate signal, not proof of eligibility. Inspect its actual diff; qualify it only when every changed path and hunk remains within the documentation-only boundary.
 - A documentation-only follow-up on a mixed pull request is not eligible because GitHub evaluates the pull request HEAD commit. If an eligible pull request becomes mixed, remove `[skip ci]` from the pull request title and push a new commit without a skip directive so CI runs on the complete diff.
 - Before using a skip directive, inspect branch protection, repository rulesets, and other required-check policy. If a skipped workflow would remain pending, block the merge, or the requirement cannot be established confidently, omit `[skip ci]` and run CI.

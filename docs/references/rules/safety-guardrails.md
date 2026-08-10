@@ -89,6 +89,7 @@ gh pr list --head "$CURRENT_BRANCH" --state all --json number,url,state,isDraft,
 - Never use stash, reset, clean, force removal, branch deletion, or substring-based target selection to make a worktree operation succeed.
 - List worktrees without pruning. Prune only through an explicit prune action after reviewing stale metadata.
 - Remove only an exact registered path after proving it is not the current checkout, contains no tracked, untracked, or ignored material other than verified expected `.env` and `.envrc` symlinks, and has no unpushed commits. Verify that each link targets the matching primary-checkout source, unlink only those symlinks before ordinary non-force `git worktree remove`, and restore them if removal fails.
+- Kit's explicit merged-lane sync may additionally discard one actual ignored repository-root `bin/` directory after same-repository merged-PR and exact-head proof. It must recheck immediately before deleting that exact directory; manual removal, nested `*/bin/` paths, symlinks, tracked changes, ordinary untracked files, and every other ignored path remain protected.
 - Keep runtime services, databases, ports, Temporal state, process supervision, and sibling-repository orchestration outside the worktree workflow.
 - Subagents may use only a worktree explicitly prepared and assigned by the supervisor. They may not independently create, switch, move, or remove worktrees.
 - Load `docs/references/worktrees.md` for command usage and the complete mental model.
@@ -161,7 +162,8 @@ Agents own the requested outcome. On a lint, test, template, tool, authenticatio
 ### Permission Boundary
 
 - Resolve all in-scope implementation, validation, and delivery issues autonomously and continue until the requested goal is fully complete or a genuine external blocker remains.
-- Ask permission only before large-scale deletion or deleting sensitive files.
+- Honor explicit repo-local approval gates. For covered public-cloud, Kubernetes, or infrastructure-as-code mutations, follow `infrastructure-change-approval` before mutation; use one plan-level confirmation per complete batch, then execute that batch and compatible retries without re-prompting; consolidate additional required changes into one follow-up batch, and always obtain post-outline confirmation for deletion or removal.
+- Outside explicit repo-local approval gates, ask permission only before large-scale deletion or deleting sensitive files.
 - Before requesting deletion permission, resolve the exact targets, scope, sensitivity, and recoverability with read-only inspection; prefer recoverable deletion where practical.
 - This permission boundary does not authorize actions prohibited above. Never ask for permission to bypass protected branches, review, identity, secret, force-push, merge, or repository-setting safeguards.
 
@@ -175,6 +177,7 @@ Agents own the requested outcome. On a lint, test, template, tool, authenticatio
 - Do not proceed to lane gating before branch and repository recon is complete.
 - Do not commit when author or committer identity is missing, ambiguous, or not the human user's.
 - Do not ask the user to authorize a compatible `gh` or connector retry that preserves the already-authorized mutation.
+- Do not treat autonomous failure recovery as permission to bypass an explicit infrastructure-change approval gate.
 - Do not blindly repeat a failed mutation without new evidence or a revised recovery path.
 - Do not perform large-scale deletion or delete sensitive files without explicit permission.
 
@@ -193,6 +196,7 @@ Agents own the requested outcome. On a lint, test, template, tool, authenticatio
 - Confirm secret scanning happened before staging.
 - Confirm routine failures were diagnosed, recovered autonomously, and verified, or that a genuine blocker was reported with the smallest required user input.
 - Confirm compatible authenticated tool-path changes did not trigger routine permission requests.
+- Confirm explicit repo-local approval gates were satisfied before their covered mutations.
 - Confirm large-scale deletion and sensitive-file deletion did not occur without explicit permission.
 
 ## Examples

@@ -8,6 +8,13 @@
 - Link these files from feature front matter references when they materially shape work
 - Store durable rulesets under `rules/<slug>.md` and link them with `kit rules link` instead of copying rules into agent instruction files
 - Use `rules/kit-capabilities-usage.md` in downstream projects for Kit command discovery guidance
+- Use `rules/feature-notes.md` when deciding how to load, reference, promote, or ignore source material under `docs/notes/<feature>`
+- Use `rules/constitution-curation.md` after implementation and validation to keep the Constitution aligned with demonstrated project-wide truth
+- Use `rules/infrastructure-change-approval.md` before mutating public-cloud resources, Kubernetes resources or cluster state, or infrastructure-as-code source, configuration, or state to require one plan-level confirmation per batch, one-pass execution, and explicit confirmation for deletion or removal
+- Use `rules/testing-and-environment-validation.md` before implementation and validation, including browser automation and browser testing, to preserve code-level checks, browser lifecycle ownership, and environment evidence safely
+- Use `rules/source-file-size.md` before editing implementation/source or test files and for whole-project reconcile audits
+- Use `rules/codex-thread-initialization.md` to preserve Codex's ordered pre-response rename and pin gate during instruction refresh and reconciliation
+- Use `worktrees.md` when present for the canonical native Git worktree hierarchy, naming, shared-state model, safety contract, and optional manual convenience commands
 - Use `kit rules add` to import or activate available registry rulesets from the Kit GitHub `main` branch
 - Use `kit rules view <slug>` to preview a local or registry ruleset before importing it
 - Use `kit init --refresh` to adopt existing registry rules into `.kit.yaml` registry state and pick up safe upstream ruleset updates
@@ -20,3 +27,4 @@
 - `tooling.md` — local tooling and command references that are broader than one feature
 - `external-systems.md` — durable notes about external systems, APIs, or integrations
 - `rules/` — pointer-loaded durable rulesets such as frontend UI rules, testing rules, API conventions, security constraints, or domain rules
+- `../notes/<feature>/` — optional feature source material; not canonical truth and private contents remain ignored
