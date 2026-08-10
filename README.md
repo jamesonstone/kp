@@ -11,6 +11,10 @@
 keystroke away.** It prints the prompt you ask for, copies the exact same body
 to your clipboard after a read-back verification, and stays out of the way.
 
+<!-- BEGIN KIT-MANAGED README BADGES -->
+[![Last commit](https://img.shields.io/github/last-commit/jamesonstone/kp)](https://github.com/jamesonstone/kp/commits) [![Open issues](https://img.shields.io/github/issues/jamesonstone/kp)](https://github.com/jamesonstone/kp/issues) [![Pull requests](https://img.shields.io/github/issues-pr/jamesonstone/kp)](https://github.com/jamesonstone/kp/pulls) [![Release](https://img.shields.io/github/v/release/jamesonstone/kp)](https://github.com/jamesonstone/kp/releases)
+<!-- END KIT-MANAGED README BADGES -->
+
 No accounts. No sync service. No paste injection. Just local prompt utilities
 that feel good in a shell.
 
@@ -216,6 +220,6 @@ Before opening a PR:
 
 MIT. See [LICENSE](LICENSE).
 
-## Maintainer
+## Maintainers
 
-Built and maintained by [Jameson Stone](https://github.com/jamesonstone).
+Maintained with 🪖 and ❤️ by [Jameson](https://github.com/jamesonstone) (`jamesonstone`).

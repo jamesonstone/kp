@@ -35,9 +35,10 @@ Execution order for feature work:
 
 - `TASKS.md` controls next action
 - `PLAN.md` controls approach
-- `SPEC.md` controls requirements
+- `SPEC.md` controls requirements, plan, tasks, validation, reflection, delivery, and evidence
 - `CONSTITUTION.md` controls project invariants
 - `BRAINSTORM.md` is non-binding research context
+- `BRAINSTORM.md`, `PLAN.md`, and `TASKS.md` are non-binding historical context in v2
 
 ## Ad Hoc Work
 

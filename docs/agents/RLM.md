@@ -34,6 +34,7 @@
 
 ## Rules
 
+- Load `docs/references/rules/testing-and-environment-validation.md` and `docs/references/testing.md` before implementation or validation
 - Keep map work file-scoped or narrowly bounded so synthesis stays deterministic
 - Prefer repo-local docs before secondary global inputs
 - For feature-scoped work, keep must-read inputs small: the current `TASKS.md` entry plus the linked `PLAN.md` and `SPEC.md` sections
