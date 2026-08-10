@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -125,8 +126,8 @@ type app struct {
 	lookPath         func(file string) (string, error)
 	fzfRunner        func(prompts []prompt.Prompt) (string, error)
 	launcherRunner   func(items []LauncherItem) (string, error)
-	portLookup       func(port int) ([]PortProcess, error)
-	portStopper      func(pid int, force bool) error
+	portLookup       func(context.Context, int) ([]PortProcess, error)
+	portStopper      func(context.Context, PortProcess, bool) error
 	getenv           func(key string) string
 	editorRunner     func(name string, args []string, path string) error
 
@@ -174,11 +175,17 @@ func newApp(opts Options) *app {
 	if opts.Getenv == nil {
 		opts.Getenv = os.Getenv
 	}
-	if opts.PortLookup == nil {
-		opts.PortLookup = lookupPortProcesses
+	portLookup := lookupPortProcesses
+	if opts.PortLookup != nil {
+		portLookup = func(_ context.Context, port int) ([]PortProcess, error) {
+			return opts.PortLookup(port)
+		}
 	}
-	if opts.PortStop == nil {
-		opts.PortStop = stopPortProcess
+	portStopper := stopPortProcess
+	if opts.PortStop != nil {
+		portStopper = func(_ context.Context, process PortProcess, force bool) error {
+			return opts.PortStop(process.PID, force)
+		}
 	}
 
 	return &app{
@@ -193,8 +200,8 @@ func newApp(opts Options) *app {
 		lookPath:         opts.LookPath,
 		fzfRunner:        opts.FZFRunner,
 		launcherRunner:   opts.LauncherRunner,
-		portLookup:       opts.PortLookup,
-		portStopper:      opts.PortStop,
+		portLookup:       portLookup,
+		portStopper:      portStopper,
 		getenv:           opts.Getenv,
 		editorRunner:     opts.EditorRunner,
 	}

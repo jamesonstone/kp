@@ -94,7 +94,7 @@ func (a *app) runLauncherSelection(cmd *cobra.Command, selection string) error {
 
 	switch selection {
 	case "command:find-port":
-		return a.runFindPort("")
+		return a.runFindPort(cmd.Context(), "")
 	case "command:help":
 		return cmd.Help()
 	default:
@@ -133,7 +133,7 @@ func runLauncherFZF(ctx context.Context, items []LauncherItem) (string, error) {
 	cmd.Stdout = &stdout
 
 	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("%w: %v", errPickerCanceled, err)
+		return "", fzfRunError(ctx, err)
 	}
 
 	selected := strings.TrimSpace(stdout.String())

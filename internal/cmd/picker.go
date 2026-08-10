@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -14,7 +15,7 @@ import (
 	"github.com/jamesonstone/kp/internal/prompt"
 )
 
-func (a *app) runPicker() error {
+func (a *app) runPicker(ctx context.Context) error {
 	reg, err := a.loadRegistry()
 	if err != nil {
 		return err
@@ -24,7 +25,7 @@ func (a *app) runPicker() error {
 	if a.noFzf {
 		name, err = a.pickNumbered(reg.List())
 	} else {
-		name, err = a.pickFZF(reg.List())
+		name, err = a.pickFZF(ctx, reg.List())
 	}
 	if err != nil {
 		return err
@@ -33,7 +34,7 @@ func (a *app) runPicker() error {
 	return a.runPrompt(name)
 }
 
-func (a *app) pickFZF(prompts []prompt.Prompt) (string, error) {
+func (a *app) pickFZF(ctx context.Context, prompts []prompt.Prompt) (string, error) {
 	if _, err := a.lookPath("fzf"); err != nil {
 		return "", NewExitError(ExitConfig, errors.New("fzf not found; install fzf via 'brew install fzf' or use --no-fzf"))
 	}
@@ -46,7 +47,7 @@ func (a *app) pickFZF(prompts []prompt.Prompt) (string, error) {
 		return name, nil
 	}
 
-	name, err := runFZF(prompts)
+	name, err := runFZF(ctx, prompts)
 	if err != nil {
 		return "", mapPickerError(err)
 	}
@@ -91,7 +92,7 @@ func mapPickerError(err error) error {
 	return NewExitError(ExitUser, err)
 }
 
-func runFZF(prompts []prompt.Prompt) (string, error) {
+func runFZF(ctx context.Context, prompts []prompt.Prompt) (string, error) {
 	previewDir, err := os.MkdirTemp("", "kp-preview-*")
 	if err != nil {
 		return "", err
@@ -106,7 +107,8 @@ func runFZF(prompts []prompt.Prompt) (string, error) {
 		fmt.Fprintf(&input, "%s\t%s\t%s\n", promptIcon(p), p.Name, p.Label)
 	}
 
-	cmd := exec.Command(
+	cmd := exec.CommandContext(
+		ctx,
 		"fzf",
 		"--height", "60%",
 		"--reverse",
@@ -125,7 +127,7 @@ func runFZF(prompts []prompt.Prompt) (string, error) {
 	cmd.Stdout = &stdout
 
 	if err := cmd.Run(); err != nil {
-		return "", fmt.Errorf("%w: %v", errPickerCanceled, err)
+		return "", fzfRunError(ctx, err)
 	}
 
 	selected := strings.TrimSpace(stdout.String())
@@ -138,6 +140,18 @@ func runFZF(prompts []prompt.Prompt) (string, error) {
 	}
 	name, _, _ := strings.Cut(rest, "\t")
 	return name, nil
+}
+
+func fzfRunError(ctx context.Context, err error) error {
+	if ctxErr := ctx.Err(); ctxErr != nil {
+		return fmt.Errorf("%w: %v", errPickerCanceled, ctxErr)
+	}
+
+	var exitErr *exec.ExitError
+	if errors.As(err, &exitErr) && (exitErr.ExitCode() == 1 || exitErr.ExitCode() == 130) {
+		return fmt.Errorf("%w: %v", errPickerCanceled, err)
+	}
+	return err
 }
 
 func shellQuote(value string) string {

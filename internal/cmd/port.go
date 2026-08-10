@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -18,6 +19,7 @@ type PortProcess struct {
 	CWD            string
 	Sockets        []string
 	Notes          []string
+	identity       string
 }
 
 func (a *app) newFindPortCommand() *cobra.Command {
@@ -32,7 +34,7 @@ func (a *app) newFindPortCommand() *cobra.Command {
 			if len(args) == 1 {
 				port = args[0]
 			}
-			return a.runFindPort(port)
+			return a.runFindPort(cmd.Context(), port)
 		},
 	}
 	cmd.Flags().StringVar(&a.portCopy, "copy", "", "copy a field: pid, command, path, cwd, socket, or all")
@@ -41,7 +43,7 @@ func (a *app) newFindPortCommand() *cobra.Command {
 	return cmd
 }
 
-func (a *app) runFindPort(portText string) error {
+func (a *app) runFindPort(ctx context.Context, portText string) error {
 	portText = strings.TrimSpace(portText)
 	if portText == "" {
 		var err error
@@ -56,8 +58,11 @@ func (a *app) runFindPort(portText string) error {
 		return NewExitError(ExitUser, fmt.Errorf("invalid port %q", portText))
 	}
 
-	processes, err := a.portLookup(port)
+	processes, err := a.portLookup(ctx, port)
 	if err != nil {
+		if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+			return NewExitError(ExitCancel, err)
+		}
 		return NewExitError(ExitUser, err)
 	}
 	if len(processes) == 0 {
@@ -67,13 +72,13 @@ func (a *app) runFindPort(portText string) error {
 	a.printPortProcesses(port, processes)
 
 	if a.portCopy != "" || a.portStop || a.portForce {
-		if err := a.runPortAction(processes, a.portCopy, a.portStop || a.portForce, a.portForce); err != nil {
+		if err := a.runPortAction(ctx, processes, a.portCopy, a.portStop || a.portForce, a.portForce); err != nil {
 			return err
 		}
 		return nil
 	}
 
-	return a.runPortMenu(processes)
+	return a.runPortMenu(ctx, processes)
 }
 
 func (a *app) promptPort() (string, error) {
