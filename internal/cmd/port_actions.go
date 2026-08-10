@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -10,16 +11,16 @@ import (
 	"github.com/jamesonstone/kp/internal/clipboard"
 )
 
-func (a *app) runPortMenu(processes []PortProcess) error {
+func (a *app) runPortMenu(ctx context.Context, processes []PortProcess) error {
 	if len(processes) == 1 {
-		return a.runPortActionMenu(processes)
+		return a.runPortActionMenu(ctx, processes)
 	}
 
 	target, err := a.choosePortTarget(processes)
 	if err != nil {
 		return err
 	}
-	return a.runPortActionMenu(target)
+	return a.runPortActionMenu(ctx, target)
 }
 
 func (a *app) choosePortTarget(processes []PortProcess) ([]PortProcess, error) {
@@ -39,7 +40,7 @@ func (a *app) choosePortTarget(processes []PortProcess) ([]PortProcess, error) {
 	return []PortProcess{processes[choice-2]}, nil
 }
 
-func (a *app) runPortActionMenu(processes []PortProcess) error {
+func (a *app) runPortActionMenu(ctx context.Context, processes []PortProcess) error {
 	action, err := a.chooseMenu("Select an action", []string{
 		"Copy PID",
 		"Copy command",
@@ -64,20 +65,20 @@ func (a *app) runPortActionMenu(processes []PortProcess) error {
 	case 5:
 		return a.copyPortField("socket", processes)
 	case 6:
-		return a.stopPortProcesses(processes, false)
+		return a.stopPortProcesses(ctx, processes, false)
 	default:
 		return NewExitError(ExitUser, fmt.Errorf("invalid action selection"))
 	}
 }
 
-func (a *app) runPortAction(processes []PortProcess, copyField string, shouldStop bool, force bool) error {
+func (a *app) runPortAction(ctx context.Context, processes []PortProcess, copyField string, shouldStop bool, force bool) error {
 	if copyField != "" {
 		if err := a.copyPortField(copyField, processes); err != nil {
 			return err
 		}
 	}
 	if shouldStop {
-		return a.stopPortProcesses(processes, force)
+		return a.stopPortProcesses(ctx, processes, force)
 	}
 	return nil
 }
@@ -202,7 +203,7 @@ func renderPortSummary(processes []PortProcess) string {
 	return b.String()
 }
 
-func (a *app) stopPortProcesses(processes []PortProcess, force bool) error {
+func (a *app) stopPortProcesses(ctx context.Context, processes []PortProcess, force bool) error {
 	if !force {
 		if err := a.confirmPortStop(processes); err != nil {
 			return err
@@ -210,7 +211,10 @@ func (a *app) stopPortProcesses(processes []PortProcess, force bool) error {
 	}
 
 	for _, p := range processes {
-		if err := a.portStopper(p.PID, force); err != nil {
+		if err := a.portStopper(ctx, p, force); err != nil {
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				return NewExitError(ExitCancel, err)
+			}
 			return NewExitError(ExitSystem, err)
 		}
 	}

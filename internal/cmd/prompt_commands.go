@@ -24,7 +24,7 @@ func (a *app) newListCommand() *cobra.Command {
 				return err
 			}
 			if !a.listPlain && !a.verbose {
-				return a.runPicker()
+				return a.runPicker(cmd.Context())
 			}
 			for _, p := range reg.List() {
 				if a.verbose {

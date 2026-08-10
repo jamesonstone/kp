@@ -3,6 +3,7 @@ package cmd
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os/exec"
@@ -12,13 +13,16 @@ import (
 	"time"
 )
 
-func lookupPortProcesses(port int) ([]PortProcess, error) {
-	out, err := exec.Command("lsof",
+func lookupPortProcesses(ctx context.Context, port int) ([]PortProcess, error) {
+	out, err := exec.CommandContext(ctx, "lsof",
 		"-nP",
 		"-iTCP:"+strconv.Itoa(port),
 		"-sTCP:LISTEN",
 		"-iUDP:"+strconv.Itoa(port),
 	).CombinedOutput()
+	if ctxErr := ctx.Err(); ctxErr != nil {
+		return nil, ctxErr
+	}
 	if err != nil && len(bytes.TrimSpace(out)) == 0 {
 		return nil, fmt.Errorf("search port %d: %w", port, err)
 	}
@@ -56,7 +60,10 @@ func lookupPortProcesses(port int) ([]PortProcess, error) {
 
 	results := make([]PortProcess, 0, len(processes))
 	for _, proc := range processes {
-		detail, note := inspectPortProcess(proc.PID)
+		detail, note := inspectPortProcess(ctx, proc.PID)
+		if ctxErr := ctx.Err(); ctxErr != nil {
+			return nil, ctxErr
+		}
 		detail.PID = proc.PID
 		detail.Sockets = proc.Sockets
 		if note != "" {
@@ -72,11 +79,17 @@ func lookupPortProcesses(port int) ([]PortProcess, error) {
 	return results, nil
 }
 
-func inspectPortProcess(pid int) (PortProcess, string) {
+func inspectPortProcess(ctx context.Context, pid int) (PortProcess, string) {
 	proc := PortProcess{PID: pid}
 	var notes []string
 
-	if out, err := exec.Command("ps", "-p", strconv.Itoa(pid), "-o", "ppid=", "-o", "args=").CombinedOutput(); err == nil || len(bytes.TrimSpace(out)) > 0 {
+	if identity, err := readProcessIdentity(ctx, pid); err != nil {
+		notes = append(notes, fmt.Sprintf("process identity lookup failed: %v", err))
+	} else {
+		proc.identity = identity
+	}
+
+	if out, err := exec.CommandContext(ctx, "ps", "-p", strconv.Itoa(pid), "-o", "ppid=", "-o", "args=").CombinedOutput(); err == nil || len(bytes.TrimSpace(out)) > 0 {
 		if line := firstNonEmptyLine(out); line != "" {
 			fields := strings.Fields(line)
 			if len(fields) > 0 {
@@ -95,7 +108,7 @@ func inspectPortProcess(pid int) (PortProcess, string) {
 		notes = append(notes, fmt.Sprintf("ps lookup failed: %v", err))
 	}
 
-	if out, err := exec.Command("lsof", "-nP", "-a", "-p", strconv.Itoa(pid), "-d", "cwd,txt", "-Ffn").CombinedOutput(); err == nil || len(bytes.TrimSpace(out)) > 0 {
+	if out, err := exec.CommandContext(ctx, "lsof", "-nP", "-a", "-p", strconv.Itoa(pid), "-d", "cwd,txt", "-Ffn").CombinedOutput(); err == nil || len(bytes.TrimSpace(out)) > 0 {
 		if cwd, exe := parseLsofPaths(out); cwd != "" || exe != "" {
 			proc.CWD = cwd
 			proc.ExecutablePath = exe
@@ -137,24 +150,89 @@ func parseLsofPaths(out []byte) (string, string) {
 	return cwd, exe
 }
 
-func stopPortProcess(pid int, force bool) error {
+var errProcessNotFound = errors.New("process not found")
+
+func stopPortProcess(ctx context.Context, process PortProcess, force bool) error {
 	if force {
-		return syscall.Kill(pid, syscall.SIGKILL)
+		return signalPortProcess(ctx, process, syscall.SIGKILL)
 	}
 
-	if err := syscall.Kill(pid, syscall.SIGTERM); err != nil {
+	if err := signalPortProcess(ctx, process, syscall.SIGTERM); err != nil {
 		return err
 	}
 
-	time.Sleep(250 * time.Millisecond)
-	alive, err := processAlive(pid)
+	if err := waitForPortProcess(ctx, 250*time.Millisecond); err != nil {
+		return err
+	}
+	return signalPortProcess(ctx, process, syscall.SIGKILL)
+}
+
+func readProcessIdentity(ctx context.Context, pid int) (string, error) {
+	out, err := exec.CommandContext(ctx, "ps", "-p", strconv.Itoa(pid), "-o", "lstart=", "-o", "command=").CombinedOutput()
+	identity := strings.TrimSpace(string(out))
+	if err == nil && identity != "" {
+		return identity, nil
+	}
+	if ctxErr := ctx.Err(); ctxErr != nil {
+		return "", ctxErr
+	}
+	if alive, aliveErr := processAlive(pid); aliveErr != nil {
+		return "", fmt.Errorf("check process %d after identity lookup: %w", pid, aliveErr)
+	} else if !alive {
+		return "", errProcessNotFound
+	}
+	if err != nil {
+		return "", fmt.Errorf("read process %d identity: %w", pid, err)
+	}
+	return "", fmt.Errorf("read process %d identity: empty result", pid)
+}
+
+func portProcessIdentityMatches(ctx context.Context, process PortProcess) (bool, error) {
+	if process.identity == "" {
+		return false, fmt.Errorf("process %d identity unavailable; refusing to signal", process.PID)
+	}
+
+	identity, err := readProcessIdentity(ctx, process.PID)
+	if errors.Is(err, errProcessNotFound) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	if identity != process.identity {
+		return false, fmt.Errorf("process %d identity changed; refusing to signal", process.PID)
+	}
+	return true, nil
+}
+
+func signalPortProcess(ctx context.Context, process PortProcess, signal syscall.Signal) error {
+	matches, err := portProcessIdentityMatches(ctx, process)
 	if err != nil {
 		return err
 	}
-	if !alive {
+	if !matches {
 		return nil
 	}
-	return syscall.Kill(pid, syscall.SIGKILL)
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	err = syscall.Kill(process.PID, signal)
+	if errors.Is(err, syscall.ESRCH) {
+		return nil
+	}
+	return err
+}
+
+func waitForPortProcess(ctx context.Context, duration time.Duration) error {
+	timer := time.NewTimer(duration)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }
 
 func processAlive(pid int) (bool, error) {

@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"context"
 	"errors"
+	"os/exec"
 	"strings"
 	"testing"
 )
@@ -36,6 +38,44 @@ func TestPickerFZFCancel(t *testing.T) {
 	}
 	if fake.copied != "" || fake.pasted {
 		t.Fatalf("clipboard side effects copied=%q pasted=%v", fake.copied, fake.pasted)
+	}
+}
+
+func TestFZFRunErrorClassifiesOnlyUserOutcomesAsCancellation(t *testing.T) {
+	tests := []struct {
+		name       string
+		command    string
+		wantCancel bool
+		wantExit   int
+	}{
+		{name: "no match", command: "exit 1", wantCancel: true, wantExit: ExitCancel},
+		{name: "interrupted", command: "exit 130", wantCancel: true, wantExit: ExitCancel},
+		{name: "operational error", command: "exit 2", wantCancel: false, wantExit: ExitUser},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			runErr := exec.Command("sh", "-c", tt.command).Run()
+			if runErr == nil {
+				t.Fatalf("%q returned nil error", tt.command)
+			}
+			mappedErr := fzfRunError(context.Background(), runErr)
+			if got := errors.Is(mappedErr, errPickerCanceled); got != tt.wantCancel {
+				t.Fatalf("cancel classification = %v, want %v", got, tt.wantCancel)
+			}
+			if got := ExitCode(mapPickerError(mappedErr)); got != tt.wantExit {
+				t.Fatalf("exit code = %d, want %d", got, tt.wantExit)
+			}
+		})
+	}
+}
+
+func TestFZFRunErrorMapsCallerCancellation(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	if err := fzfRunError(ctx, errors.New("process killed")); !errors.Is(err, errPickerCanceled) {
+		t.Fatalf("err = %v, want picker cancellation", err)
 	}
 }
 
