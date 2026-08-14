@@ -2,6 +2,7 @@
 
 ## Purpose
 
+- Use `rules/aws-agent-toolkit-guidance.md` before AWS-dependent work to select current Agent Toolkit skills, official documentation, the AWS MCP Server or CLI fallback, verified identity, name-aware material targets, infrastructure approval, and secret-safe handling
 - Use `rules/testing-and-environment-validation.md` before implementation and validation to preserve code-level checks and add environment evidence safely
 - This directory holds durable repo-local references that are broader than one feature
 - Keep long-lived background context here instead of in injected top-level instruction files
