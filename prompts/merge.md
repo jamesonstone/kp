@@ -14,14 +14,15 @@ Apply only to the exact repository, pull request set, and expected-heads explici
 
 # Pre-wave checklist
 1. Revalidate authorization, actor identity, and exact expected-head OIDs for every node.
-2. Confirm required status checks, review approvals, and merge policy eligibility (no stale or skipped checks without proven eligibility).
-3. Ensure no unresolved merge conflicts; rebase or resolve as needed.
-4. Verify infra and deployment credentials (Kit-managed repos: run `kit aws verify`). Stop on missing or mismatched credentials.
-5. Produce evidence artifacts: dependency DAG (Mermaid), a wave table, merge method, and rollback owner.
+2. Bind each node to: repository, base branch, expected head OID, actor, allowed merge method, review policy, required current-head checks, dependency closure, and infrastructure effects.
+3. Confirm required status checks, review approvals, and merge policy eligibility (no stale or skipped checks without proven eligibility).
+4. Ensure no unresolved merge conflicts; rebase or resolve as needed.
+5. Verify infra and deployment credentials (Kit-managed repos: run `kit aws verify`). Stop on missing or mismatched credentials.
+6. Produce evidence artifacts: dependency DAG (Mermaid), a wave table, merge method, and rollback owner.
 
 # Execution algorithm
 1. Build a dependency DAG where A --> B means A must be merged (or deployed+accepted) before B.
-2. Classify nodes as MERGE_READY, BLOCKED, or UNKNOWN.
+2. Classify nodes as MERGE_READY, BLOCKED, or UNKNOWN. Nodes with missing, stale, pending, skipped-without-proven-eligibility, cyclic, provisional, conflicted, or ambiguous evidence must not be considered MERGE_READY and should be classified BLOCKED or UNKNOWN until proven eligible.
 3. Select the zero-unmet-dependency MERGE_READY frontier and form a wave. Maximize safe concurrency and prioritize nodes that shorten the critical path.
 4. Immediately before the wave, revalidate heads, checks, approvals, policies, and authorization.
 5. Merge the wave using the repository-permitted method (merge queue when required). Record the merge claim and relevant evidence.
