@@ -78,7 +78,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   prompt execution and clipboard-verification behavior without special-case
   command code.
 - The prompt must instruct the receiving agent to:
-  - operate only on an exact user-authorized PR set;
+  - operate only on the exact repository, pull-request, and expected-head set
+    directly authorized by the user or covered by a bounded plan explicitly
+    accepted by the user;
   - build and output a Mermaid dependency DAG plus topological wave table;
   - distinguish ordinary merge dependencies from edges that require deployed
     or production-accepted predecessors;
@@ -95,7 +97,11 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   - revalidate immediately before every wave, re-observe after every mutation,
     isolate failures to the failed node and its dependents, and recompute the
     graph;
-  - preserve repository safeguards and required merge queues; and
+  - preserve repository safeguards and required merge queues;
+  - load repo-local rules before merge actions, give Kit-managed rules priority
+    over generic GitHub or plugin defaults, and require `kit aws verify` plus the
+    verified configured profile for AWS-dependent evidence or actions without
+    ambient-credential fallback; and
   - report merge, hosted workflow, deployment, runtime, production acceptance,
     recovery, and rollback as separate claims.
 - Prompt listing, verbose listing, grouped help, launcher discovery, and user
@@ -132,6 +138,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   to remeasure after material state changes.
 - Keep the prompt concise by expressing operational invariants rather than
   copying the full LoopC, Merge Controller, or Kit rulesets.
+- Bind accepted-plan authority to the exact repository, pull requests, and
+  expected heads, and carry repo-local Kit and AWS identity gates into the
+  execution instructions rather than assuming generic platform defaults.
 
 ## DISCOVERIES
 
@@ -141,6 +150,10 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   12 managed instruction and ruleset files, so it is intentionally excluded
   from issue #16. The same dry-run reported 40 eligible handwritten source/test
   files and zero files above the 300-line limit before implementation.
+- PR #17 review identified two valid safety gaps in the prompt: accepted-plan
+  authority was not explicitly bound to repository and expected heads, and the
+  execution step omitted repo-local Kit and verified-profile AWS precedence.
+  Both were corrected in the prompt and its exact-output test.
 
 ## VALIDATION
 
@@ -163,6 +176,10 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   as hosted evidence.
 - Production validation — `NOT_APPLICABLE`: `kp` is a local CLI and this change
   adds no deployed service or external integration.
+- PR #17 review repair — `PASS`: focused prompt output, prompt and command
+  packages, full tests, race tests, vet, both builds, isolated CLI acceptance,
+  feature validation, diff hygiene, and the source-file-size audit were rerun
+  after the authorization and credential-boundary fixes.
 
 ## OUTCOME
 
@@ -170,10 +187,11 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   existing print, copy, list, help, and launcher paths.
 - Its six-step output builds a Mermaid PR DAG and wave table, binds exact-current
   readiness, maximizes safe independent concurrency and downstream unlocks,
-  revalidates every wave, isolates failures, and separates merge from deployment
-  and production evidence.
-- Implementation and local validation are complete. Delivery remains one ready
-  pull request from `GH-16` to `main`; merge is not authorized by this work.
+  revalidates every wave, enforces explicit user acceptance plus repo-local Kit
+  and verified-profile AWS gates, isolates failures, and separates merge from
+  deployment and production evidence.
+- Implementation and local validation are complete in ready PR #17 from
+  `GH-16` to `main`. Merge is not authorized by this work.
 
 ## REPOSITORY MEMORY
 
