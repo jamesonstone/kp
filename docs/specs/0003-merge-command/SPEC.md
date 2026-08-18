@@ -154,6 +154,20 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   authority was not explicitly bound to repository and expected heads, and the
   execution step omitted repo-local Kit and verified-profile AWS precedence.
   Both were corrected in the prompt and its exact-output test.
+- Issue #18 restructured the prompt into named sections but left the pinned
+  exact-output test unchanged, so `TestMergePromptPrintsApprovedInstructions`
+  failed on `GH-18` until this revision. The prompt asset and its pin must
+  always change together.
+- The `GH-18` revision closed further correctness gaps: sibling nodes sharing a
+  just-merged base kept stale check evidence; the dependency graph had no
+  completeness or edge-evidence requirement; deferred merges such as auto-merge
+  escaped wave revalidation; deployment edges defined no acceptance signal,
+  reversibility class, expand-then-contract ordering, deployed-identity check,
+  or proven rollback mechanism; an authorized node depending on an unauthorized
+  node had no defined outcome; and the observe/act loop had no no-progress
+  brake despite LoopC's stop-or-escalate requirement.
+- The prompt body stores backticks as `~` inside the pinned Go raw string
+  literal because a Mermaid fence cannot appear in one directly.
 
 ## VALIDATION
 
@@ -180,16 +194,25 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   packages, full tests, race tests, vet, both builds, isolated CLI acceptance,
   feature validation, diff hygiene, and the source-file-size audit were rerun
   after the authorization and credential-boundary fixes.
+- `GH-18` prompt revision — `PASS`: `gofmt`, `go vet ./...`, `go test ./...`,
+  `go test -race ./...`, `go build ./...`, `make build`, `git diff --check`, and
+  isolated CLI acceptance (`merge --print`, `list --plain`, `--help`) were rerun
+  against an empty temporary config directory after the rewrite and its updated
+  exact-output pin.
 
 ## OUTCOME
 
 - `kp merge` is an embedded, overrideable built-in prompt exposed through the
   existing print, copy, list, help, and launcher paths.
-- Its six-step output builds a Mermaid PR DAG and wave table, binds exact-current
-  readiness, maximizes safe independent concurrency and downstream unlocks,
+- Its sectioned output (purpose, scope and authorization, definitions, pre-wave
+  checklist, execution algorithm, deployment gates, example, durable state, and
+  evidence) builds a Mermaid PR DAG and wave table, binds exact-current
+  readiness, requires evidence-cited edges and proven graph completeness before
+  concurrency, maximizes safe independent concurrency and downstream unlocks,
   revalidates every wave, enforces explicit user acceptance plus repo-local Kit
-  and verified-profile AWS gates, isolates failures, and separates merge from
-  deployment and production evidence.
+  and verified-profile AWS gates, isolates failures, brakes on no-progress
+  repetition, gates deployment on reversibility class and pre-declared
+  acceptance, and separates merge from deployment and production evidence.
 - Implementation and local validation are complete in ready PR #17 from
   `GH-16` to `main`. Merge is not authorized by this work.
 
