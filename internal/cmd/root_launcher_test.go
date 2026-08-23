@@ -90,6 +90,21 @@ func TestRootLauncherShowsStaticHelp(t *testing.T) {
 	}
 }
 
+func TestRootLauncherCancelUsesWhimsicalFarewell(t *testing.T) {
+	stdout, stderr, err := executeTestCommand(t,
+		withLauncher(func([]LauncherItem) (string, error) {
+			return "", errPickerCanceled
+		}),
+	)
+	if got := ExitCode(err); got != ExitCancel {
+		t.Fatalf("ExitCode = %d, want %d", got, ExitCancel)
+	}
+	if stdout != "" || stderr != "" {
+		t.Fatalf("stdout=%q stderr=%q, want empty command streams", stdout, stderr)
+	}
+	assertPickerFarewell(t, ExitMessage(err))
+}
+
 func TestLauncherDisplayRowsAlignColumns(t *testing.T) {
 	items := []LauncherItem{
 		{

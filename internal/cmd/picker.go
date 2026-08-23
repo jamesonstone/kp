@@ -6,11 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	"github.com/jamesonstone/kp/internal/prompt"
 )
@@ -62,14 +64,14 @@ func (a *app) pickNumbered(prompts []prompt.Prompt) (string, error) {
 	line, err := a.inputReader.ReadString('\n')
 	if err != nil && !(errors.Is(err, io.EOF) && line != "") {
 		if errors.Is(err, io.EOF) {
-			return "", NewExitError(ExitCancel, errors.New("picker cancelled"))
+			return "", NewExitError(ExitCancel, errPickerCanceled)
 		}
 		return "", NewExitError(ExitUser, err)
 	}
 
 	choiceText := strings.TrimSpace(line)
 	if choiceText == "" {
-		return "", NewExitError(ExitCancel, errors.New("picker cancelled"))
+		return "", NewExitError(ExitCancel, errPickerCanceled)
 	}
 
 	choice, err := strconv.Atoi(choiceText)
@@ -84,6 +86,39 @@ func (a *app) pickNumbered(prompts []prompt.Prompt) (string, error) {
 }
 
 var errPickerCanceled = errors.New("picker cancelled")
+
+var pickerFarewells = []string{
+	"👋 Tiny wave goodbye—your prompts will be right here.",
+	"✨ Poof! The picker took the scenic exit.",
+	"🦆 The picker waddled off. Quack soon!",
+	"🌙 Menu tucked in for a tiny nap.",
+	"🛸 Picker beamed out. Safe travels, captain!",
+	"🧠 Tiny fun fact: choosing nothing is still a choice.",
+	"🌈 Nothing selected; everything is still sparkly.",
+	"🪁 The picker caught a breeze. See you next time!",
+}
+
+var (
+	pickerFarewellStart  = uint64(rand.IntN(len(pickerFarewells)))
+	pickerFarewellCursor atomic.Uint64
+)
+
+// ExitMessage returns terminal text without changing an error's exit classification.
+func ExitMessage(err error) string {
+	if err == nil {
+		return ""
+	}
+	if errors.Is(err, errPickerCanceled) {
+		return nextPickerFarewell()
+	}
+	return err.Error()
+}
+
+func nextPickerFarewell() string {
+	offset := pickerFarewellCursor.Add(1) - 1
+	index := (pickerFarewellStart + offset) % uint64(len(pickerFarewells))
+	return pickerFarewells[index]
+}
 
 func mapPickerError(err error) error {
 	if errors.Is(err, errPickerCanceled) {

@@ -384,6 +384,9 @@ No prior feature relationships apply. `kit map 0001-v0-init-utility` reports no 
 81. The system MUST provide local build, test, install, format, and clean commands.
 82. The system MUST update README with local installation, command usage, prompt format, scaffold behavior, exit codes, dependencies, and known limitations.
 83. The system MUST keep release archive generation, Homebrew publishing, and GitHub release workflows out of this feature.
+84. The system MUST render genuine interactive picker cancellation as one whimsical farewell from a finite in-process rotation with a random starting offset, and MUST NOT expose the internal picker-cancellation text or child-process exit status to the user.
+85. The system MUST rotate picker farewells without an immediate repeat inside one process and MUST NOT add persistent state, network behavior, or a third-party dependency to vary them across invocations.
+86. The system MUST preserve exit `130`, empty stdout, and unchanged clipboard state for picker cancellation while retaining the original diagnostic text and non-cancellation exit classification for operational picker failures.
 
 ## ACCEPTANCE
 
@@ -421,12 +424,15 @@ No prior feature relationships apply. `kit map 0001-v0-init-utility` reports no 
 32. Interactive picker RSS stays below 30 MB while `fzf` is active.
 33. README documents local installation, dependencies, command examples, prompt format, scaffold behavior, exit codes, performance targets, no-paste scope, and concurrent clipboard limitation.
 34. `.goreleaser.yaml` and `.github/workflows/release.yaml` are not created by this feature.
+35. Cancelling `kp`, `kp list`, or another interactive picker exits `130`, writes one approved whimsical farewell to stderr, leaves stdout empty, and does not expose `picker cancelled` or `exit status 130`.
+36. Calling the picker-farewell selector once for every configured style visits every style without an immediate repeat before the rotation wraps.
+37. An operational picker failure retains its original diagnostic message and non-cancellation exit classification.
 
 ## EDGE-CASES
 
 1. Missing `fzf`: exit `3` unless `--no-fzf` is passed; print `brew install fzf` and `--no-fzf` instructions.
 2. Invalid `--no-fzf` input: exit `1`; do not modify the clipboard.
-3. User cancels picker: exit `130`; do not modify the clipboard.
+3. User cancels picker: exit `130`; do not modify the clipboard or stdout; render one whimsical rotating farewell instead of internal cancellation or child-process status text.
 4. User cancels editor: exit `130`; preserve existing files and delete only a new empty stub created by `kp new`.
 5. Empty body after `kp new`: delete the stub file and exit `1`.
 6. Built-in-only edit: copy the built-in source file to the user prompt directory, print the promotion path to stderr, then open the editor.
@@ -452,3 +458,33 @@ No prior feature relationships apply. `kit map 0001-v0-init-utility` reports no 
 ## OPEN-QUESTIONS
 
 No unresolved questions remain. Confidence is at least 95%, and unresolved assumptions are 0.
+
+## VALIDATION EVIDENCE
+
+- `GH-24` whimsical picker farewells — `PASS`: Go 1.23.4 preflight,
+  formatting, focused picker and launcher tests, `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `go build ./...`, `make build`, and
+  `git diff --check` passed.
+- Built-binary cancellation acceptance — `PASS`: eight real `fzf` no-match
+  cancellations produced five distinct approved farewells; every run exited
+  `130`, kept stdout empty, and omitted `picker cancelled` and
+  `exit status 130`. Numbered-picker EOF produced the same typed exit and one
+  approved farewell.
+- `kit reconcile --all --dry-run` source-file-size audit — `PASS`: 40 eligible
+  handwritten source/test files checked, zero above 300 physical lines. Its 10
+  warnings in seven untouched managed instruction files remain outside issue
+  #24.
+- Hosted pull-request correctness checks — `UNAVAILABLE`: this repository has
+  no hosted format, test, race, vet, or build workflow.
+- Production validation — `NOT_APPLICABLE`: `kp` is a local CLI with no
+  deployed service or production environment.
+
+## OUTCOME
+
+- Genuine picker cancellation retains its typed sentinel and process exit
+  `130`, while the executable renders a finite whimsical farewell set from a
+  random starting offset and rotates without immediate in-process repeats.
+- Operational picker failures and non-picker cancellations retain their
+  original diagnostic output and exit classification.
+- Issue #24 carries this refinement on `GH-24`; pull-request delivery does not
+  authorize merge.

@@ -86,14 +86,14 @@ func (a *app) promptPort() (string, error) {
 	line, err := a.inputReader.ReadString('\n')
 	if err != nil && !(errors.Is(err, io.EOF) && line != "") {
 		if errors.Is(err, io.EOF) {
-			return "", NewExitError(ExitCancel, errors.New("picker cancelled"))
+			return "", NewExitError(ExitCancel, errPickerCanceled)
 		}
 		return "", NewExitError(ExitUser, err)
 	}
 
 	portText := strings.TrimSpace(line)
 	if portText == "" {
-		return "", NewExitError(ExitCancel, errors.New("picker cancelled"))
+		return "", NewExitError(ExitCancel, errPickerCanceled)
 	}
 	return portText, nil
 }
