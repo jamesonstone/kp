@@ -149,11 +149,18 @@ func TestLauncherFZFArgsUseConciseWrappingLayoutAndVimNavigation(t *testing.T) {
 		"--info hidden",
 		"--no-separator",
 		"--no-hscroll",
+		"--pointer ›",
 		"--preview-window right,55%,wrap",
 	} {
 		if !strings.Contains(joined, expected) {
 			t.Fatalf("args missing %q: %q", expected, joined)
 		}
+	}
+}
+
+func TestLauncherPointerOccupiesOneDisplayCell(t *testing.T) {
+	if got := displayWidth(launcherPointer); got != 1 {
+		t.Fatalf("launcher pointer width = %d, want 1", got)
 	}
 }
 

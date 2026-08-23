@@ -15,6 +15,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const launcherPointer = "›"
+
 type LauncherItem struct {
 	ID          string
 	Emoji       string
@@ -156,7 +158,7 @@ func launcherFZFArgs(previewDir string) []string {
 		"--no-separator",
 		"--no-hscroll",
 		"--prompt", "🎛️ kp › ",
-		"--pointer", "👉",
+		"--pointer", launcherPointer,
 		"--header", "j/k or arrows: move · enter: select · esc: close",
 		"--delimiter", "\t",
 		"--with-nth", "2",
