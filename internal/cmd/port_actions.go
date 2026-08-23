@@ -97,14 +97,14 @@ func (a *app) chooseMenu(title string, choices []string) (int, error) {
 	line, err := a.inputReader.ReadString('\n')
 	if err != nil && !(errors.Is(err, io.EOF) && line != "") {
 		if errors.Is(err, io.EOF) {
-			return 0, NewExitError(ExitCancel, errors.New("picker cancelled"))
+			return 0, NewExitError(ExitCancel, errPickerCanceled)
 		}
 		return 0, NewExitError(ExitUser, err)
 	}
 
 	choiceText := strings.TrimSpace(line)
 	if choiceText == "" {
-		return 0, NewExitError(ExitCancel, errors.New("picker cancelled"))
+		return 0, NewExitError(ExitCancel, errPickerCanceled)
 	}
 
 	choice, err := strconv.Atoi(choiceText)
@@ -232,7 +232,7 @@ func (a *app) confirmPortStop(processes []PortProcess) error {
 	line, err := a.inputReader.ReadString('\n')
 	if err != nil && !(errors.Is(err, io.EOF) && line != "") {
 		if errors.Is(err, io.EOF) {
-			return NewExitError(ExitCancel, errors.New("picker cancelled"))
+			return NewExitError(ExitCancel, errPickerCanceled)
 		}
 		return NewExitError(ExitUser, err)
 	}

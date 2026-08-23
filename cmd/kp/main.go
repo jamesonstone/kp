@@ -22,7 +22,7 @@ func main() {
 	})
 
 	if err := root.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, kpcmd.ExitMessage(err))
 		os.Exit(kpcmd.ExitCode(err))
 	}
 }

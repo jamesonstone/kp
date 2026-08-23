@@ -224,7 +224,7 @@ Before opening a PR:
 | 1    | User input or prompt data error                                       |
 | 2    | Clipboard, platform, or system-command failure                        |
 | 3    | Config, filesystem bootstrap, editor lookup, or missing `fzf` failure |
-| 130  | User cancellation                                                     |
+| 130  | User cancellation; interactive pickers wave goodbye with a whimsical farewell |
 
 ## License
 
