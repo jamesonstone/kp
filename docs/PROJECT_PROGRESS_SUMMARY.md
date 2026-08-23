@@ -5,7 +5,7 @@
 | ID | FEATURE | PATH | PHASE | PAUSED | CREATED | SUMMARY |
 | -- | ------- | ---- | ----- | ------ | ------- | ------- |
 | 0001 | v0-init-utility | `docs/specs/0001-v0-init-utility` | implement | no | 2026-05-22 | Builds the initial Darwin-only `kp` Go CLI for an interactive root launcher, grouped `--help` output, prompt printing, exact clipboard verification, interactive `kp list`, and local repo support scaffolding without a `prompt` subcommand. The feature embeds prompt assets including `clarify`, `handoff`, `parentthread`, and `pr`, supports user prompt overrides, and stays limited to local build/install/test scope. |
-| 0003 | merge-command | `docs/specs/0003-merge-command` | deliver | no | 2026-08-18 | Adds `kp merge` as a concise built-in prompt for evidence-backed Mermaid dependency graphs, exact-current merge readiness, topological waves, maximum safe independent concurrency, downstream-unlock priority, wave revalidation, failure isolation, and separate merge, deployment, runtime, production, and rollback evidence. |
+| 0003 | merge-command | `docs/specs/0003-merge-command` | deliver | no | 2026-08-18 | Adds `kp merge` as a concise built-in prompt for evidence-backed Mermaid dependency graphs, exact-current merge readiness, topological waves, maximum safe independent concurrency, directional dependency proof, protected-workload gates, behavior-based recovery, wave revalidation, failure isolation, and separate merge, deployment, runtime, production, and rollback evidence. |
 
 ## PROJECT INTENT
 
@@ -32,9 +32,9 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **PAUSED**: no
 - **INTENT**: Provide one low-friction prompt that turns an explicitly authorized PR set into an evidence-backed graphical dependency plan and safe merge waves without overstating merge, deployment, runtime, or production state.
 - **APPROACH**: 1. Add one embedded `merge` prompt through the existing registry. 2. Synthesize LoopC's observe-act-remeasure discipline, Merge Controller's PR-forest and downstream-unlock model, and the repository's exact merge gate into six concise steps. 3. Pin exact output and discovery behavior in prompt, registry, list, verbose-list, and help tests. 4. Update README and testing guidance. 5. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
-- **OPEN ITEMS**: Ready PR #17 is open for issue #16. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **OPEN ITEMS**: PRs #17 and #19 are merged. Issue #22 tracks the current prompt-safety refinement on `GH-22`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
 - **POINTERS**: `docs/specs/0003-merge-command/SPEC.md`
 
 ## LAST UPDATED
 
-2026-08-18 11:22:00 EDT
+2026-08-23 12:47:38 EDT

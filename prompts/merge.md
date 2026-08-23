@@ -11,13 +11,15 @@ Apply only to the exact repository, pull-request set, and expected heads directl
 - MERGE_READY: exact-current head, base, checks, reviews, approvals, policy, actor, and dependencies are all satisfied and attributable.
 - BLOCKED: a required gate failed, or an explicit dependency or approval is unmet.
 - UNKNOWN: evidence is missing, stale, ambiguous, or not attributable to the expected head, target, policy, or actor. UNKNOWN is not a soft pass.
+- MERGED: the repository host confirms the PR at the expected head merged and the resulting base commit is known.
+- DEPLOYED: the expected artifact from the merged source is observed in the declared environment.
+- ACCEPTED: the exact deployed artifact passed every applicable pre-declared runtime, compatibility, and protected-workload gate.
 - Wave: a set of proven-independent MERGE_READY nodes merged together.
 - Dependency closure: the transitive set of nodes required before a target node can be MERGE_READY.
-- Accepted: a deployment-gated predecessor observed to meet its pre-declared acceptance signal, not merely merged.
 
 # Pre-wave checklist
 1. Revalidate authorization, actor identity, and exact expected head OIDs for every node. Record the UTC observation time and a stated freshness bound; evidence older than that bound is UNKNOWN.
-2. Bind each node to: repository, base branch, expected head OID, actor, allowed merge method, review policy, required current-head checks, dependency closure, reversibility class, and infrastructure effects.
+2. Bind each node to: repository, base branch, expected head OID, actor, allowed merge method, review policy, required current-head checks, dependency closure, reversibility class, infrastructure effects, and protected-workload invariants.
 3. Confirm required status checks against the current head, review approvals, and merge-policy eligibility. Pending, missing, earlier-head, locally-substituted, and skipped-without-proven-eligibility checks never pass. An empty required-check set is not passing evidence; state it explicitly and classify from actual repository policy.
 4. Confirm each node is conflict-free against its current base. Do not rebase, force-push, retarget, or otherwise mutate a pull-request head to clear a gate; source remediation is a separate corrective pull request that needs its own authorization.
 5. Verify infrastructure and deployment credentials before AWS-dependent evidence or action. In Kit-managed repositories run `kit aws verify`, use only the verified configured profile, and stop on missing, incomplete, or mismatched credentials, configuration, account, or ARN; never fall back to ambient credentials.
@@ -25,7 +27,7 @@ Apply only to the exact repository, pull-request set, and expected heads directl
 7. Produce evidence artifacts: Mermaid dependency DAG, wave table, per-node merge method, acceptance signal, and named rollback owner and mechanism.
 
 # Execution algorithm
-1. Build a dependency DAG where A --> B means A must be merged, or when the edge requires it deployed and accepted, before B. Derive every edge from cited evidence: branch stacking, shared file or symbol, shared migration, shared configuration key, declared API or schema contract, or explicit user statement. An asserted edge without evidence is UNKNOWN.
+1. Build a dependency DAG where A --> B means A must be merged, or when the edge requires it deployed and accepted, before B. Derive direction only from authoritative evidence: branch stacking or an explicit base relationship, a declared producer/consumer API, schema, or artifact contract, a required migration or infrastructure prerequisite, a canonical program DAG, or an explicit user or repository requirement. Shared files, symbols, configuration, environments, or databases show coupling to examine but do not establish direction. An asserted edge without authoritative directional evidence is UNKNOWN.
 2. Prove graph completeness before allowing concurrency. Compare the diffs of any nodes proposed for the same wave and rule out undeclared coupling; unexamined overlap is a missing edge, not independence.
 3. Classify every node exactly as MERGE_READY, BLOCKED, or UNKNOWN. Missing, stale, pending, skipped-without-proven-eligibility, cyclic, provisional, conflicted, or ambiguous evidence never yields MERGE_READY.
 4. Select only the zero-unmet-dependency MERGE_READY frontier. Maximize safe concurrency among proven-independent nodes and prioritize nodes that unlock the most downstream work or shorten the critical path. Serialize dependency chains and same-base, deployment-coupled, or otherwise interacting operations whose order affects conflict, queue, release, or deployment state.
@@ -37,12 +39,18 @@ Apply only to the exact repository, pull-request set, and expected heads directl
 10. Repeat until every node in the authorized closure reaches its declared terminal state: merged for merge-only nodes, deployed and accepted for deployment-gated nodes.
 
 # Deployment gates
-- Classify every deployment-affecting node as reversible-by-redeploy, forward-fix-only, or irreversible, where irreversible covers schema migration, data backfill, and destructive infrastructure change.
-- Irreversible changes require expand-then-contract ordering: the backward-compatible expand node must be merged, deployed, and accepted before the contract node becomes eligible. Never place expand and contract in the same wave.
-- Declare acceptance before the wave, not after: triggering workflow, target account, environment, region or cluster, expected deployed identity, health or SLO signal, and observation window.
+- Classify every deployment-affecting node as reversible-by-redeploy, forward-fix or schema-retaining cutback, or irreversible/destructive. Use actual recovery behavior: a migration or backfill label alone is insufficient; irreversible means restoration or compensation is required or prior state cannot be fully restored.
+- For expand/contract changes, merge, deploy, and accept the backward-compatible expansion before the contract or removal becomes eligible; wait for every required consumer to migrate and never place expansion and contraction in the same wave.
+- Declare acceptance before the wave, not after: triggering workflow, target account, environment, region or cluster, expected deployed identity, expected migration or resource action, health or SLO signal, and observation window.
 - After deployment, verify that the observed deployed identity, such as image digest, release tag, or commit SHA, equals the merged head OID. A successful pipeline that shipped a different artifact is a failed deployment.
 - Before merging a deployment-triggering node, state the exact rollback mechanism and confirm it is currently executable: prior artifact retained and redeployable, revert path open, migration reversal or compensating action defined. Named ownership without a proven mechanism is UNKNOWN.
 - Confirm that no change-freeze or release window blocks the wave and that the rollback owner is available for its duration.
+
+# Protected-workload gates
+- Before merging or deploying, inventory every existing workload, customer lane, simulation or replay, API, schema, hash, event stream, or data boundary that must remain unchanged.
+- For each protected lane record the invariant, configuration and activation state, exact validation command or workflow, required literal result, execution timing, exact artifact or deployment identity, and failure recovery.
+- Additive or default-off source is not runtime proof. Keep flags, routing, allowlists, writers, effects, and migrations in their declared safe state; after an actual deployment run every required compatibility gate against the exact artifact and do not activate new behavior until its separate prerequisites pass.
+- Task-specific user or canonical-program safety gates augment and outrank this generic prompt.
 
 # Example
 ```mermaid
@@ -60,7 +68,7 @@ Wave table (example):
 When the authorized set spans repositories with dependent deliverables, staged deployment, or expected session handoff, record the graph, wave state, evidence, and next safe action in one canonical durable ledger and checkpoint after every material transition. A chat transcript is not program state.
 
 # Evidence & Recording
-Record merge, hosted workflow, deployment, runtime, production acceptance, recovery, and rollback as separate claims with literal observation times. Merge success is never deployment, runtime, or production proof. Report exact completed waves, blockers, unknowns, unobserved claims, and the next safe action whenever the closure is not satisfied.
+For every merge or queue completion record the repository and PR, expected head, resulting merge or squash commit, new base commit, method, actor, and UTC observation time; verify that the resulting base contains the intended change, accounting for synthesized squash or merge-queue commits. Record MERGED, artifact publication, DEPLOYED, activation, ACCEPTED, recovery, and rollback as separate claims attributable to exact identities. Merge success is never deployment, runtime, or production proof. Report exact completed waves, blockers, unknowns, unobserved claims, and the next safe action whenever the closure is not satisfied.
 
 # References
 - docs/agents/GUARDRAILS.md
