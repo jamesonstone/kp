@@ -91,7 +91,7 @@ utility command reference.
 | `kp handoff`               | Print and copy the coding-agent handoff prompt.                   | Coding-agent chats                | ✅ ready        |
 | `kp merge`                 | Print and copy the dependency-ordered PR merge prompt.            | Cross-repo merge coordination     | ✅ ready        |
 | `kp parentthread`          | Print and copy the parent-thread response prompt.                 | Coding-agent chats                | ✅ ready        |
-| `kp pr`                    | Print and copy the issue/branch/pull-request workflow prompt.     | Coding-agent chats, repo handoff  | ✅ ready        |
+| `kp pr`                    | Print and copy the Kit workflow prompt for a new worklane.        | Coding-agent chats, repo handoff  | ✅ ready        |
 | `kp <name> --copy`         | Copy a prompt without printing it.                                | Shell aliases, scripts            | ✅ ready        |
 | `kp <name> --print`        | Print a prompt without touching the clipboard.                    | Pipes, inspection                 | ✅ ready        |
 | `kp find-port <port>`      | Inspect processes listening on a port and choose an action.       | Dev-server cleanup                | ✅ ready        |

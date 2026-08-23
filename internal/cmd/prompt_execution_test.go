@@ -30,7 +30,7 @@ func TestPRPromptPrintsApprovedInstructions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want := "create issues, branches, and pull requests for this work, in all project-repositories effected as per our repository and kit-defined rulesets."
+	want := "Use the Kit workflow implementation path and create a new worklane for this work: a new issue, canonical worktree, `GH-<issue-number>` branch, and ready pull request in every affected project repository."
 	if strings.TrimSpace(stdout) != want {
 		t.Fatalf("stdout = %q, want %q", strings.TrimSpace(stdout), want)
 	}
