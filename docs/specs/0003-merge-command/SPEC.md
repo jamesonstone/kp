@@ -40,6 +40,14 @@ references:
     read_policy: "must"
     used_for: "authorization, readiness, concurrency, and evidence boundaries"
     status: "active"
+  - id: "github-issue-refinement"
+    name: "Refine merge safety instructions"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/22"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "refinement issue, branch, commit, and pull-request traceability"
+    status: "active"
 delivery_intent: "issue_branch_pr_in_progress"
 ---
 # SPEC
@@ -84,6 +92,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   - build and output a Mermaid dependency DAG plus topological wave table;
   - distinguish ordinary merge dependencies from edges that require deployed
     or production-accepted predecessors;
+  - require authoritative directional evidence for dependency edges and treat
+    shared files, symbols, configuration, environments, or databases as
+    coupling to inspect rather than proof of direction;
   - bind readiness to exact repository, head, base, actor, merge method,
     policy, reviews, checks, dependencies, infrastructure effects, and recovery;
   - classify every node as `MERGE_READY`, `BLOCKED`, or `UNKNOWN` and fail
@@ -98,12 +109,20 @@ prioritizing work that unlocks the greatest downstream dependency closure.
     isolate failures to the failed node and its dependents, and recompute the
     graph;
   - preserve repository safeguards and required merge queues;
+  - classify migration and deployment recovery from actual behavior, including
+    reversible redeploy, schema-retaining cutback or forward-fix, and genuinely
+    irreversible or destructive changes;
+  - inventory protected workloads and bind their invariants, safe activation
+    state, exact validation, literal result, artifact identity, and recovery;
   - load repo-local rules before merge actions, give Kit-managed rules priority
     over generic GitHub or plugin defaults, and require `kit aws verify` plus the
     verified configured profile for AWS-dependent evidence or actions without
     ambient-credential fallback; and
   - report merge, hosted workflow, deployment, runtime, production acceptance,
-    recovery, and rollback as separate claims.
+    recovery, and rollback as separate claims; and
+  - define `MERGED`, `DEPLOYED`, and `ACCEPTED` separately and record the exact
+    post-merge commit, base, method, actor, observation time, and containment
+    evidence needed to support those claims.
 - Prompt listing, verbose listing, grouped help, launcher discovery, and user
   override behavior must include `merge` through the existing registry path.
 - Automated tests must pin the exact prompt output and updated built-in ordering.
@@ -113,15 +132,18 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 
 ## ACCEPTED PLAN
 
-1. Add one embedded `prompts/merge.md` asset containing the concise synthesized
-   orchestration policy.
-2. Update built-in registry, command-output, list, verbose-list, and grouped-help
-   tests for the new alphabetically sorted prompt.
-3. Update README command discovery and built-in prompt documentation.
-4. Run formatting, focused prompt tests, the full Go test suite, vet, build,
-   exact `kp merge --print` inspection, and the affected source-size audit.
-5. Self-review, commit with the repository contract, push `GH-16`, and open one
-   ready pull request that closes issue #16.
+1. Refine the existing prompt with authoritative dependency direction,
+   behavior-based recovery classes, protected-workload compatibility gates,
+   and explicit post-merge terminal evidence without weakening its current
+   authorization, graph, concurrency, revalidation, credential, or rollback
+   invariants.
+2. Update the exact-output test and canonical feature documentation with the
+   prompt so runtime behavior, requirements, and evidence remain aligned.
+3. Run formatting, focused prompt tests, the full Go test suite, race tests,
+   vet, both builds, isolated `kp merge --print` acceptance, diff hygiene, and
+   the affected source-size audit.
+4. Self-review, commit with the repository contract, push `GH-22`, and open one
+   ready pull request that closes issue #22.
 
 ## DECISIONS
 
@@ -141,6 +163,17 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Bind accepted-plan authority to the exact repository, pull requests, and
   expected heads, and carry repo-local Kit and AWS identity gates into the
   execution instructions rather than assuming generic platform defaults.
+- Treat shared artifacts as coupling evidence only. Dependency direction needs
+  an explicit base relationship, producer/consumer contract, prerequisite,
+  canonical graph, or user or repository requirement.
+- Classify deployment recovery from what can actually be restored or retained;
+  schema migration is not itself proof of irreversibility.
+- Preserve protected existing behavior through exact-artifact compatibility
+  gates before activation rather than inferring safety from additive or
+  default-off source.
+- Define post-merge terminal states and their audit fields so merge, artifact
+  publication, deployment, activation, and acceptance cannot collapse into one
+  overstated claim.
 
 ## DISCOVERIES
 
@@ -168,6 +201,12 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   brake despite LoopC's stop-or-escalate requirement.
 - The prompt body stores backticks as `~` inside the pinned Go raw string
   literal because a Mermaid fence cannot appear in one directly.
+- The issue #22 comparison found four improvements worth adopting from a longer
+  generic procedure: directional-edge precision, recovery classification by
+  actual behavior, protected-workload gates, and explicit terminal audit
+  states. Its optional graph, deferred-merge, in-place repair, and weaker
+  freshness behavior remain excluded because they conflict with this feature's
+  accepted safety and orchestration contract.
 
 ## VALIDATION
 
@@ -199,6 +238,17 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   isolated CLI acceptance (`merge --print`, `list --plain`, `--help`) were rerun
   against an empty temporary config directory after the rewrite and its updated
   exact-output pin.
+- `GH-22` prompt refinement — `PASS`: Go 1.23.4 preflight, `gofmt`, focused
+  prompt and command tests, `go test ./...`, `go test -race ./...`,
+  `go vet ./...`, `go build ./...`, `make build`, `git diff --check`, and
+  isolated CLI acceptance (`merge --print`, `list --plain`, and `--help`) all
+  passed. The exact printed prompt SHA-256 was
+  `e00544329def274721ac52c801a750bbe257a87d6e9f693070314ba9e488b560`.
+  `kit reconcile --all --dry-run` checked 40 eligible handwritten source/test
+  files with zero above 300 lines; its 10 warnings in seven untouched managed
+  instruction files remain outside issue #22. Hosted pull-request correctness
+  checks remain `UNAVAILABLE`, and production validation is `NOT_APPLICABLE`
+  for this local prompt-only CLI refinement.
 
 ## OUTCOME
 
@@ -213,8 +263,14 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   and verified-profile AWS gates, isolates failures, brakes on no-progress
   repetition, gates deployment on reversibility class and pre-declared
   acceptance, and separates merge from deployment and production evidence.
-- Implementation and local validation are complete in ready PR #17 from
-  `GH-16` to `main`. Merge is not authorized by this work.
+- The issue #22 refinement additionally requires authoritative directional
+  evidence, classifies recovery from actual behavior, protects existing lanes
+  through exact-artifact compatibility gates, and records `MERGED`, `DEPLOYED`,
+  and `ACCEPTED` without relaxing the established graph, authorization,
+  revalidation, credential, rollback, or no-progress gates.
+- PR #17 delivered the original command and PR #19 delivered the first prompt
+  correctness refinement. Issue #22 tracks the current refinement on `GH-22`;
+  merge is not authorized by this work.
 
 ## REPOSITORY MEMORY
 
