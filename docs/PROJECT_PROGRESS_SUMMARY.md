@@ -31,8 +31,8 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **STATUS**: deliver
 - **PAUSED**: no
 - **INTENT**: Provide one low-friction prompt that turns an explicitly authorized PR set into an evidence-backed graphical dependency plan and safe merge waves without overstating merge, deployment, runtime, or production state.
-- **APPROACH**: 1. Add one embedded `merge` prompt through the existing registry. 2. Synthesize LoopC's observe-act-remeasure discipline, Merge Controller's PR-forest and downstream-unlock model, and the repository's exact merge gate into six concise steps. 3. Pin exact output and discovery behavior in prompt, registry, list, verbose-list, and help tests. 4. Update README and testing guidance. 5. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
-- **OPEN ITEMS**: PRs #17 and #19 are merged. Issue #22 tracks the current prompt-safety refinement on `GH-22`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **APPROACH**: 1. Add one embedded `merge` prompt through the existing registry. 2. Synthesize LoopC's observe-act-remeasure discipline, Merge Controller's PR-forest and downstream-unlock model, and the repository's exact merge gate into six concise steps. 3. Keep routine, separately authorized remediation on the existing PR head between waves while invalidating old-head readiness and merge authority; reserve replacement PRs for material or unsafe changes. 4. Pin exact output and discovery behavior in prompt, registry, list, verbose-list, and help tests. 5. Update durable merge guidance, README, and testing guidance. 6. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
+- **OPEN ITEMS**: PRs #17, #19, and #23 are merged. Issue #26 tracks the current in-place remediation correction on `GH-26`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
 - **POINTERS**: `docs/specs/0003-merge-command/SPEC.md`
 
 ## LAST UPDATED

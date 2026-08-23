@@ -48,6 +48,14 @@ references:
     read_policy: "must"
     used_for: "refinement issue, branch, commit, and pull-request traceability"
     status: "active"
+  - id: "github-issue-in-place-remediation"
+    name: "Prefer in-place PR remediation during merge orchestration"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/26"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "in-place remediation requirements and delivery traceability"
+    status: "active"
 delivery_intent: "issue_branch_pr_in_progress"
 ---
 # SPEC
@@ -109,6 +117,13 @@ prioritizing work that unlocks the greatest downstream dependency closure.
     isolate failures to the failed node and its dependents, and recompute the
     graph;
   - preserve repository safeguards and required merge queues;
+  - distinguish exact-head merge authority from source-repair authority,
+    prefer separately authorized in-place updates for routine remediation that
+    remains inside the existing pull request's issue and scope, and invalidate
+    prior readiness and merge authority whenever the head changes;
+  - reserve replacement pull requests for material scope or architecture
+    changes, original heads that cannot be updated safely, or explicit
+    repository-policy or user requirements;
   - classify migration and deployment recovery from actual behavior, including
     reversible redeploy, schema-retaining cutback or forward-fix, and genuinely
     irreversible or destructive changes;
@@ -132,18 +147,18 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 
 ## ACCEPTED PLAN
 
-1. Refine the existing prompt with authoritative dependency direction,
-   behavior-based recovery classes, protected-workload compatibility gates,
-   and explicit post-merge terminal evidence without weakening its current
-   authorization, graph, concurrency, revalidation, credential, or rollback
-   invariants.
-2. Update the exact-output test and canonical feature documentation with the
-   prompt so runtime behavior, requirements, and evidence remain aligned.
-3. Run formatting, focused prompt tests, the full Go test suite, race tests,
+1. Replace the recursive corrective-PR default with separately authorized,
+   scope-preserving repair on the existing pull-request head between waves.
+2. Preserve the exact-head merge freeze by returning any changed head to
+   `UNKNOWN` until fresh checks, review, revalidation, and later exact-head
+   merge authorization are complete.
+3. Update the durable merge rule, workflow, exact-output test, and canonical
+   feature documentation together so the instruction surfaces remain aligned.
+4. Run formatting, focused prompt tests, the full Go test suite, race tests,
    vet, both builds, isolated `kp merge --print` acceptance, diff hygiene, and
    the affected source-size audit.
-4. Self-review, commit with the repository contract, push `GH-22`, and open one
-   ready pull request that closes issue #22.
+5. Self-review, commit with the repository contract, push `GH-26`, and open one
+   ready pull request that closes issue #26.
 
 ## DECISIONS
 
@@ -174,6 +189,13 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Define post-merge terminal states and their audit fields so merge, artifact
   publication, deployment, activation, and acceptance cannot collapse into one
   overstated claim.
+- Freeze exact heads only for merge authorization. Routine corrective work may
+  update the existing PR under separate repair authority, but the new head must
+  lose prior readiness and receive fresh checks, review, revalidation, and
+  exact-head merge authorization before merging.
+- Keep replacement pull requests exceptional. Material scope or architecture
+  change, an unsafe or inaccessible original head, or explicit policy or user
+  direction justifies replacement; minor in-scope fixes do not.
 
 ## DISCOVERIES
 
@@ -204,9 +226,12 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - The issue #22 comparison found four improvements worth adopting from a longer
   generic procedure: directional-edge precision, recovery classification by
   actual behavior, protected-workload gates, and explicit terminal audit
-  states. Its optional graph, deferred-merge, in-place repair, and weaker
-  freshness behavior remain excluded because they conflict with this feature's
-  accepted safety and orchestration contract.
+  states. Its optional graph, deferred-merge, and weaker freshness behavior
+  remain excluded.
+- Issue #26 showed that the prior in-place-repair exclusion overextended the
+  exact-head merge freeze. Preserving the original PR for routine repairs avoids
+  recursive corrective PRs while still invalidating every prior readiness,
+  review, check, and merge-authorization claim tied to the old head.
 
 ## VALIDATION
 
@@ -249,6 +274,20 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   instruction files remain outside issue #22. Hosted pull-request correctness
   checks remain `UNAVAILABLE`, and production validation is `NOT_APPLICABLE`
   for this local prompt-only CLI refinement.
+- `GH-26` in-place remediation refinement — `PASS`: Go 1.23.4 preflight,
+  focused exact-output coverage, `gofmt`, `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `go build ./...`, `make build`,
+  `kit check --all`, `git diff --check`, and isolated empty-config CLI
+  acceptance (`merge --print`, `list --plain`, and `--help`) all passed. The
+  exact printed prompt SHA-256 was
+  `46284e8be6d7735c12ba3b80fafbc439bf03dd9c297e91e67bbd20c3e6c57666`.
+  `kit reconcile --all --dry-run` checked 40 eligible handwritten source/test
+  files with zero above 300 lines and reported 10 pre-existing managed-refresh
+  warnings in seven untouched files. `kit check --project` failed with the
+  same nine pre-existing blocking findings on both `GH-26` and clean `main`, so
+  that repo-wide scaffold refresh remains outside issue #26. Hosted
+  pull-request correctness checks remain `UNAVAILABLE`, and production
+  validation is `NOT_APPLICABLE` for this local prompt-only CLI refinement.
 
 ## OUTCOME
 
@@ -268,8 +307,13 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   through exact-artifact compatibility gates, and records `MERGED`, `DEPLOYED`,
   and `ACCEPTED` without relaxing the established graph, authorization,
   revalidation, credential, rollback, or no-progress gates.
+- The issue #26 refinement keeps routine, scope-preserving remediation on the
+  original pull request under separate repair authority, makes all changed
+  heads re-enter as `UNKNOWN`, and reserves replacement PRs for material or
+  otherwise unsafe changes.
 - PR #17 delivered the original command and PR #19 delivered the first prompt
-  correctness refinement. Issue #22 tracks the current refinement on `GH-22`;
+  correctness refinement; PR #23 delivered the issue #22 safety refinement.
+  Issue #26 tracks the current in-place remediation correction on `GH-26`;
   merge is not authorized by this work.
 
 ## REPOSITORY MEMORY
@@ -282,5 +326,8 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   correctness-check gap.
 - Updated `docs/PROJECT_PROGRESS_SUMMARY.md` with this feature's intent,
   approach, status, and pointer.
+- Issue #26 records the durable distinction between exact-head merge authority
+  and separately authorized in-place remediation across the prompt, merge rule,
+  merge workflow, exact-output coverage, and feature rationale.
 - The existing v0 feature artifacts remain unchanged because this is a separate
   public command and policy surface.
