@@ -78,7 +78,8 @@ fixing shared causes rather than treating items as an independent ticket queue.
     unresolved material questions;
   - distinguish implemented, merged, deployed, and validated states and not
     request re-testing until the change is available in the validation
-    environment;
+    environment; prohibit re-testing of a failed or regressed deployment, then
+    request re-testing after a successful corrective deployment;
   - load repo-local guardrails and work-lane or delivery-gating guidance when
     they exist, complete read-only safety recon, and obtain delivery-consent
     confirmation before issue, branch, worktree, staging, commit, push, PR,
@@ -145,6 +146,10 @@ fixing shared causes rather than treating items as an independent ticket queue.
   delivery mutations without work-lane gating or merge consent. The prompt now
   requires read-only recon and delivery consent before those mutations, and
   merge only after a named authorized PR set.
+- A later PR #29 review found that "do not request re-testing" after any
+  deployment failure blocked validation of a successful corrective deployment.
+  The prompt now prohibits re-testing only of the failed or regressed
+  deployment and requires re-testing after a successful corrective deployment.
 
 ## VALIDATION
 
@@ -157,7 +162,7 @@ fixing shared causes rather than treating items as an independent ticket queue.
 - `make build` — `PASS`; produced `bin/kp`.
 - Isolated CLI acceptance with an empty temporary config directory — `PASS`:
   `kp punchlist --print` emitted SHA-256
-  `ca6314ad7670ac08d6acb3b95f58df221ced4fc0120c119f6d29b5d3c0e0a533`,
+  `7efd70f586a3f959f1365d8bc9af95ff4789f99f19d9466266b9d3dee6335423`,
   `list --plain` included `punchlist` in sorted order, and `--help` showed
   `Punch list control loop`.
 - `git diff --check` — `PASS`.
@@ -171,9 +176,10 @@ fixing shared causes rather than treating items as an independent ticket queue.
   adds no deployed service or external integration.
 - PR #29 review repair — `PASS`: focused prompt and command tests, full tests,
   race tests, vet, both builds, isolated `kp punchlist --print` hash
-  `ca6314ad7670ac08d6acb3b95f58df221ced4fc0120c119f6d29b5d3c0e0a533`,
-  `git diff --check`, and the 40-file source-size audit were rerun after the
-  delivery-consent and merge-authorization prompt gates.
+  `7efd70f586a3f959f1365d8bc9af95ff4789f99f19d9466266b9d3dee6335423`,
+  `git diff --check`, and the 40-file source-size audit were rerun after
+  scoping re-test prohibition to failed or regressed deployments and requiring
+  re-testing after a successful corrective deployment.
 
 ## OUTCOME
 
@@ -182,8 +188,9 @@ fixing shared causes rather than treating items as an independent ticket queue.
 - The prompt requires environment discovery without assuming a tracker or
   platform, whole-list clustering, a 95% clarification gate, worklane reuse,
   preservation of human notes, delivery-consent before repository mutation,
-  merge only of an exact authorized PR set, and separate implemented, merged,
-  deployed, and validated states.
+  merge only of an exact authorized PR set, separate implemented, merged,
+  deployed, and validated states, and re-testing after a successful corrective
+  deployment rather than after a failed or regressed one.
 - Issue #28 tracks delivery on `GH-28`; merge is not authorized by this work.
 
 ## REPOSITORY MEMORY

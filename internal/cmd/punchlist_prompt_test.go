@@ -11,7 +11,7 @@ import (
 	"github.com/jamesonstone/kp/internal/prompt"
 )
 
-const approvedPunchlistSHA256 = "ca6314ad7670ac08d6acb3b95f58df221ced4fc0120c119f6d29b5d3c0e0a533"
+const approvedPunchlistSHA256 = "7efd70f586a3f959f1365d8bc9af95ff4789f99f19d9466266b9d3dee6335423"
 
 func TestPunchlistPromptPrintsApprovedInstructions(t *testing.T) {
 	stdout, stderr, err := executeTestCommand(t, "punchlist", "--print")
@@ -63,6 +63,8 @@ func TestPunchlistPromptRequiresControlLoopContract(t *testing.T) {
 		"mandated delivery-consent confirmation",
 		"exact authorized PR set",
 		"work-lane-gating",
+		"do not request re-testing of that failed or regressed deployment",
+		"successful corrective deployment",
 	}
 	for _, text := range required {
 		if !strings.Contains(stdout, text) {
