@@ -6,6 +6,7 @@
 | -- | ------- | ---- | ----- | ------ | ------- | ------- |
 | 0001 | v0-init-utility | `docs/specs/0001-v0-init-utility` | implement | no | 2026-05-22 | Builds the initial Darwin-only `kp` Go CLI for an interactive root launcher, grouped `--help` output, prompt printing, exact clipboard verification, interactive `kp list`, whimsical rotating picker farewells, and local repo support scaffolding without a `prompt` subcommand. The feature embeds prompt assets including `clarify`, `handoff`, `parentthread`, and `pr`, supports user prompt overrides, and stays limited to local build/install/test scope. |
 | 0003 | merge-command | `docs/specs/0003-merge-command` | deliver | no | 2026-08-18 | Adds `kp merge` as a concise built-in prompt for evidence-backed Mermaid dependency graphs, exact-current merge readiness, topological waves, maximum safe independent concurrency, directional dependency proof, protected-workload gates, behavior-based recovery, wave revalidation, failure isolation, and separate merge, deployment, runtime, production, and rollback evidence. |
+| 0004 | punchlist-command | `docs/specs/0004-punchlist-command` | deliver | no | 2026-08-25 | Adds `kp punchlist` as a built-in prompt for scanning a living punch list, clustering related observations, fixing shared causes, and keeping implemented, merged, deployed, and validated states distinct. |
 
 ## PROJECT INTENT
 
@@ -35,6 +36,15 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **OPEN ITEMS**: PRs #17, #19, and #23 are merged. Issue #26 tracks the current in-place remediation correction on `GH-26`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
 - **POINTERS**: `docs/specs/0003-merge-command/SPEC.md`
 
+### punchlist-command
+
+- **STATUS**: deliver
+- **PAUSED**: no
+- **INTENT**: Provide one low-friction prompt that turns a living punch list into clustered, evidence-backed engineering work without treating items as an independent ticket queue or overstating deployed or validated state.
+- **APPROACH**: 1. Add one embedded `punchlist` prompt through the existing registry. 2. Encode environment discovery, whole-list clustering, a 95% clarification gate, worklane reuse, engineering-note conventions, and implemented/merged/deployed/validated separation. 3. Pin exact output, approved-body hash, required contract phrases, and discovery behavior in prompt, registry, list, verbose-list, and help tests. 4. Update README and the project progress summary. 5. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
+- **OPEN ITEMS**: Issue #28 tracks the command on `GH-28`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **POINTERS**: `docs/specs/0004-punchlist-command/SPEC.md`
+
 ## LAST UPDATED
 
-2026-08-23 13:11:23 EDT
+2026-08-25 11:45:00 EDT
