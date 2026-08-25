@@ -79,6 +79,12 @@ fixing shared causes rather than treating items as an independent ticket queue.
   - distinguish implemented, merged, deployed, and validated states and not
     request re-testing until the change is available in the validation
     environment;
+  - load repo-local guardrails and work-lane or delivery-gating guidance when
+    they exist, complete read-only safety recon, and obtain delivery-consent
+    confirmation before issue, branch, worktree, staging, commit, push, PR,
+    merge, or deployment mutation; permit merge only after direct user
+    authorization or an accepted bounded plan that names the exact authorized
+    PR set;
   - use the project's established worklane mechanism, reuse active work that
     already covers the cluster, and keep recoverable traceability from items
     through change, deployment, and validation; and
@@ -117,7 +123,9 @@ fixing shared causes rather than treating items as an independent ticket queue.
   be special-case command code and would apply to unrelated prompts.
 - Keep the procedure environment-agnostic. The receiving agent must discover
   the punch-list document and local conventions rather than assuming GitHub or
-  a spreadsheet.
+  a spreadsheet. When the environment is Kit-managed, name `GUARDRAILS.md` and
+  `work-lane-gating` as the concrete delivery-consent gate rather than inventing
+  a generic mutation path.
 - Pin the approved body with SHA-256 in addition to comparing CLI output to
   the asset so accidental prompt edits fail tests without duplicating the full
   body in a Go file that would exceed the 300-line source limit.
@@ -133,6 +141,10 @@ fixing shared causes rather than treating items as an independent ticket queue.
 - `internal/cmd/prompt_execution_test.go` already pins the large `merge` body.
   A separate `punchlist_prompt_test.go` keeps both files under the 300-line
   handwritten source/test limit.
+- PR #29 review found that merge and the definition of done could authorize
+  delivery mutations without work-lane gating or merge consent. The prompt now
+  requires read-only recon and delivery consent before those mutations, and
+  merge only after a named authorized PR set.
 
 ## VALIDATION
 
@@ -145,7 +157,7 @@ fixing shared causes rather than treating items as an independent ticket queue.
 - `make build` — `PASS`; produced `bin/kp`.
 - Isolated CLI acceptance with an empty temporary config directory — `PASS`:
   `kp punchlist --print` emitted SHA-256
-  `b53ae84500e0f23dc0d6423a4a4ee1ebb67e3761b233800f9d3cbaf111647f79`,
+  `ca6314ad7670ac08d6acb3b95f58df221ced4fc0120c119f6d29b5d3c0e0a533`,
   `list --plain` included `punchlist` in sorted order, and `--help` showed
   `Punch list control loop`.
 - `git diff --check` — `PASS`.
@@ -157,6 +169,11 @@ fixing shared causes rather than treating items as an independent ticket queue.
   as hosted evidence.
 - Production validation — `NOT_APPLICABLE`: `kp` is a local CLI and this change
   adds no deployed service or external integration.
+- PR #29 review repair — `PASS`: focused prompt and command tests, full tests,
+  race tests, vet, both builds, isolated `kp punchlist --print` hash
+  `ca6314ad7670ac08d6acb3b95f58df221ced4fc0120c119f6d29b5d3c0e0a533`,
+  `git diff --check`, and the 40-file source-size audit were rerun after the
+  delivery-consent and merge-authorization prompt gates.
 
 ## OUTCOME
 
@@ -164,8 +181,9 @@ fixing shared causes rather than treating items as an independent ticket queue.
   the existing print, copy, list, help, and launcher paths.
 - The prompt requires environment discovery without assuming a tracker or
   platform, whole-list clustering, a 95% clarification gate, worklane reuse,
-  preservation of human notes, and separate implemented, merged, deployed, and
-  validated states.
+  preservation of human notes, delivery-consent before repository mutation,
+  merge only of an exact authorized PR set, and separate implemented, merged,
+  deployed, and validated states.
 - Issue #28 tracks delivery on `GH-28`; merge is not authorized by this work.
 
 ## REPOSITORY MEMORY
