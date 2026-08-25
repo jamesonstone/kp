@@ -62,6 +62,9 @@ kp clarify
 # create an evidence-backed dependency-ordered PR merge plan
 kp merge
 
+# drive an operational punch list through clustered fixes
+kp punchlist
+
 # browse prompts interactively
 kp list
 
@@ -92,6 +95,7 @@ utility command reference.
 | `kp merge`                 | Print and copy the dependency-ordered PR merge prompt.            | Cross-repo merge coordination     | ✅ ready        |
 | `kp parentthread`          | Print and copy the parent-thread response prompt.                 | Coding-agent chats                | ✅ ready        |
 | `kp pr`                    | Print and copy the Kit workflow prompt for a new worklane.        | Coding-agent chats, repo handoff  | ✅ ready        |
+| `kp punchlist`             | Print and copy the punch-list control-loop prompt.                | Product validation, operator notes| ✅ ready        |
 | `kp <name> --copy`         | Copy a prompt without printing it.                                | Shell aliases, scripts            | ✅ ready        |
 | `kp <name> --print`        | Print a prompt without touching the clipboard.                    | Pipes, inspection                 | ✅ ready        |
 | `kp find-port <port>`      | Inspect processes listening on a port and choose an action.       | Dev-server cleanup                | ✅ ready        |
@@ -121,6 +125,7 @@ utility command reference.
 | `merge`        | Dependency-ordered PR merge | ✅ embedded |
 | `parentthread` | Parent thread response      | ✅ embedded |
 | `pr`           | Pull request workflow       | ✅ embedded |
+| `punchlist`    | Punch list control loop     | ✅ embedded |
 
 Prompt names are bare commands. There is no `kp prompt ...` namespace.
 
