@@ -51,10 +51,10 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **STATUS**: implement
 - **PAUSED**: no
 - **INTENT**: Provide explicit, provider-neutral zero-context handoffs for chat-to-agent and agent-to-agent transfers without losing decisions, evidence, authority, validation, or the next safe action.
-- **APPROACH**: 1. Replace the ambiguous embedded handoff asset with chat-handoff and agent-handoff. 2. Clarify implementation-changing questions at the origin before emission. 3. Require destination live-state reconciliation, destination clarification, context hydration, and explicit permission before implementation. 4. Pin exact prompt hashes and discovery behavior without adding command-specific runtime code. 5. Validate all local CLI, source-size, and hygiene gates before ready-PR delivery.
-- **OPEN ITEMS**: Issue #32 tracks locally validated ready-PR delivery on GH-32. Hosted correctness checks remain unavailable because the repository has no validation workflow.
+- **APPROACH**: 1. Replace the ambiguous embedded handoff asset with chat-handoff and agent-handoff. 2. Clarify only origin questions that change destination authority, landing lane, or remaining-work contract and cannot be recorded as native evidence states; record unreachable third-party artifacts as `UNKNOWN`/`BLOCKED` and emit. 3. Require destination live-state reconciliation, destination clarification, context hydration, and explicit permission before implementation. 4. Pin exact prompt hashes and discovery behavior without adding command-specific runtime code. 5. Validate all local CLI, source-size, and hygiene gates before ready-PR delivery.
+- **OPEN ITEMS**: Issue #32 is delivered. Issue #34 tracks the unreachable-evidence origin-clarification correction on `GH-34`. Hosted correctness checks remain unavailable because the repository has no validation workflow.
 - **POINTERS**: `docs/specs/0005-handoff-prompts/SPEC.md`
 
 ## LAST UPDATED
 
-2026-08-26 11:00:00 EDT
+2026-08-26 12:05:00 EDT

@@ -16,6 +16,14 @@ references:
     read_policy: "must"
     used_for: "issue, branch, commit, and pull-request traceability"
     status: "active"
+  - id: "github-issue-unreachable-evidence"
+    name: "Stop agent-handoff from blocking on unreachable evidence"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/34"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "unreachable-evidence prompt correction, issue, branch, commit, and pull-request traceability"
+    status: "active"
   - id: "v0-init-utility"
     name: "v0 init utility"
     type: "feature_artifact"
@@ -69,6 +77,12 @@ agent systems without losing evidence, authority, or execution state.
 - Both prompts must use an origin clarification phase that resolves available
   evidence first, asks only implementation-changing questions, outputs only
   those questions when needed, and emits no handoff until none remain.
+- The agent handoff must not treat unreachable attachments, Drive links,
+  recordings, screenshots, other third-party files, or capture time versus a
+  commit as blocking origin or destination questions. Record them as `UNKNOWN`
+  or `BLOCKED` and emit. If the user instructs to skip questions or emit the
+  handoff, origin phase 2 must emit immediately. Completeness is recording
+  native evidence states, not obtaining unreachable artifacts.
 - Both generated handoffs must embed a destination clarification phase that
   reconciles the snapshot with repository-local instructions and live state
   before mutation.
@@ -84,7 +98,7 @@ agent systems without losing evidence, authority, or execution state.
   commit intent, issue/PR/check/review state, deployment/runtime state,
   completed work not to repeat, remaining dependency order, exact next safe
   action, authority boundaries, and validation tied to source or artifact
-  identity.
+  identity when that identity is already known.
 - Both prompts must distinguish facts, user decisions, inference, conflict,
   stale evidence, and native states such as `PENDING`, `UNKNOWN`, `BLOCKED`,
   `NOT_RUN`, and `NOT_APPLICABLE`.
@@ -108,6 +122,10 @@ agent systems without losing evidence, authority, or execution state.
 5. Run focused and complete tests, race detection, vet, both builds, isolated
    CLI acceptance, source-size audit, diff hygiene, and secret scan.
 6. Deliver issue #32 through `GH-32` and one ready pull request to `main`.
+7. Correct `prompts/agent-handoff.md` so unreachable third-party evidence and
+   capture-time provenance cannot block emission; pin the new SHA-256 and
+   required phrases; deliver issue #34 through `GH-34` and one ready pull
+   request to `main`.
 
 ## DECISIONS
 
@@ -124,6 +142,10 @@ agent systems without losing evidence, authority, or execution state.
   can map them to its own tools.
 - Accepted: prompt completeness has no arbitrary word limit. Redundancy is
   removed before implementation-relevant detail.
+- Accepted: unreachable third-party artifacts and capture-time versus a commit
+  are native evidence states, not origin or destination blocking questions.
+  Completeness records `UNKNOWN`/`BLOCKED` and the original URL. An explicit
+  skip or emit instruction causes immediate emission.
 
 ## DISCOVERIES
 
@@ -136,6 +158,10 @@ agent systems without losing evidence, authority, or execution state.
 - The agent-to-agent transfer needs a volatile evidence refresh immediately
   before emission; otherwise the destination can inherit stale heads, checks,
   deployment identity, or runtime state.
+- Origin phase 1 treated "would materially change ... the next action" plus
+  "completeness outranks brevity" as a duty to obtain Drive files and confirm
+  capture time versus a commit before emitting. That blocked realistic
+  handoffs. Unreachable evidence must stay `UNKNOWN`/`BLOCKED`.
 
 ## VALIDATION
 
@@ -145,7 +171,7 @@ agent systems without losing evidence, authority, or execution state.
 - `go vet ./...`, `go build ./...`, and `make build` — `PASS`.
 - Isolated empty-config CLI acceptance — `PASS`: `agent-handoff --print`
   emitted SHA-256
-  `74a5c9e682397a603f09b71b503fc96451da5f0b56f195058a5811331e880aed`;
+  `31f584b505fc1f50cfa66ca66297e5cc96867d1c1df86eb5aac985ed381282c5`;
   `chat-handoff --print` emitted
   `9e350823259e3856c63a987a92428772f69872c11a1c640b91d53e91b8cfd063`;
   list/help showed both commands; legacy `handoff` failed as absent.
@@ -153,9 +179,9 @@ agent systems without losing evidence, authority, or execution state.
 - `kit reconcile --all --dry-run` — `PASS` source-size audit: 42 eligible
   handwritten source/test files checked, zero above 300 physical lines. Ten
   pre-existing managed-refresh warnings in seven untouched files remain
-  outside issue #32.
+  outside issue #34.
 - `git diff --check` — `PASS`.
-- `gitleaks git --redact --no-banner` — `PASS`: 51 commits and 1.42 MB scanned
+- `gitleaks git --redact --no-banner` — `PASS`: 53 commits and 1.48 MB scanned
   with no leaks.
 - Hosted correctness checks — `UNAVAILABLE`: this repository has no hosted
   format, test, race, vet, or build workflow.
@@ -163,13 +189,11 @@ agent systems without losing evidence, authority, or execution state.
 
 ## OUTCOME
 
-- Source and local validation are complete on issue #32 and `GH-32`.
-- `kp chat-handoff` preserves clarified brainstorm context for a zero-context
-  coding agent; `kp agent-handoff` additionally preserves live repository,
-  delivery, runtime, authority, completed-work, validation, and next-action
-  state.
-- Both generated handoffs require destination reconciliation, destination
-  clarification, context hydration, and explicit permission before mutation.
+- Source and local validation are complete on issue #34 and `GH-34`.
+- `kp agent-handoff` records unreachable third-party artifacts and capture-time
+  provenance as `UNKNOWN`/`BLOCKED` instead of asking the user to retrieve
+  them; an explicit skip/emit instruction causes immediate emission.
+- `kp chat-handoff` remains unchanged.
 - Ready-PR delivery is authorized; merge is not authorized.
 
 ## REPOSITORY MEMORY
@@ -178,3 +202,5 @@ agent systems without losing evidence, authority, or execution state.
   zero-context state contract, provider-neutral boundary, legacy-name removal,
   and destination authority gate are durable behavior not recoverable from the
   prompt filenames alone.
+- Constitution curation is not required: unreachable-evidence emission is
+  feature-local prompt behavior, not a new project-wide invariant.
