@@ -58,8 +58,13 @@ ledger existence are also not authorization.
   Do not rerun unchanged checks, reread identical evidence, or poll repeatedly
   inside its declared freshness window.
 - Adding a pull request, repository, target base, deployment environment,
-  infrastructure effect, merge method, admin path, or identity is material
-  scope expansion and requires follow-up authorization.
+  infrastructure effect, rebase or otherwise non-default merge method, admin
+  path, or identity is material scope expansion and requires follow-up
+  authorization.
+- Squash and merge-commit are both authorized by default. Prefer squash and
+  merge; fall back to creating a merge commit when squash is not permitted or
+  cannot complete. Switching between those two methods is not follow-up
+  authorization.
 - Protection bypass, admin override, review bypass, required-check bypass,
   force-push, and silent identity substitution are prohibited even when merge
   authority exists.
@@ -71,7 +76,8 @@ Before the first merge, record:
 - authorization source and approved PR set;
 - repository identity and authenticated GitHub actor for every repository;
 - expected PR head OID, base branch, and current PR state;
-- repository-approved merge method or merge-queue policy;
+- repository-approved merge method or merge-queue policy, defaulting to squash
+  and merge with merge-commit fallback;
 - dependency edges and the current authorized ready frontier;
 - required review and hosted-check policy plus current-head evidence;
 - known deployment, Kubernetes, public-cloud, and infrastructure-as-code
@@ -128,6 +134,11 @@ before mutation.
   required reviews and checks, merge queue, and documentation-only policy.
 - Use the required merge queue when policy requires it; queue admission still
   needs current `MERGE_READY` evidence and exact authorization.
+- Default to squash and merge when the repository permits it. If squash is
+  disabled, rejected, or otherwise unavailable, fall back to creating a merge
+  commit when that method is permitted. Both methods are authorized by default;
+  the fallback is not new method authority. Do not use rebase merge unless
+  repository policy requires it or the user explicitly authorizes it.
 - Use only a repository-permitted merge method. Do not choose an admin or
   bypass variant to make a blocked merge succeed.
 - For documentation-only squash merges, preserve the repository's eligible
@@ -245,6 +256,8 @@ healthy state by another name.
   method, policy, dependencies, checks, reviews, and approvals were revalidated
   immediately before mutation.
 - Confirm only `MERGE_READY` authorized nodes entered each wave.
+- Confirm squash was preferred when permitted and merge-commit fallback did
+  not require follow-up authorization.
 - Confirm independent concurrency did not cross dependency or same-base
   source, deployment, or acceptance serialization boundaries.
 - Confirm each wave used one current preflight snapshot and refreshed evidence

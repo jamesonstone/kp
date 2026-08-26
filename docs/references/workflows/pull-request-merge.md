@@ -38,7 +38,8 @@ evidence:
 ## Phases
 
 1. Record the authorization source, approved PR set, expected actor, head/base,
-   merge method, dependencies, and applicable infrastructure approval.
+   merge method (squash by default, merge-commit fallback), dependencies, and
+   applicable infrastructure approval.
 2. Classify each node as `MERGE_READY`, `BLOCKED`, or `UNKNOWN` from exact
    current-head and repository-policy evidence.
 3. Reconcile the authorized ready frontier immediately before each wave;
