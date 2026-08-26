@@ -14,10 +14,10 @@ func TestBuiltIn_LoadsApprovedPrompts(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(prompts) != 7 {
-		t.Fatalf("len(prompts) = %d, want 7", len(prompts))
+	if len(prompts) != 8 {
+		t.Fatalf("len(prompts) = %d, want 8", len(prompts))
 	}
-	wantNames := []string{"clarify", "continue", "handoff", "merge", "parentthread", "pr", "punchlist"}
+	wantNames := []string{"agent-handoff", "chat-handoff", "clarify", "continue", "merge", "parentthread", "pr", "punchlist"}
 	for i, want := range wantNames {
 		if prompts[i].Name != want {
 			t.Fatalf("prompts[%d].Name = %q, want %q", i, prompts[i].Name, want)
@@ -40,7 +40,7 @@ func TestBuiltIn_LoadsApprovedPrompts(t *testing.T) {
 }
 
 func TestBuiltIn_SourceFilesAreUsablePromptDocuments(t *testing.T) {
-	for _, name := range []string{"clarify.md", "continue.md", "handoff.md", "merge.md", "parentthread.md", "pr.md", "punchlist.md"} {
+	for _, name := range []string{"agent-handoff.md", "chat-handoff.md", "clarify.md", "continue.md", "merge.md", "parentthread.md", "pr.md", "punchlist.md"} {
 		t.Run(name, func(t *testing.T) {
 			got, err := os.ReadFile(filepath.Join("..", "..", "prompts", name))
 			if err != nil {

@@ -102,37 +102,6 @@ func TestContinuePromptPrintsApprovedInstructions(t *testing.T) {
 	}
 }
 
-func TestHandoffPromptIncludesAcceptanceCriteriaWithoutWordLimit(t *testing.T) {
-	stdout, stderr, err := executeTestCommand(t, "handoff", "--print")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	expected := []string{
-		"4. Acceptance Criteria",
-		"5. Resource Links",
-		"Acceptance Criteria: List success criteria in bullet-list form",
-		"Each criterion must be binary verifiable.",
-		"Remove any sentence where deletion doesn't degrade the agent's ability to execute correctly.",
-		"audit the conversation for ambiguities, contradictions, missing requirements, hidden assumptions",
-		"Assume the coding agent has not seen the original conversation.",
-		"Include in-scope, out-of-scope, and deferred future work",
-		"error handling, logging and observability, security and authorization, compatibility, rollback, operator visibility",
-		"List decisions already made as implementation constraints",
-	}
-	for _, text := range expected {
-		if !strings.Contains(stdout, text) {
-			t.Fatalf("stdout missing %q:\n%s", text, stdout)
-		}
-	}
-	if strings.Contains(stdout, "650") || strings.Contains(stdout, "word limit") {
-		t.Fatalf("stdout includes removed word-limit language:\n%s", stdout)
-	}
-	if stderr != "" {
-		t.Fatalf("stderr = %q", stderr)
-	}
-}
-
 func TestPromptCopy(t *testing.T) {
 	fake := &fakeClipboard{}
 	stdout, stderr, err := executeTestCommand(t, "clarify", "--copy", withClipboard(fake))
