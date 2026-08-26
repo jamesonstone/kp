@@ -61,3 +61,7 @@
 - Always update affected documentation and ensure touched documents stay current and properly formatted before finishing the work
 - Record the docs, skills, and references that materially shaped the feature in canonical front matter references
 - Use `kit dispatch` only when the work moves from broad discovery into multi-lane execution planning
+- Load `docs/references/rules/human-authorship.md` before any commit, pull request, issue, review comment, or other attribution text
+- Load `docs/references/rules/agent-completion-output.md` before a substantial terminal completion or handoff response; answer ordinary conversational requests naturally without its structured envelope
+- Load `docs/references/rules/deadline-mode.md` only when the user explicitly signals a real time constraint or deadline in-thread; never infer or proactively suggest deadline mode
+- Load `docs/references/rules/deletion-safety.md` before designing deletion behavior or deleting persistent project, user, business, or external-system state
