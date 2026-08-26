@@ -147,7 +147,7 @@ func TestPickerNoFZFValidSelection(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(stderr, "1\tclarify\tClarify before implementing\n") {
+	if !strings.Contains(stderr, "1\tagent-handoff\tAgent-to-agent handoff\n") {
 		t.Fatalf("stderr = %q", stderr)
 	}
 	if fake.copied == "" {

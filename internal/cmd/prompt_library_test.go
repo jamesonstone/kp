@@ -31,7 +31,7 @@ func TestNewCreatesPromptWithEditor(t *testing.T) {
 
 func TestNewRejectsBuiltinCollision(t *testing.T) {
 	_, _, err := executeTestCommand(t,
-		"new", "handoff",
+		"new", "agent-handoff",
 		withEditor(func(string, []string, string) error { return nil }),
 	)
 	if ExitCode(err) != ExitUser {
@@ -141,7 +141,7 @@ func TestRMUserPrompt(t *testing.T) {
 }
 
 func TestRMBuiltinFails(t *testing.T) {
-	_, _, err := executeTestCommand(t, "rm", "handoff")
+	_, _, err := executeTestCommand(t, "rm", "agent-handoff")
 	if ExitCode(err) != ExitUser {
 		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
 	}

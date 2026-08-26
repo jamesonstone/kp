@@ -59,6 +59,12 @@ kp --help
 # print and copy a built-in prompt
 kp clarify
 
+# hand off a brainstorm to a coding agent
+kp chat-handoff
+
+# transfer a live coding-agent task to another agent system
+kp agent-handoff
+
 # coordinate context-derived PR merges and deployments
 kp merge
 
@@ -91,7 +97,8 @@ utility command reference.
 | `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
 | `kp clarify`               | Print and copy the clarify-before-implementing prompt.            | Coding-agent chats                | ✅ ready        |
 | `kp continue`              | Print and copy the autonomous-continuation prompt.                | Coding-agent chats                | ✅ ready        |
-| `kp handoff`               | Print and copy the coding-agent handoff prompt.                   | Coding-agent chats                | ✅ ready        |
+| `kp agent-handoff`         | Print and copy the zero-context agent transfer prompt.            | Coding-agent migration            | ✅ ready        |
+| `kp chat-handoff`          | Print and copy the chat-to-coding-agent handoff prompt.           | Brainstorms, chat-only planning   | ✅ ready        |
 | `kp merge`                 | Print and copy the context-aware merge/deployment prompt.         | Cross-repo release coordination   | ✅ ready        |
 | `kp parentthread`          | Print and copy the parent-thread response prompt.                 | Coding-agent chats                | ✅ ready        |
 | `kp pr`                    | Print and copy the Kit workflow prompt for a new worklane.        | Coding-agent chats, repo handoff  | ✅ ready        |
@@ -121,7 +128,8 @@ utility command reference.
 | -------------- | --------------------------- | ----------- |
 | `clarify`      | Clarify before implementing | ✅ embedded |
 | `continue`     | Continue autonomously       | ✅ embedded |
-| `handoff`      | Coding agent handoff        | ✅ embedded |
+| `agent-handoff` | Agent-to-agent handoff       | ✅ embedded |
+| `chat-handoff`  | Chat-to-agent handoff        | ✅ embedded |
 | `merge`        | Context-aware PR merge and deployment | ✅ embedded |
 | `parentthread` | Parent thread response      | ✅ embedded |
 | `pr`           | Pull request workflow       | ✅ embedded |

@@ -15,7 +15,7 @@ func TestListPlain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stdout != "clarify\ncontinue\nhandoff\nmerge\nparentthread\npr\npunchlist\n" {
+	if stdout != "agent-handoff\nchat-handoff\nclarify\ncontinue\nmerge\nparentthread\npr\npunchlist\n" {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -32,7 +32,10 @@ func TestListVerbose(t *testing.T) {
 	if !strings.Contains(stdout, "continue\tContinue autonomously\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
-	if !strings.Contains(stdout, "handoff\tCoding agent handoff\tbuiltin\n") {
+	if !strings.Contains(stdout, "agent-handoff\tAgent-to-agent handoff\tbuiltin\n") {
+		t.Fatalf("stdout = %q", stdout)
+	}
+	if !strings.Contains(stdout, "chat-handoff\tChat-to-agent handoff\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
 	if !strings.Contains(stdout, "merge\tContext-aware PR merge and deployment\tbuiltin\n") {
@@ -69,7 +72,8 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"Prompt Commands",
 		"kp clarify",
 		"kp continue",
-		"kp handoff",
+		"kp agent-handoff",
+		"kp chat-handoff",
 		"kp merge",
 		"kp pr",
 		"kp punchlist",
@@ -96,6 +100,9 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 	}
 	if strings.Contains(stdout, "kp"+" prompt") {
 		t.Fatalf("stdout = %q", stdout)
+	}
+	if strings.Contains(stdout, "kp handoff") {
+		t.Fatalf("stdout includes removed legacy command: %q", stdout)
 	}
 	if registryCalled || clipboardCalled {
 		t.Fatalf("registryCalled=%v clipboardCalled=%v", registryCalled, clipboardCalled)
