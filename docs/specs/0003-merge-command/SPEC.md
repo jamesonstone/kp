@@ -113,6 +113,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   require read-only safety recon, and verify the exact lane-choice question was
   explicitly answered for the current lane. Generic approval cannot substitute
   for lane consent, while an already-recorded exact choice is not repeated.
+- Name `testing-and-environment-validation.md` and the project testing reference
+  before implementation or validation so prompt brevity cannot bypass the
+  repository's required environment procedure.
 - Build the dependency/deployment graph from authoritative evidence and fail
   closed as `BLOCKED` or `UNKNOWN` when readiness is incomplete.
 - Present one consolidated approval request before the first merge or covered
@@ -306,7 +309,8 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   replacement.
 - PR #31 review repair — `PASS`: the mutation preflight now names Guardrails,
   work-lane gating, read-only safety recon, and exact current-lane consent while
-  preserving the no-redundant-recheck requirement.
+  preserving the no-redundant-recheck requirement. A follow-up review finding
+  also added the mandatory testing and environment-validation references.
 
 ## OUTCOME
 
