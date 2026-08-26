@@ -15,7 +15,7 @@ func TestHandoffPromptsPrintApprovedContracts(t *testing.T) {
 	}{
 		{
 			name:     "agent-handoff",
-			wantHash: "74a5c9e682397a603f09b71b503fc96451da5f0b56f195058a5811331e880aed",
+			wantHash: "31f584b505fc1f50cfa66ca66297e5cc96867d1c1df86eb5aac985ed381282c5",
 			required: []string{
 				"lossless, zero-context handoff",
 				"## Origin phase 1: clarify",
@@ -23,6 +23,8 @@ func TestHandoffPromptsPrintApprovedContracts(t *testing.T) {
 				"## Authority and Safety Boundaries",
 				"Repository and Workspace State",
 				"Preserve native evidence states",
+				"Do not ask the user to attach",
+				"emit immediately",
 				"Do not repeat completed work.",
 				"Proceed with the hydrated task?",
 			},
