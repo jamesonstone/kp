@@ -35,7 +35,7 @@ func TestListVerbose(t *testing.T) {
 	if !strings.Contains(stdout, "handoff\tCoding agent handoff\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
-	if !strings.Contains(stdout, "merge\tDependency-ordered PR merge\tbuiltin\n") {
+	if !strings.Contains(stdout, "merge\tContext-aware PR merge and deployment\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
 	if !strings.Contains(stdout, "pr\tPull request workflow\tbuiltin\n") {
