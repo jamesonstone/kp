@@ -157,10 +157,10 @@ registry:
           path: docs/references/rules/github-pr-merge.md
           source_repo: jamesonstone/kit
           source_branch: main
-          source_commit: 231e471dd8cc9c53c8acc883446f13513e9da975
+          source_commit: 811d577c5e288f72c7c4b9319c15c4f85b2629ce
           source_path: docs/references/rules/github-pr-merge.md
-          installed_hash: sha256:719ada5f7417f1f04c2083cd6c45f39f1908e40f1170f0ce4b8bed5ea4a64b79
-          state: conflict
+          installed_hash: sha256:1b4e01ed163b8c49a8239800ce1a06e59a5efc23606c5a43861cc24dd4c42b6b
+          state: managed
         - kind: ruleset
           slug: human-authorship
           path: docs/references/rules/human-authorship.md
