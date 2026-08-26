@@ -109,6 +109,10 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   discoverable facts or expanding scope.
 - Require repository-local merge, infrastructure, orchestration, and completion
   rules to remain authoritative.
+- Name `docs/agents/GUARDRAILS.md` and `work-lane-gating` before mutation,
+  require read-only safety recon, and verify the exact lane-choice question was
+  explicitly answered for the current lane. Generic approval cannot substitute
+  for lane consent, while an already-recorded exact choice is not repeated.
 - Build the dependency/deployment graph from authoritative evidence and fail
   closed as `BLOCKED` or `UNKNOWN` when readiness is incomplete.
 - Present one consolidated approval request before the first merge or covered
@@ -300,6 +304,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   and 1.39 MB with no leaks. Hosted correctness checks remain `UNAVAILABLE`,
   and production validation is `NOT_APPLICABLE` for this local prompt-only
   replacement.
+- PR #31 review repair — `PASS`: the mutation preflight now names Guardrails,
+  work-lane gating, read-only safety recon, and exact current-lane consent while
+  preserving the no-redundant-recheck requirement.
 
 ## OUTCOME
 

@@ -5,8 +5,8 @@ Coordinate the already-scoped pull requests using the conversation and current r
 
 ## Analysis and approval
 
-1. Load every applicable repository-local merge, infrastructure, orchestration, and completion rule.
-2. Build the dependency and deployment graph from authoritative evidence. Classify each node as `MERGE_READY`, `BLOCKED`, or `UNKNOWN`; missing, stale, pending, conflicted, or unattributable evidence never passes.
+1. Before any repository, delivery, or infrastructure mutation, load `docs/agents/GUARDRAILS.md` plus the applicable `work-lane-gating` and infrastructure rules, then complete read-only safety reconnaissance. For repository or delivery work, verify the lane rule's exact consent question was explicitly answered for the current lane; if not, ask it verbatim and wait. Generic approval is not lane consent.
+2. Load the remaining applicable repository-local merge, orchestration, and completion rules. Build the dependency and deployment graph from authoritative evidence. Classify each node as `MERGE_READY`, `BLOCKED`, or `UNKNOWN`; missing, stale, pending, conflicted, or unattributable evidence never passes.
 3. Record each node's repository, PR, exact head/base, method, dependencies, infrastructure effects, recovery, and acceptance signal. Keep merge, CI, deployment, runtime, and production acceptance distinct.
 4. Before the first merge or infrastructure mutation, present one consolidated approval request for the exact current frontier and all known infrastructure effects unless equivalent exact approval from the conversation remains valid. Never delete, destroy, purge, destructively replace, or remove infrastructure; stop and isolate that work for separate explicit authorization.
 5. Run one complete preflight immediately before each consequential mutation. Repeat only when a material fact changes: head/base, reviews/checks, policy, actor, dependency, deployment target/effect, approval, or acceptance window.
