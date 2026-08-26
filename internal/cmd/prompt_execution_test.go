@@ -62,9 +62,9 @@ func TestMergePromptPrintsApprovedInstructions(t *testing.T) {
 - One primary coordinator owns the graph, authority, wave selection, recovery, and final acceptance.
 - When the host supports explicit model selection, use lower-cost or lower-capability agents only for exact, bounded ~MERGE_READY~ merges and deployment monitoring. Keep graph changes, repair decisions, recovery, and acceptance with the coordinator.
 - Parallelize nodes only when both source and deployment effects are independent. Serialize shared bases, services, environments, databases, migrations, queues, and acceptance gates.
-- Merge only the authorized ready frontier with repository-permitted methods and required queues. Never bypass policy, switch identity, force-push, weaken a gate, or explicitly delete PR branches.
+- Merge only the authorized ready frontier with repository-permitted methods and required queues. Default to squash and merge. If squash is unavailable or cannot complete for a repository-permitted reason, fall back to creating a merge commit. Squash and merge-commit are both authorized by default; that fallback is not new method authority. Do not use rebase merge or another method unless the repository requires it or the user explicitly authorizes it. Never bypass policy, switch identity, force-push, weaken a gate, or explicitly delete PR branches.
 - Monitor with event-driven waits or bounded backoff; do not emit or repeat unchanged polling.
-- Reconcile failures autonomously within the approved scope: diagnose once, apply only authorized in-lane repair, rerun affected evidence, and refresh that node and its dependents. Do not retry blindly or introduce a new PR, infrastructure effect, target, method, or authority boundary.
+- Reconcile failures autonomously within the approved scope: diagnose once, apply only authorized in-lane repair, rerun affected evidence, and refresh that node and its dependents. Do not retry blindly or introduce a new PR, infrastructure effect, target, or authority boundary. Falling back from squash to a merge commit is not a new method or authority boundary.
 - A changed head returns to ~UNKNOWN~ and requires fresh current-head evidence and authorization. Continue independent valid nodes; stop when recovery cannot make progress safely.
 
 ## Final response

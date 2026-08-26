@@ -64,7 +64,15 @@ references:
     read_policy: "must"
     used_for: "context derivation, concise execution, recovery, and delivery traceability"
     status: "active"
-delivery_intent: "issue_branch_pr_in_progress"
+  - id: "github-issue-squash-default"
+    name: "Default kp merge to squash with merge-commit fallback"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/38"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "default merge-method pair, issue, branch, commit, and pull-request traceability"
+    status: "active"
+delivery_intent: "issue_branch_pr_ready"
 ---
 # SPEC
 
@@ -107,6 +115,12 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   methods, deployment targets, acceptance gates, and authorization boundaries
   from conversation and repository context without asking the user to restate
   discoverable facts or expanding scope.
+- Default to squash and merge. If squash is unavailable or cannot complete for
+  a repository-permitted reason, fall back to creating a merge commit. Both
+  methods are authorized by default; that fallback is not follow-up method
+  authority. Do not use rebase merge or another method unless repository policy
+  requires it or the user explicitly authorizes it. Never use a method the
+  repository disables.
 - Require repository-local merge, infrastructure, orchestration, and completion
   rules to remain authoritative.
 - Name `docs/agents/GUARDRAILS.md` and `work-lane-gating` before mutation,
@@ -151,6 +165,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
    changing command execution behavior.
 4. Run focused and complete local validation, source-size audit, diff hygiene,
    and isolated prompt acceptance before ready-PR delivery.
+5. Use issue #38, branch `GH-38`, and its canonical non-primary worktree to
+   encode squash-default plus merge-commit fallback in the merge prompt, merge
+   rule, merge workflow, exact-output pin, and this specification.
 
 ## DECISIONS
 
@@ -166,6 +183,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   it becomes a separate explicit task and approval boundary.
 - Accepted: terminal output is status-first and concise, with repository-local
   completion vocabulary taking precedence.
+- Accepted: squash and merge-commit are the default authorized pair. Prefer
+  squash; fall back to a merge commit without asking again. Rebase and other
+  methods remain unauthorized unless policy or the user requires them.
 
 - Use a built-in prompt asset instead of a dedicated Cobra command because the
   existing bare-name registry already supplies print, copy, help, launcher, and
@@ -242,6 +262,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   exact-head merge freeze. Preserving the original PR for routine repairs avoids
   recursive corrective PRs while still invalidating every prior readiness,
   review, check, and merge-authorization claim tied to the old head.
+- Issue #38 showed that "repository-permitted methods" plus "do not introduce a
+  new method" left squash-versus-merge-commit unspecified and treated fallback
+  as new authority. The default authorized pair is squash, then merge-commit.
 
 ## VALIDATION
 
@@ -311,6 +334,17 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   work-lane gating, read-only safety recon, and exact current-lane consent while
   preserving the no-redundant-recheck requirement. A follow-up review finding
   also added the mandatory testing and environment-validation references.
+- `GH-38` squash-default merge-method pair — `PASS`: focused merge exact-output
+  coverage, `gofmt`, `go test ./...`, `go test -race ./...`, `go vet ./...`,
+  `go build ./...`, `make build`, isolated empty-config `merge --print` and
+  `list --plain`, `kit check --all`, `git diff --check`, and gitleaks all
+  passed. The exact printed prompt SHA-256 was
+  `87729fb619680c544d21a66416d99a04981483dfebbd866f4477c44502a4ab5a`.
+  `kit reconcile --all --dry-run` checked 42 eligible handwritten source/test
+  files with zero above 300 physical lines; ten pre-existing managed-refresh
+  warnings remain outside issue #38. Hosted correctness checks remain
+  `UNAVAILABLE`, and production validation is `NOT_APPLICABLE` for this local
+  prompt-and-policy refinement.
 
 ## OUTCOME
 
@@ -325,6 +359,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   monitoring.
 - Terminal responses are concise and keep merge, CI, deployment, runtime, and
   production acceptance separate.
+- `kp merge` defaults to squash and merge and falls back to creating a merge
+  commit; both methods are authorized by default and that fallback is not new
+  method authority.
 
 ## REPOSITORY MEMORY
 
@@ -343,5 +380,7 @@ changes no command behavior.
 - Issue #26 records the durable distinction between exact-head merge authority
   and separately authorized in-place remediation across the prompt, merge rule,
   merge workflow, exact-output coverage, and feature rationale.
+- Issue #38 records the default authorized merge-method pair: squash first,
+  merge-commit fallback, without follow-up authorization to switch between them.
 - The existing v0 feature artifacts remain unchanged because this is a separate
   public command and policy surface.
