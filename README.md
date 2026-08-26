@@ -59,7 +59,7 @@ kp --help
 # print and copy a built-in prompt
 kp clarify
 
-# create an evidence-backed dependency-ordered PR merge plan
+# coordinate context-derived PR merges and deployments
 kp merge
 
 # drive an operational punch list through clustered fixes
@@ -92,7 +92,7 @@ utility command reference.
 | `kp clarify`               | Print and copy the clarify-before-implementing prompt.            | Coding-agent chats                | ✅ ready        |
 | `kp continue`              | Print and copy the autonomous-continuation prompt.                | Coding-agent chats                | ✅ ready        |
 | `kp handoff`               | Print and copy the coding-agent handoff prompt.                   | Coding-agent chats                | ✅ ready        |
-| `kp merge`                 | Print and copy the dependency-ordered PR merge prompt.            | Cross-repo merge coordination     | ✅ ready        |
+| `kp merge`                 | Print and copy the context-aware merge/deployment prompt.         | Cross-repo release coordination   | ✅ ready        |
 | `kp parentthread`          | Print and copy the parent-thread response prompt.                 | Coding-agent chats                | ✅ ready        |
 | `kp pr`                    | Print and copy the Kit workflow prompt for a new worklane.        | Coding-agent chats, repo handoff  | ✅ ready        |
 | `kp punchlist`             | Print and copy the punch-list control-loop prompt.                | Product validation, operator notes| ✅ ready        |
@@ -122,7 +122,7 @@ utility command reference.
 | `clarify`      | Clarify before implementing | ✅ embedded |
 | `continue`     | Continue autonomously       | ✅ embedded |
 | `handoff`      | Coding agent handoff        | ✅ embedded |
-| `merge`        | Dependency-ordered PR merge | ✅ embedded |
+| `merge`        | Context-aware PR merge and deployment | ✅ embedded |
 | `parentthread` | Parent thread response      | ✅ embedded |
 | `pr`           | Pull request workflow       | ✅ embedded |
 | `punchlist`    | Punch list control loop     | ✅ embedded |

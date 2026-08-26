@@ -56,6 +56,14 @@ references:
     read_policy: "must"
     used_for: "in-place remediation requirements and delivery traceability"
     status: "active"
+  - id: "github-issue-context-aware-merge"
+    name: "Make the merge prompt concise and context-aware"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/30"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "context derivation, concise execution, recovery, and delivery traceability"
+    status: "active"
 delivery_intent: "issue_branch_pr_in_progress"
 ---
 # SPEC
@@ -85,82 +93,72 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   serialized.
 - Running `kp merge` remains local prompt output. It does not discover PRs,
   call GitHub, grant merge authority, or perform a merge itself.
+- Issue #30 replaces the detailed standalone procedure with a concise overlay
+  that derives known PR state from conversation and repository context while
+  delegating durable policy to Kit-managed repository rules.
 
 ## REQUIREMENTS
 
-- Ship an embedded prompt named `merge` with label
-  `Dependency-ordered PR merge`.
-- `kp merge`, `kp merge --print`, and `kp merge --copy` must use the existing
-  prompt execution and clipboard-verification behavior without special-case
-  command code.
-- The prompt must instruct the receiving agent to:
-  - operate only on the exact repository, pull-request, and expected-head set
-    directly authorized by the user or covered by a bounded plan explicitly
-    accepted by the user;
-  - build and output a Mermaid dependency DAG plus topological wave table;
-  - distinguish ordinary merge dependencies from edges that require deployed
-    or production-accepted predecessors;
-  - require authoritative directional evidence for dependency edges and treat
-    shared files, symbols, configuration, environments, or databases as
-    coupling to inspect rather than proof of direction;
-  - bind readiness to exact repository, head, base, actor, merge method,
-    policy, reviews, checks, dependencies, infrastructure effects, and recovery;
-  - classify every node as `MERGE_READY`, `BLOCKED`, or `UNKNOWN` and fail
-    closed on missing, stale, pending, unproven-skipped, cyclic, provisional,
-    conflicted, or ambiguous evidence;
-  - select only the zero-unmet-dependency ready frontier, maximize concurrency
-    among independent nodes, and prioritize downstream unlocks and critical-path
-    reduction;
-  - serialize dependency chains and same-base, deployment-coupled, or otherwise
-    interacting operations;
-  - revalidate immediately before every wave, re-observe after every mutation,
-    isolate failures to the failed node and its dependents, and recompute the
-    graph;
-  - preserve repository safeguards and required merge queues;
-  - distinguish exact-head merge authority from source-repair authority,
-    prefer separately authorized in-place updates for routine remediation that
-    remains inside the existing pull request's issue and scope, and invalidate
-    prior readiness and merge authority whenever the head changes;
-  - reserve replacement pull requests for material scope or architecture
-    changes, original heads that cannot be updated safely, or explicit
-    repository-policy or user requirements;
-  - classify migration and deployment recovery from actual behavior, including
-    reversible redeploy, schema-retaining cutback or forward-fix, and genuinely
-    irreversible or destructive changes;
-  - inventory protected workloads and bind their invariants, safe activation
-    state, exact validation, literal result, artifact identity, and recovery;
-  - load repo-local rules before merge actions, give Kit-managed rules priority
-    over generic GitHub or plugin defaults, and require `kit aws verify` plus the
-    verified configured profile for AWS-dependent evidence or actions without
-    ambient-credential fallback; and
-  - report merge, hosted workflow, deployment, runtime, production acceptance,
-    recovery, and rollback as separate claims; and
-  - define `MERGED`, `DEPLOYED`, and `ACCEPTED` separately and record the exact
-    post-merge commit, base, method, actor, observation time, and containment
-    evidence needed to support those claims.
-- Prompt listing, verbose listing, grouped help, launcher discovery, and user
-  override behavior must include `merge` through the existing registry path.
-- Automated tests must pin the exact prompt output and updated built-in ordering.
-- README command and built-in tables must document `kp merge`.
-- No network dependency, background controller, GitHub API integration, merge
-  executor, or new third-party dependency is in scope.
+- Keep `merge` as an embedded, overrideable built-in prompt using the existing
+  print, copy, list, help, launcher, and clipboard paths.
+- Replace only the prompt contract; do not add a Cobra command, network access,
+  GitHub integration, background controller, or dependency.
+- Derive the exact PR set, current heads/bases, dependencies, permitted merge
+  methods, deployment targets, acceptance gates, and authorization boundaries
+  from conversation and repository context without asking the user to restate
+  discoverable facts or expanding scope.
+- Require repository-local merge, infrastructure, orchestration, and completion
+  rules to remain authoritative.
+- Build the dependency/deployment graph from authoritative evidence and fail
+  closed as `BLOCKED` or `UNKNOWN` when readiness is incomplete.
+- Present one consolidated approval request before the first merge or covered
+  infrastructure mutation unless equivalent exact approval remains valid.
+- Prohibit infrastructure deletion, destruction, purge, destructive
+  replacement, and state removal inside the merge workflow; isolate them for a
+  separate explicitly authorized task.
+- Run one complete preflight immediately before a consequential mutation and
+  refresh only after material state change or freshness expiry.
+- Keep one primary coordinator responsible for graph changes, authority,
+  recovery, waves, and acceptance. When supported, permit lower-cost or
+  lower-capability agents only for exact bounded ready-node merges and
+  deployment monitoring.
+- Parallelize only nodes independent in both source and deployment effects;
+  serialize shared bases, services, environments, databases, migrations,
+  queues, and acceptance gates.
+- Attempt bounded autonomous recovery within approved scope, rerun only affected
+  evidence, and stop blind or non-progressing retries.
+- Prefer event-driven waits or bounded backoff and omit unchanged polling.
+- Preserve merge, hosted CI, deployment, runtime, and production acceptance as
+  separate claims.
+- Use repository-required completion vocabulary when present; otherwise emit
+  `SUCCESS|PARTIAL|BLOCKED|FAILURE`, a one-to-three-sentence result, and
+  `none` or at most three copy-ready next steps.
+- Pin exact prompt output in tests and keep README discovery aligned.
+- Keep every changed handwritten source and test file at or below 300 lines.
 
 ## ACCEPTED PLAN
 
-1. Replace the recursive corrective-PR default with separately authorized,
-   scope-preserving repair on the existing pull-request head between waves.
-2. Preserve the exact-head merge freeze by returning any changed head to
-   `UNKNOWN` until fresh checks, review, revalidation, and later exact-head
-   merge authorization are complete.
-3. Update the durable merge rule, workflow, exact-output test, and canonical
-   feature documentation together so the instruction surfaces remain aligned.
-4. Run formatting, focused prompt tests, the full Go test suite, race tests,
-   vet, both builds, isolated `kp merge --print` acceptance, diff hygiene, and
-   the affected source-size audit.
-5. Self-review, commit with the repository contract, push `GH-26`, and open one
-   ready pull request that closes issue #26.
+1. Use issue #30, branch `GH-30`, and its canonical non-primary worktree.
+2. Replace only `prompts/merge.md` with the concise context-aware contract.
+3. Update the exact-output test, README, and this living specification without
+   changing command execution behavior.
+4. Run focused and complete local validation, source-size audit, diff hygiene,
+   and isolated prompt acceptance before ready-PR delivery.
 
 ## DECISIONS
+
+- Accepted: Kit-managed repository rules own durable merge and infrastructure
+  policy; `kp merge` is a concise conversational invocation layer.
+- Accepted: current conversation and repository evidence define the PR graph,
+  so the prompt asks only for materially missing authority or state.
+- Accepted: one meaningful preflight replaces redundant unchanged-state
+  rechecking, while material drift still invalidates affected evidence.
+- Accepted: lower-capability agents may perform only exact bounded mechanical
+  merges or deployment monitoring; the primary coordinator retains judgment.
+- Accepted: infrastructure deletion is never reconciled inside a release wave;
+  it becomes a separate explicit task and approval boundary.
+- Accepted: terminal output is status-first and concise, with repository-local
+  completion vocabulary taking precedence.
 
 - Use a built-in prompt asset instead of a dedicated Cobra command because the
   existing bare-name registry already supplies print, copy, help, launcher, and
@@ -198,6 +196,11 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   direction justifies replacement; minor in-scope fixes do not.
 
 ## DISCOVERIES
+
+- Issue #30 showed that the prior prompt duplicated the complete Kit ruleset,
+  encouraged unnecessary rechecking, and forced callers to restate context the
+  receiving agent already possessed. A short overlay preserves behavior while
+  reducing prompt noise and policy drift.
 
 - The prompt registry loads every embedded `prompts/*.md` file dynamically and
   sorts by name; the implementation change is one asset plus tests and docs.
@@ -288,35 +291,35 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   that repo-wide scaffold refresh remains outside issue #26. Hosted
   pull-request correctness checks remain `UNAVAILABLE`, and production
   validation is `NOT_APPLICABLE` for this local prompt-only CLI refinement.
+- `GH-30` context-aware prompt replacement — `PASS`: focused prompt/command
+  tests, formatting, full tests, race tests, vet, both builds, isolated
+  empty-config `merge --print`, `list --plain`, and help acceptance, plus
+  `git diff --check` all pass. Kit's audit checks 41 eligible handwritten
+  source/test files with zero above 300 physical lines; its ten pre-existing
+  managed-refresh warnings remain outside issue #30. Gitleaks scans 47 commits
+  and 1.39 MB with no leaks. Hosted correctness checks remain `UNAVAILABLE`,
+  and production validation is `NOT_APPLICABLE` for this local prompt-only
+  replacement.
 
 ## OUTCOME
 
-- `kp merge` is an embedded, overrideable built-in prompt exposed through the
-  existing print, copy, list, help, and launcher paths.
-- Its sectioned output (purpose, scope and authorization, definitions, pre-wave
-  checklist, execution algorithm, deployment gates, example, durable state, and
-  evidence) builds a Mermaid PR DAG and wave table, binds exact-current
-  readiness, requires evidence-cited edges and proven graph completeness before
-  concurrency, maximizes safe independent concurrency and downstream unlocks,
-  revalidates every wave, enforces explicit user acceptance plus repo-local Kit
-  and verified-profile AWS gates, isolates failures, brakes on no-progress
-  repetition, gates deployment on reversibility class and pre-declared
-  acceptance, and separates merge from deployment and production evidence.
-- The issue #22 refinement additionally requires authoritative directional
-  evidence, classifies recovery from actual behavior, protects existing lanes
-  through exact-artifact compatibility gates, and records `MERGED`, `DEPLOYED`,
-  and `ACCEPTED` without relaxing the established graph, authorization,
-  revalidation, credential, rollback, or no-progress gates.
-- The issue #26 refinement keeps routine, scope-preserving remediation on the
-  original pull request under separate repair authority, makes all changed
-  heads re-enter as `UNKNOWN`, and reserves replacement PRs for material or
-  otherwise unsafe changes.
-- PR #17 delivered the original command and PR #19 delivered the first prompt
-  correctness refinement; PR #23 delivered the issue #22 safety refinement.
-  Issue #26 tracks the current in-place remediation correction on `GH-26`;
-  merge is not authorized by this work.
+- `kp merge` remains an embedded, overrideable prompt with unchanged command,
+  printing, copying, listing, help, launcher, and override behavior.
+- The prompt now derives scoped PR and deployment state from available context,
+  loads repository rules, asks once for any missing consolidated authority,
+  parallelizes only fully independent nodes, confines recovery to approved
+  lanes, and suppresses redundant rechecks and polling.
+- A primary coordinator owns decisions while explicitly supported
+  lower-capability agents may handle bounded ready-node merges and deployment
+  monitoring.
+- Terminal responses are concise and keep merge, CI, deployment, runtime, and
+  production acceptance separate.
 
 ## REPOSITORY MEMORY
+
+Issue #30 records the durable split between Kit's canonical policy registry and
+KP's concise informal invocation layer. The prompt replacement intentionally
+changes no command behavior.
 
 - Created this living specification because the command establishes durable
   merge-orchestration behavior synthesized from multiple projects.
