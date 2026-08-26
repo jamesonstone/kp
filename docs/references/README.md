@@ -23,6 +23,10 @@
 - Use `kit rules add --custom` for the interactive `$EDITOR` ruleset builder
 - `kit rule` is the singular alias for `kit rules`
 
+- Use `rules/agent-completion-output.md` before substantial terminal completion
+- Use `rules/human-authorship.md` before any commit, pull request, issue, review comment, or other attribution text so only the human user is displayed as author
+- Use `rules/deadline-mode.md` only when the user explicitly signals a real deadline or time constraint, to narrow testing and implementation scope without weakening required approvals, security, or migration/compatibility invariants
+- Use `rules/deletion-safety.md` before designing deletion behavior or deleting persistent project, user, business, or external-system state to require recoverable soft delete by default and exact manual confirmation before hard delete
 ## Starter Files
 
 - `testing.md` — repo-wide testing norms and evidence expectations

@@ -3,6 +3,7 @@ kind: ruleset
 slug: work-lane-gating
 description: Requires an explicit user-selected pull-request lane before any coding-agent repository mutation.
 status: active
+registry_scope: downstream
 applies_to:
   - git
   - github
@@ -63,13 +64,34 @@ After read-only recon, stop and ask:
 
 > Before I make any repository changes, should I create a new GitHub issue, `GH-<issue-number>` branch, canonical worktree, and pull request for this work, or continue in the existing branch/worktree and land it through that branch's pull request?
 
+- After trimming surrounding whitespace, interpret the response's first
+  standalone token case-insensitively: `c` means continue existing, while `n`
+  or `y` means new lane.
+- When shorthand leads a longer response, shorthand is the primary lane choice
+  and the remaining text is supplemental lane instructions.
+- Treat the case-insensitive full-form answers `new lane`, `new work lane`,
+  `new worklane`, and `new worktree` as the new-lane choice. Each means create
+  or reuse one human-assigned GitHub issue, exact `GH-<issue-number>` branch,
+  canonical non-primary worktree, and ready pull-request plan. When one leads
+  a longer response, retain the remaining text as supplemental lane
+  instructions unless it contradicts the new-lane choice.
+- Continue accepting other explicit full-form answers such as `continue
+  existing`. Ambiguous or contradictory responses, including trailing text
+  that conflicts with the shorthand or full-form choice, fail closed and
+  require clarification before mutation.
 - Wait for an explicit answer unless the user already answered this exact
-  choice for the same scope, for example `new worktree` or `continue existing`.
+  choice for the same scope.
 - Do not infer the choice from a clean default branch, a dirty feature branch,
   an issue reference, a generic pull-request end state, or an agent's opinion
   about the most convenient lane.
 - One recorded choice covers the accepted work plus directly required tests,
-  documentation, validation fixes, review fixes, and delivery.
+  documentation, validation fixes, review fixes, delivery, remaining
+  pull-request review, an authorized merge of that pull request, and
+  post-merge primary leftover cleanup.
+- Remaining in the coding-agent session to handle review, merge once
+  authorized, and then clean the primary default branch is in-scope
+  continuation of the recorded lane. Do not ask the lane question again for
+  that sequence.
 - Ask again before materially new or tangential scope. Do not repeatedly ask
   for routine subtasks that remain inside the recorded lane and pull-request
   plan.
@@ -107,9 +129,11 @@ Pull-Request Landing Plan:
 - The authorized set is exact. Adding a new PR, repository, base branch,
   deployment target, infrastructure effect, merge method, or actor requires
   follow-up authorization.
-- Revalidating an already authorized target, retrying a compatible path, or
+- Revalidating an unchanged authorized head, retrying a compatible path, or
   using a repository-required merge queue does not require another prompt when
-  target, scope, intended effect, identity, and approval remain unchanged.
+  target, scope, intended effect, identity, and approval remain unchanged. A
+  changed head invalidates prior merge authority and requires fresh exact-head
+  authorization under `github-pr-merge`.
 - A gate decision, issue, branch, commit, push, ready PR, approval, passing
   check, review-thread resolution, subagent assignment, or program ledger does
   not create merge authority.
@@ -179,6 +203,19 @@ Landing Plan, or any coding-agent change appeared in the primary checkout:
 The tripwire is a fail-closed recovery boundary, not permission to normalize
 root-checkout editing into the regular workflow.
 
+After the matching worktree pull request has been merged into the protected
+default branch, leftover command-owned untracked files on the primary checkout
+from that command may be removed with `git clean -fd` after enumerating or
+dry-running all untracked files, verifying every candidate is command-owned,
+and passing only those verified paths. Leftover command-owned tracked changes
+in the index or worktree of those same exact paths may be restored to HEAD in
+both the index and the worktree only after revalidating that the current index
+and worktree contents of those paths still match the captured command-owned
+snapshot; if any path mismatches or is ambiguous, stop and report it instead
+of overwriting later edits, so the primary checkout can pull the merge.
+Do not use this exception before merge, for unrelated dirty or untracked
+state, or to create or clear a worktree.
+
 ## Anti-Patterns
 
 - Automatically allocating a lane because the default branch is clean or
@@ -200,6 +237,9 @@ root-checkout editing into the regular workflow.
 
 - Confirm read-only `safety-guardrails` recon ran before the lane decision.
 - Confirm the user explicitly chose new or existing for the current scope.
+- Confirm a leading standalone `c`, `n`, or `y` was interpreted
+  case-insensitively, with shorthand primary and remaining text retained as
+  supplemental instructions.
 - Confirm the Pull-Request Landing Plan was complete before the first file
   mutation.
 - Confirm a new lane used one human-assigned issue, exact issue branch,
@@ -224,6 +264,30 @@ Required choice before any repository write:
 ```text
 Before I make any repository changes, should I create a new GitHub issue, `GH-<issue-number>` branch, canonical worktree, and pull request for this work, or continue in the existing branch/worktree and land it through that branch's pull request?
 ```
+
+Valid shorthand choices:
+
+```text
+c keep the current PR title
+n use the existing milestone
+y assign the new issue to me
+```
+
+The first line selects the existing lane. The other two select a new lane. In
+each case, text after the leading shorthand token remains supplemental
+instructions for the selected lane.
+
+Equivalent full-form new-lane choices:
+
+```text
+new lane
+new work lane
+new worklane
+new worktree
+```
+
+Each phrase selects creation or reuse of the complete issue, exact issue
+branch, canonical non-primary worktree, and ready pull-request lane.
 
 Valid new-lane plan:
 
