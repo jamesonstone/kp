@@ -72,6 +72,30 @@ references:
     read_policy: "must"
     used_for: "default merge-method pair, issue, branch, commit, and pull-request traceability"
     status: "active"
+  - id: "github-issue-deadline-validation"
+    name: "Add deadline validation budget to kp merge"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/40"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "deadline validation budget, operational acceptance, issue, branch, commit, and pull-request traceability"
+    status: "active"
+  - id: "github-issue-dependency-feedback-gates"
+    name: "Require explicit dependency-direction evidence and PR-feedback gating in kp merge"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/42"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "dependency-direction evidence, PR-feedback gating, issue, branch, commit, and pull-request traceability"
+    status: "active"
+  - id: "github-issue-branch-deletion-scope"
+    name: "Scope infrastructure-deletion confirmation to cloud/infra resources, not routine branch cleanup"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/43"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "branch-deletion confirmation scope, issue, branch, commit, and pull-request traceability"
+    status: "active"
 delivery_intent: "issue_branch_pr_ready"
 ---
 # SPEC
@@ -132,6 +156,16 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   repository's required environment procedure.
 - Build the dependency/deployment graph from authoritative evidence and fail
   closed as `BLOCKED` or `UNKNOWN` when readiness is incomplete.
+- Derive dependency edge direction only from an explicit base relationship,
+  producer/consumer contract, or stated prerequisite, never from shared files
+  or proximity alone, and never merge a consumer ahead of its producer.
+- Block `MERGE_READY` on open, unresolved review feedback; route it through
+  the repository's `pr-feedback-repair` workflow before reclassifying.
+- Scope "requires explicit human confirmation" to cloud/compute/storage
+  infrastructure only. Deleting a just-merged PR's own head branch is
+  routine GitHub cleanup, not infrastructure, and needs no separate
+  confirmation; deleting a protected, base, unmerged, or out-of-lane branch
+  still requires separate authorization.
 - Present one consolidated approval request before the first merge or covered
   infrastructure mutation unless equivalent exact approval remains valid.
 - Prohibit infrastructure deletion, destruction, purge, destructive
@@ -151,6 +185,17 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Prefer event-driven waits or bounded backoff and omit unchanged polling.
 - Preserve merge, hosted CI, deployment, runtime, and production acceptance as
   separate claims.
+- Apply a deadline validation budget of operational correctness. Do not bypass
+  required protections, reviews, queues, or hosted checks. Reuse fresh
+  exact-head evidence. After deployment, verify only exact source/image/task
+  and workflow identity, stable healthy counts and health endpoint, required
+  runtime configuration and unchanged secret bindings, and one smallest
+  focused live assertion. Record excluded suites as `NOT_RUN_BY_INSTRUCTION`;
+  they are not acceptance blockers under this deadline scope. Stop testing
+  when that assertion passes; never broaden testing automatically.
+- Accept a node only when its authorized merge completes, configured
+  deployment succeeds, exact runtime identity and health are verified, and
+  its single focused operational assertion passes.
 - Use repository-required completion vocabulary when present; otherwise emit
   `SUCCESS|PARTIAL|BLOCKED|FAILURE`, a one-to-three-sentence result, and
   `none` or at most three copy-ready next steps.
@@ -168,6 +213,18 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 5. Use issue #38, branch `GH-38`, and its canonical non-primary worktree to
    encode squash-default plus merge-commit fallback in the merge prompt, merge
    rule, merge workflow, exact-output pin, and this specification.
+6. Use issue #40, branch `GH-40`, and its canonical non-primary worktree to
+   replace `prompts/merge.md` with the deadline-aware operational-correctness
+   contract and update the exact-output pin and this specification.
+7. Use issue #42 as additional scope on the existing `GH-40` branch and pull
+   request #41, per the user's explicit choice to continue that lane, to add
+   dependency-direction evidence and PR-feedback gating to the merge prompt,
+   the exact-output pin, and this specification.
+8. Use issue #43 as further additional scope on the same `GH-40` branch and
+   pull request #41 to correctly scope infrastructure-deletion confirmation
+   to cloud/infra resources and explicitly authorize routine post-merge
+   branch cleanup, in the merge prompt, `safety-guardrails.md`, the
+   exact-output pin, and this specification.
 
 ## DECISIONS
 
@@ -186,6 +243,20 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Accepted: squash and merge-commit are the default authorized pair. Prefer
   squash; fall back to a merge commit without asking again. Rebase and other
   methods remain unauthorized unless policy or the user requires them.
+- Accepted: under deadline scope, operational correctness replaces exhaustive
+  post-deployment testing. Excluded suites are `NOT_RUN_BY_INSTRUCTION` and
+  are not acceptance blockers. Repository merge-method defaults remain in the
+  merge rule when the prompt names permitted methods.
+- Accepted: dependency edge direction requires explicit evidence — a base
+  relationship, producer/consumer contract, or stated prerequisite. Shared
+  files or PR proximity alone never establish or order a dependency.
+- Accepted: open, unresolved PR review feedback blocks `MERGE_READY` and
+  routes through `pr-feedback-repair` before a node can reclassify; review
+  approval state alone is not sufficient.
+- Accepted: "requires explicit human confirmation" applies only to
+  cloud/compute/storage infrastructure. An authorized, confirmed PR merge
+  also authorizes deleting that exact merged head branch as routine cleanup;
+  protected, base, unmerged, and out-of-lane branches remain protected.
 
 - Use a built-in prompt asset instead of a dedicated Cobra command because the
   existing bare-name registry already supplies print, copy, help, launcher, and
@@ -265,6 +336,40 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Issue #38 showed that "repository-permitted methods" plus "do not introduce a
   new method" left squash-versus-merge-commit unspecified and treated fallback
   as new authority. The default authorized pair is squash, then merge-commit.
+- Issue #40 showed that post-merge acceptance needed an explicit operational
+  budget: one focused live assertion, `NOT_RUN_BY_INSTRUCTION` for excluded
+  suites, and no automatic broadening of production testing.
+- A prompt-optimization review after `GH-40` found two remaining gaps: the
+  dependency graph had no rule for edge *direction* (a backend-endpoint PR and
+  the frontend PR that calls it usually share no explicit GitHub link), and
+  `MERGE_READY` classification never checked for open review feedback despite
+  `pr-feedback-repair` already existing to handle it. Issue #42 closes both as
+  additional scope on `GH-40`/PR #41 rather than a new branch, since #41
+  already carries the unconditional deadline-budget rewrite this depends on.
+- CodeRabbit's review of PR #41 (`b02decf`) confirmed one still-valid gap: the
+  `GH-40` rewrite compressed the rule-loading step into a generic "testing"
+  category, dropping the explicit `testing-and-environment-validation.md` and
+  `docs/references/testing.md` names this SPEC's own REQUIREMENTS section
+  already mandates. Restored explicit naming in the same step. Its second
+  finding, that the rewrite dropped the inline squash-default/merge-commit
+  wording, was already correctly resolved as outdated: that policy is
+  intentionally delegated to `github-pr-merge.md` per this SPEC's `GH-40`
+  decision, not lost.
+- A follow-up CodeRabbit finding on the same step caught a second instance of
+  the identical regression class: the `GH-40` rewrite also dropped the
+  explicit `work-lane-gating` rule name (present pre-`GH-40`) in favor of a
+  generic "lane... rules" phrase, even though this SPEC's own REQUIREMENTS
+  section separately mandates naming `work-lane-gating` before mutation. The
+  read-only-recon and exact-lane-consent-question requirements it also raised
+  were already present elsewhere in the step; only the explicit rule name was
+  missing. Restored it alongside the testing-doc fix.
+- The same review surfaced a real friction bug from prior use: `docs/references/rules/safety-guardrails.md` flatly prohibited "Delete branches." with no
+  exception for a branch that was just safely, authorizedly merged, and
+  `prompts/merge.md` separately listed "explicitly delete PR branches" inside
+  its bypass-prevention list. Neither ever granted the missing authorization
+  for that one safe, routine case, so a literal reading required a fresh ask
+  before every post-merge branch cleanup, including squash-and-delete-branch
+  flows. Issue #43 fixes both as further additional scope on `GH-40`/PR #41.
 
 ## VALIDATION
 
@@ -345,6 +450,68 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   warnings remain outside issue #38. Hosted correctness checks remain
   `UNAVAILABLE`, and production validation is `NOT_APPLICABLE` for this local
   prompt-and-policy refinement.
+- `GH-40` deadline validation budget — `PASS`: focused merge exact-output
+  coverage, `gofmt`, `go test ./...`, `go test -race ./...`, `go vet ./...`,
+  `go build ./...`, `make build`, isolated empty-config `merge --print` and
+  `list --plain`, `kit check --all`, `git diff --check`, and gitleaks all
+  passed. The exact printed prompt SHA-256 was
+  `2c1f552e0e7396b3142fdcd0fe40a16607c2821faf81d62415d51bbedf2a3b55`.
+  `kit reconcile --all --dry-run` checked 42 eligible handwritten source/test
+  files with zero above 300 physical lines; one pre-existing `.kit.yaml`
+  managed-refresh warning remains outside issue #40. Hosted correctness
+  checks remain `UNAVAILABLE`, and production validation is `NOT_APPLICABLE`
+  for this local prompt refinement.
+- `GH-40` dependency-direction and PR-feedback gating (issue #42, additional
+  scope) — `PASS`: focused merge exact-output coverage
+  (`TestMergePromptPrintsApprovedInstructions`), `gofmt`, `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `go build ./...`, `make build`,
+  isolated empty-config `merge --print`, `list --plain`, and `--help`
+  acceptance, and `git diff --check` all passed in this environment. The
+  exact printed prompt SHA-256 was
+  `02631311d99b1249ad792b57f4c3d9d55f2c80071c4cdadde550491e60ff6265`.
+  Changed files (`prompts/merge.md` at 58 lines, the test file at 224 lines)
+  remain below the 300-line limit. `kit reconcile`/`kit check` and gitleaks
+  are `UNAVAILABLE` in this environment (neither binary is installed); hosted
+  pull-request correctness checks remain `UNAVAILABLE`, and production
+  validation is `NOT_APPLICABLE` for this local prompt refinement.
+- `GH-40` branch-deletion confirmation scope (issue #43, additional scope) —
+  `PASS`: focused merge exact-output coverage
+  (`TestMergePromptPrintsApprovedInstructions`), `gofmt`, `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `go build ./...`, `make build`,
+  isolated empty-config `merge --print`, `list --plain`, and `--help`
+  acceptance, and `git diff --check` all passed in this environment. The
+  exact printed prompt SHA-256 was
+  `bbe679d35ab144ac00b6f00aae9f3524bcf89f0723f48b617c04da7ec50adff5`.
+  Changed files remain below the 300-line limit
+  (`prompts/merge.md` 58, the test file 224, `safety-guardrails.md` 298).
+  `kit reconcile`/`kit check` and gitleaks remain `UNAVAILABLE` in this
+  environment; hosted pull-request correctness checks remain `UNAVAILABLE`,
+  and production validation is `NOT_APPLICABLE` for this local rule and
+  prompt refinement.
+- PR #41 review repair (restore explicit testing-doc references) — `PASS`:
+  focused merge exact-output coverage
+  (`TestMergePromptPrintsApprovedInstructions`), `gofmt`, `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `go build ./...`, `make build`,
+  isolated empty-config `merge --print`, `list --plain`, and `--help`
+  acceptance, and `git diff --check` all passed. The exact printed prompt
+  SHA-256 was
+  `1451d7515a7ab872f33da07fe0b2d291e991fcd68a4bf85f07562862c88af2ee`.
+  Changed files remain below the 300-line limit (`prompts/merge.md` 58, the
+  test file 224). `kit reconcile`/`kit check` and gitleaks remain
+  `UNAVAILABLE` in this environment; hosted pull-request correctness checks
+  remain `UNAVAILABLE`, and production validation is `NOT_APPLICABLE`.
+- PR #41 review repair (restore explicit `work-lane-gating` reference) —
+  `PASS`: focused merge exact-output coverage
+  (`TestMergePromptPrintsApprovedInstructions`), `gofmt`, `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `go build ./...`, `make build`,
+  isolated empty-config `merge --print`, `list --plain`, and `--help`
+  acceptance, and `git diff --check` all passed. The exact printed prompt
+  SHA-256 was
+  `7cb0c6169ec73bf262bccf117c8ba09d94c17482af49b54e6f25b8f9073b2c7b`.
+  Changed files remain below the 300-line limit (`prompts/merge.md` 58, the
+  test file 224). `kit reconcile`/`kit check` and gitleaks remain
+  `UNAVAILABLE` in this environment; hosted pull-request correctness checks
+  remain `UNAVAILABLE`, and production validation is `NOT_APPLICABLE`.
 
 ## OUTCOME
 
@@ -362,6 +529,17 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - `kp merge` defaults to squash and merge and falls back to creating a merge
   commit; both methods are authorized by default and that fallback is not new
   method authority.
+- Under deadline scope, `kp merge` requires operational correctness: one
+  focused post-deployment assertion, `NOT_RUN_BY_INSTRUCTION` for excluded
+  suites, and no automatic broadening of production testing.
+- `kp merge` now requires explicit dependency-direction evidence (never
+  inferred from shared files or proximity alone) and blocks `MERGE_READY` on
+  open, unresolved PR review feedback until it is routed through
+  `pr-feedback-repair`.
+- "Requires explicit human confirmation" now applies only to cloud/compute/
+  storage infrastructure. Deleting a just-merged PR's own head branch is
+  authorized as routine cleanup and needs no separate confirmation;
+  protected, base, unmerged, and out-of-lane branches remain protected.
 
 ## REPOSITORY MEMORY
 
@@ -382,5 +560,18 @@ changes no command behavior.
   merge workflow, exact-output coverage, and feature rationale.
 - Issue #38 records the default authorized merge-method pair: squash first,
   merge-commit fallback, without follow-up authorization to switch between them.
+- Issue #40 records the deadline validation budget: operational correctness,
+  one focused live assertion, and `NOT_RUN_BY_INSTRUCTION` for excluded suites.
+- Issue #42 records that dependency direction and PR-feedback gating needed
+  explicit prompt-level rules even after the graph/evidence framework already
+  existed, and that they landed as additional scope on `GH-40`/PR #41 instead
+  of a new branch, per the user's explicit lane choice.
+- Issue #43 records the durable distinction between infrastructure deletion
+  (cloud/compute/storage, always needs explicit manual confirmation per
+  `infrastructure-change-approval.md`) and routine GitHub branch cleanup
+  after an authorized merge (never needs separate confirmation), and fixes
+  the `safety-guardrails.md` and `prompts/merge.md` wording that previously
+  conflated the two and caused unnecessary approval friction.
+- Constitution curation is not required: this is feature-local prompt behavior.
 - The existing v0 feature artifacts remain unchanged because this is a separate
   public command and policy surface.
