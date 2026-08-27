@@ -80,6 +80,14 @@ references:
     read_policy: "must"
     used_for: "deadline validation budget, operational acceptance, issue, branch, commit, and pull-request traceability"
     status: "active"
+  - id: "github-issue-dependency-feedback-gates"
+    name: "Require explicit dependency-direction evidence and PR-feedback gating in kp merge"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/42"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "dependency-direction evidence, PR-feedback gating, issue, branch, commit, and pull-request traceability"
+    status: "active"
 delivery_intent: "issue_branch_pr_ready"
 ---
 # SPEC
@@ -140,6 +148,11 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   repository's required environment procedure.
 - Build the dependency/deployment graph from authoritative evidence and fail
   closed as `BLOCKED` or `UNKNOWN` when readiness is incomplete.
+- Derive dependency edge direction only from an explicit base relationship,
+  producer/consumer contract, or stated prerequisite, never from shared files
+  or proximity alone, and never merge a consumer ahead of its producer.
+- Block `MERGE_READY` on open, unresolved review feedback; route it through
+  the repository's `pr-feedback-repair` workflow before reclassifying.
 - Present one consolidated approval request before the first merge or covered
   infrastructure mutation unless equivalent exact approval remains valid.
 - Prohibit infrastructure deletion, destruction, purge, destructive
@@ -190,6 +203,10 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 6. Use issue #40, branch `GH-40`, and its canonical non-primary worktree to
    replace `prompts/merge.md` with the deadline-aware operational-correctness
    contract and update the exact-output pin and this specification.
+7. Use issue #42 as additional scope on the existing `GH-40` branch and pull
+   request #41, per the user's explicit choice to continue that lane, to add
+   dependency-direction evidence and PR-feedback gating to the merge prompt,
+   the exact-output pin, and this specification.
 
 ## DECISIONS
 
@@ -212,6 +229,12 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   post-deployment testing. Excluded suites are `NOT_RUN_BY_INSTRUCTION` and
   are not acceptance blockers. Repository merge-method defaults remain in the
   merge rule when the prompt names permitted methods.
+- Accepted: dependency edge direction requires explicit evidence — a base
+  relationship, producer/consumer contract, or stated prerequisite. Shared
+  files or PR proximity alone never establish or order a dependency.
+- Accepted: open, unresolved PR review feedback blocks `MERGE_READY` and
+  routes through `pr-feedback-repair` before a node can reclassify; review
+  approval state alone is not sufficient.
 
 - Use a built-in prompt asset instead of a dedicated Cobra command because the
   existing bare-name registry already supplies print, copy, help, launcher, and
@@ -294,6 +317,13 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Issue #40 showed that post-merge acceptance needed an explicit operational
   budget: one focused live assertion, `NOT_RUN_BY_INSTRUCTION` for excluded
   suites, and no automatic broadening of production testing.
+- A prompt-optimization review after `GH-40` found two remaining gaps: the
+  dependency graph had no rule for edge *direction* (a backend-endpoint PR and
+  the frontend PR that calls it usually share no explicit GitHub link), and
+  `MERGE_READY` classification never checked for open review feedback despite
+  `pr-feedback-repair` already existing to handle it. Issue #42 closes both as
+  additional scope on `GH-40`/PR #41 rather than a new branch, since #41
+  already carries the unconditional deadline-budget rewrite this depends on.
 
 ## VALIDATION
 
@@ -385,6 +415,19 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   managed-refresh warning remains outside issue #40. Hosted correctness
   checks remain `UNAVAILABLE`, and production validation is `NOT_APPLICABLE`
   for this local prompt refinement.
+- `GH-40` dependency-direction and PR-feedback gating (issue #42, additional
+  scope) — `PASS`: focused merge exact-output coverage
+  (`TestMergePromptPrintsApprovedInstructions`), `gofmt`, `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `go build ./...`, `make build`,
+  isolated empty-config `merge --print`, `list --plain`, and `--help`
+  acceptance, and `git diff --check` all passed in this environment. The
+  exact printed prompt SHA-256 was
+  `02631311d99b1249ad792b57f4c3d9d55f2c80071c4cdadde550491e60ff6265`.
+  Changed files (`prompts/merge.md` at 58 lines, the test file at 224 lines)
+  remain below the 300-line limit. `kit reconcile`/`kit check` and gitleaks
+  are `UNAVAILABLE` in this environment (neither binary is installed); hosted
+  pull-request correctness checks remain `UNAVAILABLE`, and production
+  validation is `NOT_APPLICABLE` for this local prompt refinement.
 
 ## OUTCOME
 
@@ -405,6 +448,10 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Under deadline scope, `kp merge` requires operational correctness: one
   focused post-deployment assertion, `NOT_RUN_BY_INSTRUCTION` for excluded
   suites, and no automatic broadening of production testing.
+- `kp merge` now requires explicit dependency-direction evidence (never
+  inferred from shared files or proximity alone) and blocks `MERGE_READY` on
+  open, unresolved PR review feedback until it is routed through
+  `pr-feedback-repair`.
 
 ## REPOSITORY MEMORY
 
@@ -427,6 +474,10 @@ changes no command behavior.
   merge-commit fallback, without follow-up authorization to switch between them.
 - Issue #40 records the deadline validation budget: operational correctness,
   one focused live assertion, and `NOT_RUN_BY_INSTRUCTION` for excluded suites.
+- Issue #42 records that dependency direction and PR-feedback gating needed
+  explicit prompt-level rules even after the graph/evidence framework already
+  existed, and that they landed as additional scope on `GH-40`/PR #41 instead
+  of a new branch, per the user's explicit lane choice.
 - Constitution curation is not required: this is feature-local prompt behavior.
 - The existing v0 feature artifacts remain unchanged because this is a separate
   public command and policy surface.
