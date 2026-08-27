@@ -355,6 +355,14 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   wording, was already correctly resolved as outdated: that policy is
   intentionally delegated to `github-pr-merge.md` per this SPEC's `GH-40`
   decision, not lost.
+- A follow-up CodeRabbit finding on the same step caught a second instance of
+  the identical regression class: the `GH-40` rewrite also dropped the
+  explicit `work-lane-gating` rule name (present pre-`GH-40`) in favor of a
+  generic "lane... rules" phrase, even though this SPEC's own REQUIREMENTS
+  section separately mandates naming `work-lane-gating` before mutation. The
+  read-only-recon and exact-lane-consent-question requirements it also raised
+  were already present elsewhere in the step; only the explicit rule name was
+  missing. Restored it alongside the testing-doc fix.
 - The same review surfaced a real friction bug from prior use: `docs/references/rules/safety-guardrails.md` flatly prohibited "Delete branches." with no
   exception for a branch that was just safely, authorizedly merged, and
   `prompts/merge.md` separately listed "explicitly delete PR branches" inside
@@ -488,6 +496,18 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   acceptance, and `git diff --check` all passed. The exact printed prompt
   SHA-256 was
   `1451d7515a7ab872f33da07fe0b2d291e991fcd68a4bf85f07562862c88af2ee`.
+  Changed files remain below the 300-line limit (`prompts/merge.md` 58, the
+  test file 224). `kit reconcile`/`kit check` and gitleaks remain
+  `UNAVAILABLE` in this environment; hosted pull-request correctness checks
+  remain `UNAVAILABLE`, and production validation is `NOT_APPLICABLE`.
+- PR #41 review repair (restore explicit `work-lane-gating` reference) —
+  `PASS`: focused merge exact-output coverage
+  (`TestMergePromptPrintsApprovedInstructions`), `gofmt`, `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `go build ./...`, `make build`,
+  isolated empty-config `merge --print`, `list --plain`, and `--help`
+  acceptance, and `git diff --check` all passed. The exact printed prompt
+  SHA-256 was
+  `7cb0c6169ec73bf262bccf117c8ba09d94c17482af49b54e6f25b8f9073b2c7b`.
   Changed files remain below the 300-line limit (`prompts/merge.md` 58, the
   test file 224). `kit reconcile`/`kit check` and gitleaks remain
   `UNAVAILABLE` in this environment; hosted pull-request correctness checks
