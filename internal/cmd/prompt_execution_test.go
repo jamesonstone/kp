@@ -47,25 +47,49 @@ func TestMergePromptPrintsApprovedInstructions(t *testing.T) {
 
 	// The approved body stores "~" in place of a backtick so inline code spans
 	// survive a Go raw string literal.
-	want := strings.ReplaceAll(`Coordinate the already-scoped pull requests using the conversation and current repository context. Derive the exact PR set, heads, bases, dependencies, permitted merge methods, deployment targets, acceptance gates, and authorization boundaries; do not ask the user to restate discoverable facts or expand scope.
+	want := strings.ReplaceAll(`Coordinate the already-scoped pull requests using the conversation and current repository context. Derive the exact PR set, heads, bases, dependencies, merge methods, deployment targets, acceptance gates, and authorization boundaries. Do not ask the user to restate discoverable facts or expand scope.
 
 ## Analysis and approval
 
-1. Before any repository, delivery, or infrastructure mutation, load ~docs/agents/GUARDRAILS.md~ plus the applicable ~work-lane-gating~ and infrastructure rules, then complete read-only safety reconnaissance. For repository or delivery work, verify the lane rule's exact consent question was explicitly answered for the current lane; if not, ask it verbatim and wait. Generic approval is not lane consent.
-2. Load the remaining applicable repository-local merge, orchestration, and completion rules. Before implementation or validation, also load ~docs/references/rules/testing-and-environment-validation.md~ and the project's ~docs/references/testing.md~. Build the dependency and deployment graph from authoritative evidence. Classify each node as ~MERGE_READY~, ~BLOCKED~, or ~UNKNOWN~; missing, stale, pending, conflicted, or unattributable evidence never passes.
-3. Record each node's repository, PR, exact head/base, method, dependencies, infrastructure effects, recovery, and acceptance signal. Keep merge, CI, deployment, runtime, and production acceptance distinct.
-4. Before the first merge or infrastructure mutation, present one consolidated approval request for the exact current frontier and all known infrastructure effects unless equivalent exact approval from the conversation remains valid. Never delete, destroy, purge, destructively replace, or remove infrastructure; stop and isolate that work for separate explicit authorization.
-5. Run one complete preflight immediately before each consequential mutation. Repeat only when a material fact changes: head/base, reviews/checks, policy, actor, dependency, deployment target/effect, approval, or acceptance window.
+1. Before any mutation, load ~docs/agents/GUARDRAILS.md~ and applicable lane, merge, infrastructure, orchestration, testing, and completion rules. Complete read-only safety reconnaissance.
+2. For repository or delivery work, verify that the lane rule's exact consent question was answered for the current lane. If not, ask it verbatim and wait; generic approval is not lane consent.
+3. Build the dependency/deployment graph from authoritative evidence. Classify every node as ~MERGE_READY~, ~BLOCKED~, or ~UNKNOWN~; missing, stale, pending, conflicted, or unattributable evidence never passes.
+4. Record each node's repository, PR, exact head/base, method, dependencies, infrastructure effects, recovery, and acceptance signal. Keep merge, CI, deployment, runtime, and production acceptance distinct.
+5. Before the first merge or infrastructure mutation, present one consolidated approval request for the exact frontier and known effects unless equivalent exact approval remains valid.
+6. Never delete, destroy, purge, remove, or destructively replace infrastructure. Isolate such work for separate explicit authorization.
+7. Run one complete preflight immediately before each consequential mutation. Repeat only after material change to head/base, policy, actor, checks/reviews, dependencies, target/effect, approval, or acceptance window.
+
+## Deadline validation budget
+
+Use operational correctness, not exhaustive correctness.
+
+- Do not bypass required protections, reviews, queues, or hosted checks.
+- Reuse fresh exact-head evidence; do not rerun an unchanged local or hosted check.
+- Before merge, require only exact identity/policy/readiness evidence.
+- After deployment, verify only:
+  1. exact source, image digest, task definition, and workflow identity;
+  2. stable healthy service/task counts and health endpoint;
+  3. required runtime configuration and unchanged secret bindings;
+  4. one smallest focused live assertion directly proving the changed behavior.
+- Stop testing immediately when that focused assertion passes.
+- Do not run full production aggregates, broad end-to-end suites, UI/browser automation, restart journeys, migrations, backfills, or adjacent workflows unless explicitly required by repository policy or named by the user.
+- Do not create unrelated fixtures, vendor orders, receiving events, secondary-user flows, or external side effects.
+- Record excluded suites as ~NOT_RUN_BY_INSTRUCTION~; they are not acceptance blockers under this deadline scope.
+- If the focused assertion fails, diagnose once, repair only within authorized scope, and rerun only the affected evidence. Never broaden testing automatically.
 
 ## Execution
 
-- One primary coordinator owns the graph, authority, wave selection, recovery, and final acceptance.
-- When the host supports explicit model selection, use lower-cost or lower-capability agents only for exact, bounded ~MERGE_READY~ merges and deployment monitoring. Keep graph changes, repair decisions, recovery, and acceptance with the coordinator.
-- Parallelize nodes only when both source and deployment effects are independent. Serialize shared bases, services, environments, databases, migrations, queues, and acceptance gates.
-- Merge only the authorized ready frontier with repository-permitted methods and required queues. Default to squash and merge. If squash is unavailable or cannot complete for a repository-permitted reason, fall back to creating a merge commit. Squash and merge-commit are both authorized by default; that fallback is not new method authority. Do not use rebase merge or another method unless the repository requires it or the user explicitly authorizes it. Never bypass policy, switch identity, force-push, weaken a gate, or explicitly delete PR branches.
-- Monitor with event-driven waits or bounded backoff; do not emit or repeat unchanged polling.
-- Reconcile failures autonomously within the approved scope: diagnose once, apply only authorized in-lane repair, rerun affected evidence, and refresh that node and its dependents. Do not retry blindly or introduce a new PR, infrastructure effect, target, or authority boundary. Falling back from squash to a merge commit is not a new method or authority boundary.
-- A changed head returns to ~UNKNOWN~ and requires fresh current-head evidence and authorization. Continue independent valid nodes; stop when recovery cannot make progress safely.
+- One coordinator owns the graph, authority, wave selection, recovery, and acceptance.
+- Use lower-cost agents only for exact bounded ~MERGE_READY~ merges or monitoring when explicit model selection is supported. Keep graph changes, repairs, recovery, and acceptance with the coordinator.
+- Parallelize only source and deployment-independent nodes. Serialize shared bases, services, environments, databases, migrations, queues, and gates.
+- Merge only the authorized ready frontier using permitted methods and required queues. Never bypass policy, switch identity, force-push, weaken gates, or explicitly delete PR branches.
+- Monitor with event-driven waits or bounded backoff; do not repeat unchanged polling.
+- Reconcile failures autonomously inside approved scope. Do not retry blindly or introduce a new PR, target, method, infrastructure effect, or authority boundary.
+- A changed head returns to ~UNKNOWN~ and requires fresh exact-head evidence and authorization. Continue independent valid nodes; stop only when safe recovery cannot progress.
+
+## Acceptance
+
+A node is accepted when its authorized merge completes, configured deployment succeeds, exact runtime identity and health are verified, and its single focused operational assertion passes.
 
 ## Final response
 
@@ -77,7 +101,7 @@ Use repository-required status vocabulary; otherwise emit:
 
 ~Next steps:~ ~none~ or at most three specific, copy-ready sentences.
 
-Do not include a chronological work log, repeated checks, unchanged polling, or routine command details.
+Do not include a chronological log, repeated checks, unchanged polling, routine commands, or unrequested testing detail.
 `, "~", "`")
 	if stdout != want {
 		t.Fatalf("stdout = %q, want %q", stdout, want)

@@ -72,6 +72,14 @@ references:
     read_policy: "must"
     used_for: "default merge-method pair, issue, branch, commit, and pull-request traceability"
     status: "active"
+  - id: "github-issue-deadline-validation"
+    name: "Add deadline validation budget to kp merge"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/40"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "deadline validation budget, operational acceptance, issue, branch, commit, and pull-request traceability"
+    status: "active"
 delivery_intent: "issue_branch_pr_ready"
 ---
 # SPEC
@@ -151,6 +159,17 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Prefer event-driven waits or bounded backoff and omit unchanged polling.
 - Preserve merge, hosted CI, deployment, runtime, and production acceptance as
   separate claims.
+- Apply a deadline validation budget of operational correctness. Do not bypass
+  required protections, reviews, queues, or hosted checks. Reuse fresh
+  exact-head evidence. After deployment, verify only exact source/image/task
+  and workflow identity, stable healthy counts and health endpoint, required
+  runtime configuration and unchanged secret bindings, and one smallest
+  focused live assertion. Record excluded suites as `NOT_RUN_BY_INSTRUCTION`;
+  they are not acceptance blockers under this deadline scope. Stop testing
+  when that assertion passes; never broaden testing automatically.
+- Accept a node only when its authorized merge completes, configured
+  deployment succeeds, exact runtime identity and health are verified, and
+  its single focused operational assertion passes.
 - Use repository-required completion vocabulary when present; otherwise emit
   `SUCCESS|PARTIAL|BLOCKED|FAILURE`, a one-to-three-sentence result, and
   `none` or at most three copy-ready next steps.
@@ -168,6 +187,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 5. Use issue #38, branch `GH-38`, and its canonical non-primary worktree to
    encode squash-default plus merge-commit fallback in the merge prompt, merge
    rule, merge workflow, exact-output pin, and this specification.
+6. Use issue #40, branch `GH-40`, and its canonical non-primary worktree to
+   replace `prompts/merge.md` with the deadline-aware operational-correctness
+   contract and update the exact-output pin and this specification.
 
 ## DECISIONS
 
@@ -186,6 +208,10 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Accepted: squash and merge-commit are the default authorized pair. Prefer
   squash; fall back to a merge commit without asking again. Rebase and other
   methods remain unauthorized unless policy or the user requires them.
+- Accepted: under deadline scope, operational correctness replaces exhaustive
+  post-deployment testing. Excluded suites are `NOT_RUN_BY_INSTRUCTION` and
+  are not acceptance blockers. Repository merge-method defaults remain in the
+  merge rule when the prompt names permitted methods.
 
 - Use a built-in prompt asset instead of a dedicated Cobra command because the
   existing bare-name registry already supplies print, copy, help, launcher, and
@@ -265,6 +291,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Issue #38 showed that "repository-permitted methods" plus "do not introduce a
   new method" left squash-versus-merge-commit unspecified and treated fallback
   as new authority. The default authorized pair is squash, then merge-commit.
+- Issue #40 showed that post-merge acceptance needed an explicit operational
+  budget: one focused live assertion, `NOT_RUN_BY_INSTRUCTION` for excluded
+  suites, and no automatic broadening of production testing.
 
 ## VALIDATION
 
@@ -345,6 +374,17 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   warnings remain outside issue #38. Hosted correctness checks remain
   `UNAVAILABLE`, and production validation is `NOT_APPLICABLE` for this local
   prompt-and-policy refinement.
+- `GH-40` deadline validation budget — `PASS`: focused merge exact-output
+  coverage, `gofmt`, `go test ./...`, `go test -race ./...`, `go vet ./...`,
+  `go build ./...`, `make build`, isolated empty-config `merge --print` and
+  `list --plain`, `kit check --all`, `git diff --check`, and gitleaks all
+  passed. The exact printed prompt SHA-256 was
+  `2c1f552e0e7396b3142fdcd0fe40a16607c2821faf81d62415d51bbedf2a3b55`.
+  `kit reconcile --all --dry-run` checked 42 eligible handwritten source/test
+  files with zero above 300 physical lines; one pre-existing `.kit.yaml`
+  managed-refresh warning remains outside issue #40. Hosted correctness
+  checks remain `UNAVAILABLE`, and production validation is `NOT_APPLICABLE`
+  for this local prompt refinement.
 
 ## OUTCOME
 
@@ -362,6 +402,9 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - `kp merge` defaults to squash and merge and falls back to creating a merge
   commit; both methods are authorized by default and that fallback is not new
   method authority.
+- Under deadline scope, `kp merge` requires operational correctness: one
+  focused post-deployment assertion, `NOT_RUN_BY_INSTRUCTION` for excluded
+  suites, and no automatic broadening of production testing.
 
 ## REPOSITORY MEMORY
 
@@ -382,5 +425,8 @@ changes no command behavior.
   merge workflow, exact-output coverage, and feature rationale.
 - Issue #38 records the default authorized merge-method pair: squash first,
   merge-commit fallback, without follow-up authorization to switch between them.
+- Issue #40 records the deadline validation budget: operational correctness,
+  one focused live assertion, and `NOT_RUN_BY_INSTRUCTION` for excluded suites.
+- Constitution curation is not required: this is feature-local prompt behavior.
 - The existing v0 feature artifacts remain unchanged because this is a separate
   public command and policy surface.
