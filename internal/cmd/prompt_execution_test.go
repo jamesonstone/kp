@@ -51,7 +51,7 @@ func TestMergePromptPrintsApprovedInstructions(t *testing.T) {
 
 ## Analysis and approval
 
-1. Before any mutation, load ~docs/agents/GUARDRAILS.md~ and applicable lane, merge, infrastructure, orchestration, testing, and completion rules. Complete read-only safety reconnaissance.
+1. Before any mutation, load ~docs/agents/GUARDRAILS.md~ and applicable lane, merge, infrastructure, orchestration, testing, and completion rules, explicitly including ~docs/references/rules/testing-and-environment-validation.md~ and the project's ~docs/references/testing.md~ before implementation or validation. Complete read-only safety reconnaissance.
 2. For repository or delivery work, verify that the lane rule's exact consent question was answered for the current lane. If not, ask it verbatim and wait; generic approval is not lane consent.
 3. Build the dependency/deployment graph from authoritative evidence. Derive edge direction only from an explicit base relationship, producer/consumer contract (for example, a backend endpoint a frontend PR calls), or stated prerequisite — never from shared files or proximity alone — and never merge a consumer ahead of its producer. Classify every node as ~MERGE_READY~, ~BLOCKED~, or ~UNKNOWN~; missing, stale, pending, conflicted, unattributable, or open-review-feedback evidence never passes — route open feedback through ~pr-feedback-repair~ before reclassifying.
 4. Record each node's repository, PR, exact head/base, method, dependencies, infrastructure effects, recovery, and acceptance signal. Keep merge, CI, deployment, runtime, and production acceptance distinct.

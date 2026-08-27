@@ -346,6 +346,15 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   `pr-feedback-repair` already existing to handle it. Issue #42 closes both as
   additional scope on `GH-40`/PR #41 rather than a new branch, since #41
   already carries the unconditional deadline-budget rewrite this depends on.
+- CodeRabbit's review of PR #41 (`b02decf`) confirmed one still-valid gap: the
+  `GH-40` rewrite compressed the rule-loading step into a generic "testing"
+  category, dropping the explicit `testing-and-environment-validation.md` and
+  `docs/references/testing.md` names this SPEC's own REQUIREMENTS section
+  already mandates. Restored explicit naming in the same step. Its second
+  finding, that the rewrite dropped the inline squash-default/merge-commit
+  wording, was already correctly resolved as outdated: that policy is
+  intentionally delegated to `github-pr-merge.md` per this SPEC's `GH-40`
+  decision, not lost.
 - The same review surfaced a real friction bug from prior use: `docs/references/rules/safety-guardrails.md` flatly prohibited "Delete branches." with no
   exception for a branch that was just safely, authorizedly merged, and
   `prompts/merge.md` separately listed "explicitly delete PR branches" inside
@@ -471,6 +480,18 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   environment; hosted pull-request correctness checks remain `UNAVAILABLE`,
   and production validation is `NOT_APPLICABLE` for this local rule and
   prompt refinement.
+- PR #41 review repair (restore explicit testing-doc references) — `PASS`:
+  focused merge exact-output coverage
+  (`TestMergePromptPrintsApprovedInstructions`), `gofmt`, `go test ./...`,
+  `go test -race ./...`, `go vet ./...`, `go build ./...`, `make build`,
+  isolated empty-config `merge --print`, `list --plain`, and `--help`
+  acceptance, and `git diff --check` all passed. The exact printed prompt
+  SHA-256 was
+  `1451d7515a7ab872f33da07fe0b2d291e991fcd68a4bf85f07562862c88af2ee`.
+  Changed files remain below the 300-line limit (`prompts/merge.md` 58, the
+  test file 224). `kit reconcile`/`kit check` and gitleaks remain
+  `UNAVAILABLE` in this environment; hosted pull-request correctness checks
+  remain `UNAVAILABLE`, and production validation is `NOT_APPLICABLE`.
 
 ## OUTCOME
 
