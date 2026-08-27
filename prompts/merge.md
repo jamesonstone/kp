@@ -36,7 +36,7 @@ Use operational correctness, not exhaustive correctness.
 - One coordinator owns the graph, authority, wave selection, recovery, and acceptance.
 - Use lower-cost agents only for exact bounded `MERGE_READY` merges or monitoring when explicit model selection is supported. Keep graph changes, repairs, recovery, and acceptance with the coordinator.
 - Parallelize only source and deployment-independent nodes. Serialize shared bases, services, environments, databases, migrations, queues, and gates.
-- Merge only the authorized ready frontier using permitted methods and required queues. Never bypass policy, switch identity, force-push, weaken gates, or explicitly delete PR branches.
+- Merge only the authorized ready frontier using permitted methods and required queues. Never bypass policy, switch identity, force-push, or weaken gates. Deleting a just-merged PR's own head branch is routine cleanup, not infrastructure, and needs no separate confirmation; never delete any other branch without separate authorization.
 - Monitor with event-driven waits or bounded backoff; do not repeat unchanged polling.
 - Reconcile failures autonomously inside approved scope. Do not retry blindly or introduce a new PR, target, method, infrastructure effect, or authority boundary.
 - A changed head returns to `UNKNOWN` and requires fresh exact-head evidence and authorization. Continue independent valid nodes; stop only when safe recovery cannot progress.

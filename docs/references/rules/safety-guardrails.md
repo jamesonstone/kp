@@ -69,11 +69,15 @@ GitHub access is never permission to:
 
 - Merge without a direct request or accepted bounded merge plan.
 - Force-push protected branches.
-- Delete branches.
+- Delete a protected, base, unmerged, or out-of-lane branch.
 - Change repository settings.
 - Change secrets.
 - Bypass review.
 - Alter protected branch rules.
+
+An authorized, confirmed merge of a pull request also authorizes deleting
+that exact merged head branch as routine cleanup. This is ordinary GitHub
+cleanup, not infrastructure, and needs no separate confirmation.
 
 ### Working-Tree Recon
 
