@@ -59,6 +59,9 @@ kp --help
 # print and copy a built-in prompt
 kp clarify
 
+# drive a plan to implementation-ready
+kp plan
+
 # hand off a brainstorm to a coding agent
 kp chat-handoff
 
@@ -101,6 +104,7 @@ utility command reference.
 | `kp chat-handoff`          | Print and copy the chat-to-coding-agent handoff prompt.           | Brainstorms, chat-only planning   | ✅ ready        |
 | `kp merge`                 | Print and copy the context-aware merge/deployment prompt.         | Cross-repo release coordination   | ✅ ready        |
 | `kp parentthread`          | Print and copy the parent-thread response prompt.                 | Coding-agent chats                | ✅ ready        |
+| `kp plan`                  | Print and copy the plan-convergence prompt.                       | Coding-agent chats                | ✅ ready        |
 | `kp pr`                    | Print and copy the Kit workflow prompt for a new worklane.        | Coding-agent chats, repo handoff  | ✅ ready        |
 | `kp punchlist`             | Print and copy the punch-list control-loop prompt.                | Product validation, operator notes| ✅ ready        |
 | `kp <name> --copy`         | Copy a prompt without printing it.                                | Shell aliases, scripts            | ✅ ready        |
@@ -132,6 +136,7 @@ utility command reference.
 | `chat-handoff`  | Chat-to-agent handoff        | ✅ embedded |
 | `merge`        | Context-aware PR merge and deployment | ✅ embedded |
 | `parentthread` | Parent thread response      | ✅ embedded |
+| `plan`         | Drive plan to implementation-ready | ✅ embedded |
 | `pr`           | Pull request workflow       | ✅ embedded |
 | `punchlist`    | Punch list control loop     | ✅ embedded |
 
