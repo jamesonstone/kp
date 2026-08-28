@@ -15,7 +15,7 @@ func TestListPlain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stdout != "agent-handoff\nchat-handoff\nclarify\ncontinue\nmerge\nparentthread\npr\npunchlist\n" {
+	if stdout != "agent-handoff\nchat-handoff\nclarify\ncontinue\nmerge\nparentthread\nplan\npr\npunchlist\n" {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -39,6 +39,9 @@ func TestListVerbose(t *testing.T) {
 		t.Fatalf("stdout = %q", stdout)
 	}
 	if !strings.Contains(stdout, "merge\tContext-aware PR merge and deployment\tbuiltin\n") {
+		t.Fatalf("stdout = %q", stdout)
+	}
+	if !strings.Contains(stdout, "plan\tDrive plan to implementation-ready\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
 	if !strings.Contains(stdout, "pr\tPull request workflow\tbuiltin\n") {
@@ -75,6 +78,7 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"kp agent-handoff",
 		"kp chat-handoff",
 		"kp merge",
+		"kp plan",
 		"kp pr",
 		"kp punchlist",
 		"Prompt Library",

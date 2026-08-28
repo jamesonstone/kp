@@ -8,6 +8,7 @@
 | 0003 | merge-command | `docs/specs/0003-merge-command` | deliver | no | 2026-08-18 | Adds `kp merge` as a concise built-in prompt for evidence-backed Mermaid dependency graphs, exact-current merge readiness, topological waves, maximum safe independent concurrency, directional dependency proof, protected-workload gates, behavior-based recovery, wave revalidation, failure isolation, and separate merge, deployment, runtime, production, and rollback evidence. |
 | 0004 | punchlist-command | `docs/specs/0004-punchlist-command` | deliver | no | 2026-08-25 | Adds `kp punchlist` as a built-in prompt for scanning a living punch list, clustering related observations, fixing shared causes, and keeping implemented, merged, deployed, and validated states distinct. |
 | 0005 | handoff-prompts | `docs/specs/0005-handoff-prompts` | deliver | no | 2026-08-26 | Replaces ambiguous `kp handoff` with explicit chat-to-agent and agent-to-agent prompts that clarify at the origin, preserve zero-context task evidence and authority, reconcile at the destination, hydrate confirmed context, and request permission before implementation. |
+| 0006 | plan-command | `docs/specs/0006-plan-command` | deliver | no | 2026-08-28 | Adds `kp plan` as a medium-length built-in prompt for driving an implementation plan to an evidence-backed local maximum in planning mode, without expanding `clarify`. |
 
 ## PROJECT INTENT
 
@@ -55,6 +56,15 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **OPEN ITEMS**: Issue #32 is delivered. Issue #34 tracks the unreachable-evidence origin-clarification correction on `GH-34`. Hosted correctness checks remain unavailable because the repository has no validation workflow.
 - **POINTERS**: `docs/specs/0005-handoff-prompts/SPEC.md`
 
+### plan-command
+
+- **STATUS**: deliver
+- **PAUSED**: no
+- **INTENT**: Provide one low-friction prompt that drives a current implementation plan to a practical, evidence-backed local maximum without leaving planning mode or expanding `clarify`.
+- **APPROACH**: 1. Add one embedded `plan` prompt through the existing registry. 2. Encode progressive research, silent adversarial iteration, a 95% evidence-backed stop rule, and one replacement-plan output. 3. Pin exact output, approved-body hash, required contract phrases, and discovery behavior in prompt, registry, list, verbose-list, and help tests. 4. Update README and the project progress summary. 5. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
+- **OPEN ITEMS**: Issue #44 tracks the command on `GH-44`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **POINTERS**: `docs/specs/0006-plan-command/SPEC.md`
+
 ## LAST UPDATED
 
-2026-08-27 07:50:00 EDT
+2026-08-28 15:35:00 EDT
