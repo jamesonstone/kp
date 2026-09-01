@@ -10,6 +10,7 @@
 | 0005 | handoff-prompts | `docs/specs/0005-handoff-prompts` | deliver | no | 2026-08-26 | Replaces ambiguous `kp handoff` with explicit chat-to-agent and agent-to-agent prompts that clarify at the origin, preserve zero-context task evidence and authority, reconcile at the destination, hydrate confirmed context, and request permission before implementation. |
 | 0006 | plan-command | `docs/specs/0006-plan-command` | deliver | no | 2026-08-28 | Adds `kp plan` as a medium-length built-in prompt for driving an implementation plan to an evidence-backed local maximum in planning mode, without expanding `clarify`. |
 | 0007 | goal-command | `docs/specs/0007-goal-command` | deliver | no | 2026-09-01 | Adds `kp goal` as a built-in prompt for Evidence-Backed Goal Convergence: research before asking, accumulate one goal model, challenge material ambiguity, and return a user-confirmed executable `/goal` before `kp plan`. |
+| 0008 | ship-command | `docs/specs/0008-ship-command` | deliver | no | 2026-09-01 | Adds `kp ship` as a built-in prompt that pre-authorizes a coding agent to complete the current task thread through branch, pull-request, review, CI, in-scope merge, and established-workflow deployment without expanding `continue`, `goal`, or `merge`. |
 
 ## PROJECT INTENT
 
@@ -75,6 +76,15 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **OPEN ITEMS**: Issue #46 tracks the command on `GH-46`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
 - **POINTERS**: `docs/specs/0007-goal-command/SPEC.md`
 
+### ship-command
+
+- **STATUS**: deliver
+- **PAUSED**: no
+- **INTENT**: Provide one low-friction prompt that pre-authorizes shipping the current task thread through the full delivery lifecycle, scoped only to that task, without expanding `continue`, `goal`, or `merge`.
+- **APPROACH**: 1. Add one embedded `ship` prompt through the existing registry. 2. Preserve the supplied authorization contract, including the leading `/goal`. 3. Pin exact output, approved-body hash, required contract phrases, and discovery behavior in prompt, registry, list, verbose-list, and help tests. 4. Update README and the project progress summary. 5. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
+- **OPEN ITEMS**: Issue #48 tracks the command on `GH-48`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **POINTERS**: `docs/specs/0008-ship-command/SPEC.md`
+
 ## LAST UPDATED
 
-2026-09-01 10:44:00 EDT
+2026-09-01 19:20:00 EDT

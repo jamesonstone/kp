@@ -77,6 +77,9 @@ kp merge
 # drive an operational punch list through clustered fixes
 kp punchlist
 
+# pre-authorize shipping the current task through merge and deploy
+kp ship
+
 # browse prompts interactively
 kp list
 
@@ -111,6 +114,7 @@ utility command reference.
 | `kp plan`                  | Print and copy the plan-convergence prompt.                       | Coding-agent chats                | ✅ ready        |
 | `kp pr`                    | Print and copy the Kit workflow prompt for a new worklane.        | Coding-agent chats, repo handoff  | ✅ ready        |
 | `kp punchlist`             | Print and copy the punch-list control-loop prompt.                | Product validation, operator notes| ✅ ready        |
+| `kp ship`                  | Print and copy the task-delivery pre-authorization prompt.        | Coding-agent chats that should land through merge | ✅ ready        |
 | `kp <name> --copy`         | Copy a prompt without printing it.                                | Shell aliases, scripts            | ✅ ready        |
 | `kp <name> --print`        | Print a prompt without touching the clipboard.                    | Pipes, inspection                 | ✅ ready        |
 | `kp find-port <port>`      | Inspect processes listening on a port and choose an action.       | Dev-server cleanup                | ✅ ready        |
@@ -144,6 +148,7 @@ utility command reference.
 | `plan`         | Drive plan to implementation-ready | ✅ embedded |
 | `pr`           | Pull request workflow       | ✅ embedded |
 | `punchlist`    | Punch list control loop     | ✅ embedded |
+| `ship`         | Pre-authorize task delivery | ✅ embedded |
 
 Prompt names are bare commands. There is no `kp prompt ...` namespace.
 
