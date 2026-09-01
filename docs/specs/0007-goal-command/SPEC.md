@@ -87,8 +87,9 @@ executable `/goal` before implementation planning.
   - return one cohesive `/goal` for user confirmation, not an
     implementation plan.
 - Amend `prompts/plan.md` so an accepted `/goal` is the intent contract and
-  is not casually rediscovered or redefined unless implementation research
-  exposes a material contradiction.
+  is consumed unchanged. Research must not redefine the objective; a material
+  contradiction is reported and requires an explicit revised user decision
+  before the intent contract may change.
 - Prompt listing, verbose listing, grouped help, launcher discovery, and user
   override behavior must include `goal` through the existing registry path.
 - Automated tests must pin the exact prompt output and updated built-in
@@ -119,8 +120,9 @@ executable `/goal` before implementation planning.
 - Keep `clarify` unchanged. Quick ambiguity checks and evidence-backed goal
   construction are complementary commands, not one expanded prompt.
 - Encode the `goal` → accepted `/goal` → `plan` lifecycle in `plan.md` rather
-  than leaving it as README-only guidance, because otherwise `kp plan` can
-  still casually redefine the objective.
+  than leaving it as README-only guidance. `kp plan` consumes the confirmed
+  `/goal` unchanged and may not redefine it from research; a material
+  contradiction requires an explicit revised user decision.
 - Pin approved bodies with SHA-256 in addition to comparing CLI output to the
   assets so accidental prompt edits fail tests without duplicating the full
   body in a Go file that would exceed the 300-line source limit.
@@ -172,7 +174,8 @@ executable `/goal` before implementation planning.
   model, researches discoverable facts before asking, asks only material
   questions, challenges circular dependencies and false PASS conditions, and
   returns one user-confirmed executable `/goal`.
-- `kp plan` now consumes an accepted `/goal` as its intent contract.
+- `kp plan` now consumes an accepted `/goal` as its intent contract and does
+  not redefine that objective from research alone.
 - `clarify` is unchanged. Issue #46 tracks delivery on `GH-46`; merge is not
   authorized by this work.
 

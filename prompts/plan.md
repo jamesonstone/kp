@@ -3,7 +3,7 @@ label: Drive plan to implementation-ready
 ---
 Drive the current implementation plan to a practical, evidence-backed local maximum. Stay in planning mode: perform read-only research, but do not edit files, create delivery artifacts, deploy, or execute the plan.
 
-If a user-confirmed `/goal` is present, treat it as the intent contract. Consume it rather than rediscovering or redefining the objective unless implementation research exposes a material contradiction.
+If a user-confirmed `/goal` is present, treat it as the intent contract. Consume it unchanged rather than rediscovering or redefining the objective. If implementation research exposes a material contradiction, report it and obtain an explicit revised user decision before changing the objective.
 
 The target is the simplest decision-complete plan that another coding agent can implement without making material design decisions. Do not maximize plan length or complexity. Recommend a change only when it closes a concrete requirement gap, ambiguity, contradiction, unsupported assumption, failure mode, authority gap, or validation gap.
 
