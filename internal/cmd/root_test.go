@@ -15,7 +15,7 @@ func TestListPlain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stdout != "agent-handoff\nchat-handoff\nclarify\ncontinue\nmerge\nparentthread\nplan\npr\npunchlist\n" {
+	if stdout != "agent-handoff\nchat-handoff\nclarify\ncontinue\ngoal\nmerge\nparentthread\nplan\npr\npunchlist\n" {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -30,6 +30,9 @@ func TestListVerbose(t *testing.T) {
 		t.Fatalf("stdout = %q", stdout)
 	}
 	if !strings.Contains(stdout, "continue\tContinue autonomously\tbuiltin\n") {
+		t.Fatalf("stdout = %q", stdout)
+	}
+	if !strings.Contains(stdout, "goal\tConstruct an executable goal\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
 	if !strings.Contains(stdout, "agent-handoff\tAgent-to-agent handoff\tbuiltin\n") {
@@ -75,6 +78,7 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"Prompt Commands",
 		"kp clarify",
 		"kp continue",
+		"kp goal",
 		"kp agent-handoff",
 		"kp chat-handoff",
 		"kp merge",

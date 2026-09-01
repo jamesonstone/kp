@@ -9,6 +9,7 @@
 | 0004 | punchlist-command | `docs/specs/0004-punchlist-command` | deliver | no | 2026-08-25 | Adds `kp punchlist` as a built-in prompt for scanning a living punch list, clustering related observations, fixing shared causes, and keeping implemented, merged, deployed, and validated states distinct. |
 | 0005 | handoff-prompts | `docs/specs/0005-handoff-prompts` | deliver | no | 2026-08-26 | Replaces ambiguous `kp handoff` with explicit chat-to-agent and agent-to-agent prompts that clarify at the origin, preserve zero-context task evidence and authority, reconcile at the destination, hydrate confirmed context, and request permission before implementation. |
 | 0006 | plan-command | `docs/specs/0006-plan-command` | deliver | no | 2026-08-28 | Adds `kp plan` as a medium-length built-in prompt for driving an implementation plan to an evidence-backed local maximum in planning mode, without expanding `clarify`. |
+| 0007 | goal-command | `docs/specs/0007-goal-command` | deliver | no | 2026-09-01 | Adds `kp goal` as a built-in prompt for Evidence-Backed Goal Convergence: research before asking, accumulate one goal model, challenge material ambiguity, and return a user-confirmed executable `/goal` before `kp plan`. |
 
 ## PROJECT INTENT
 
@@ -65,6 +66,15 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **OPEN ITEMS**: Issue #44 tracks the command on `GH-44`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
 - **POINTERS**: `docs/specs/0006-plan-command/SPEC.md`
 
+### goal-command
+
+- **STATUS**: deliver
+- **PAUSED**: no
+- **INTENT**: Provide one low-friction prompt that converges incomplete engineering intent into a user-confirmed executable `/goal` before implementation planning, without expanding `clarify` or replacing `plan`.
+- **APPROACH**: 1. Add one embedded `goal` prompt through the existing registry. 2. Encode Evidence-Backed Goal Convergence: one accumulated model, research before questions, material questions only, synthesis, adversarial challenge, and a confirmed `/goal` contract. 3. Teach `kp plan` to consume an accepted `/goal` as its intent contract. 4. Pin exact output, approved-body hashes, required contract phrases, and discovery behavior in prompt, registry, list, verbose-list, and help tests. 5. Update README and the project progress summary. 6. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
+- **OPEN ITEMS**: Issue #46 tracks the command on `GH-46`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **POINTERS**: `docs/specs/0007-goal-command/SPEC.md`
+
 ## LAST UPDATED
 
-2026-08-28 15:35:00 EDT
+2026-09-01 10:44:00 EDT
