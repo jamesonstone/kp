@@ -11,7 +11,7 @@ import (
 	"github.com/jamesonstone/kp/internal/prompt"
 )
 
-const approvedPlanSHA256 = "5d36e5ce4e46b70c46df111cac6a3bfe5e7af3f2b6bba81ec72504c974e00d1a"
+const approvedPlanSHA256 = "957938605014cd8e558e881cbf783706141543b61ab165d92b4bfd8ce0d94580"
 
 func TestPlanPromptPrintsApprovedInstructions(t *testing.T) {
 	stdout, stderr, err := executeTestCommand(t, "plan", "--print")
@@ -46,6 +46,8 @@ func TestPlanPromptRequiresConvergenceContract(t *testing.T) {
 		"Drive the current implementation plan to a practical, evidence-backed local maximum",
 		"Stay in planning mode",
 		"do not edit files, create delivery artifacts, deploy, or execute the plan",
+		"treat it as the intent contract",
+		"unless implementation research exposes a material contradiction",
 		"simplest decision-complete plan",
 		"Do not maximize plan length or complexity",
 		"Research progressively",
