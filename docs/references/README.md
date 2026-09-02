@@ -2,6 +2,10 @@
 
 ## Purpose
 
+- Use `rules/work-lane-gating.md` before any coding-agent repository
+  file or delivery mutation to default to a new worklane without asking,
+  require the pull-request landing plan, preserve exact existing-PR lifecycle
+  work in place, and keep the primary checkout read-only
 - Use `rules/aws-agent-toolkit-guidance.md` before AWS-dependent work to select current Agent Toolkit skills, official documentation, the AWS MCP Server or CLI fallback, verified identity, name-aware material targets, infrastructure approval, and secret-safe handling
 - Use `rules/testing-and-environment-validation.md` before implementation and validation to preserve code-level checks and add environment evidence safely
 - This directory holds durable repo-local references that are broader than one feature
