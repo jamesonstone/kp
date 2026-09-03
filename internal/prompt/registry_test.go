@@ -16,7 +16,7 @@ func TestRegistry_ListSorted(t *testing.T) {
 	for i, prompt := range prompts {
 		got[i] = prompt.Name
 	}
-	want := []string{"agent-handoff", "chat-handoff", "clarify", "continue", "goal", "merge", "parentthread", "plan", "pr", "punchlist", "ship"}
+	want := []string{"agent-handoff", "chat-handoff", "clarify", "continue", "goal", "merge", "parentthread", "plan", "pr", "punchlist", "ship", "status"}
 	if len(got) != len(want) {
 		t.Fatalf("names = %v, want %v", got, want)
 	}

@@ -15,7 +15,7 @@ func TestListPlain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stdout != "agent-handoff\nchat-handoff\nclarify\ncontinue\ngoal\nmerge\nparentthread\nplan\npr\npunchlist\nship\n" {
+	if stdout != "agent-handoff\nchat-handoff\nclarify\ncontinue\ngoal\nmerge\nparentthread\nplan\npr\npunchlist\nship\nstatus\n" {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -56,6 +56,9 @@ func TestListVerbose(t *testing.T) {
 	if !strings.Contains(stdout, "ship\tPre-authorize task delivery\tbuiltin\n") {
 		t.Fatalf("stdout = %q", stdout)
 	}
+	if !strings.Contains(stdout, "status\tThread completion audit\tbuiltin\n") {
+		t.Fatalf("stdout = %q", stdout)
+	}
 }
 
 func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
@@ -89,6 +92,7 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"kp pr",
 		"kp punchlist",
 		"kp ship",
+		"kp status",
 		"Prompt Library",
 		"kp list",
 		"kp list --plain",
