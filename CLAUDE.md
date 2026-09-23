@@ -1,5 +1,12 @@
 # CLAUDE
 
+## Conversation Naming
+
+- At creation, a user-requested fork, or a meaningful ownership checkpoint, load `docs/references/thread-naming.md` for the shared naming policy and active host adapter. If absent, use `kit instructions naming`.
+- This policy supersedes legacy initial-title formats and unconditional preserve-title wording; the ordered Codex pin gate remains.
+- Use `[scope] domain / objective` for the current owned outcome. Preserve accurate titles through ordinary execution stages; naming changes metadata only.
+- Codex, Claude Code and Cursor share this policy; only the supported application mechanism differs. Unknown capabilities must not block work.
+
 ## Purpose
 
 - This file is a routing table, not the full manual
@@ -50,14 +57,37 @@
 
 ## GitHub Merge Authorization Hard Gate
 
-- Merge is a distinct mutation boundary. PR-delivery consent, automatic lane allocation, approval, check success, subagent assignment, and a program ledger never imply merge consent.
-- Merge only after a direct user request or accepted bounded merge plan names the exact authorized PR set.
+- Merge is a distinct mutation boundary. PR-delivery consent, automatic lane allocation, approval, check success, subagent assignment, and a program ledger never invent merge readiness.
+- Standing merge authority exists only when a human explicitly authorizes a bounded task, goal, or program to merge its resulting work. Generic task acceptance does not create it. Record repositories, bases, environments, permitted actions, actor, expiry or completion, and exclusions.
+- Standing authority may bind later-created in-scope PRs and refreshed heads. Resolve the exact current PR and head before mutation; do not ask again solely because its number or final OID was unknown when authority was granted.
+- A commit SHA or head OID identifies readiness evidence only; it is never an authorization identity. A head change invalidates checks and review, not standing authority. Never request exact-head reauthorization.
 - Before any merge or merge-queue mutation, resolve `pull-request-merge` and load `docs/references/rules/github-pr-merge.md`.
-- Reconcile the authorization source, authenticated actor, expected head/base, repository merge policy, current reviews/checks, dependencies, and infrastructure or deployment effects before every wave.
+- Reconcile the standing-authority selector and pause state, authenticated actor, expected head/base, repository policy, current reviews/checks, dependencies, deployment workflow, environment, and material effects before every wave.
 - Only exact current `MERGE_READY` nodes may merge. Pending, missing, stale-head, or policy-ineligible skipped checks are not passing.
-- Revalidating an authorized target does not require another prompt. Adding a target or materially changing actor, method, environment, infrastructure effect, or recovery requires follow-up authorization.
+- Use one complete preflight snapshot per consequential mutation or wave; do not rerun unchanged checks or poll repeatedly unless material state changes or the evidence freshness window expires.
+- A changed in-scope head invalidates readiness, not standing authority. Revalidate current-head evidence, then merge without renewed authorization. Scope, repository, base, environment, actor, identity, method, workflow, or material-effect expansion requires explicit updated authority.
+- After final-head evidence restores `MERGE_READY`, continue any already-authorized standard deployment and browser retry without another permission prompt.
 - Never bypass protection, reviews, required checks, a merge queue, repository policy, or identity safeguards.
 - Report merge, hosted workflow, deployment/runtime, and production evidence as separate claims.
+- IAM, network, KMS, secrets, database-schema or data-loss changes, infrastructure creation/replacement/deletion, destructive deletion, nonstandard deployment effects, and unresolved risk classifications are not covered by standing merge/deploy authority.
+- The most recent direct human instruction wins. Pause, hold, or revocation stops affected actions and dependents until explicit human resume or replacement authority.
+
+## GitHub Standing Merge Authority Hard Gate
+
+- Merge is a distinct mutation boundary. PR-delivery consent, automatic lane allocation, approval, check success, subagent assignment, and a program ledger never invent merge readiness.
+- Standing merge authority exists only when a human explicitly authorizes a bounded task, goal, or program to merge its resulting work. Generic task acceptance does not create it. Record repositories, bases, environments, permitted actions, actor, expiry or completion, and exclusions.
+- Standing authority may bind later-created in-scope PRs and refreshed heads. Resolve the exact current PR and head before mutation; do not ask again solely because its number or final OID was unknown when authority was granted.
+- A commit SHA or head OID identifies readiness evidence only; it is never an authorization identity. A head change invalidates checks and review, not standing authority. Never request exact-head reauthorization.
+- Before any merge or merge-queue mutation, resolve `pull-request-merge` and load `docs/references/rules/github-pr-merge.md`.
+- Reconcile the standing-authority selector and pause state, authenticated actor, expected head/base, repository policy, current reviews/checks, dependencies, deployment workflow, environment, and material effects before every wave.
+- Only exact current `MERGE_READY` nodes may merge. Pending, missing, stale-head, or policy-ineligible skipped checks are not passing.
+- Use one complete preflight snapshot per consequential mutation or wave; do not rerun unchanged checks or poll repeatedly unless material state changes or the evidence freshness window expires.
+- A changed in-scope head invalidates readiness, not standing authority. Revalidate current-head evidence, then merge without renewed authorization. Scope, repository, base, environment, actor, identity, method, workflow, or material-effect expansion requires explicit updated authority.
+- After final-head evidence restores `MERGE_READY`, continue any already-authorized standard deployment and browser retry without another permission prompt.
+- Never bypass protection, reviews, required checks, a merge queue, repository policy, or identity safeguards.
+- Report merge, hosted workflow, deployment/runtime, and production evidence as separate claims.
+- IAM, network, KMS, secrets, database-schema or data-loss changes, infrastructure creation/replacement/deletion, destructive deletion, nonstandard deployment effects, and unresolved risk classifications are not covered by standing merge/deploy authority.
+- The most recent direct human instruction wins. Pause, hold, or revocation stops affected actions and dependents until explicit human resume or replacement authority.
 
 ## Cross-Repository Program Coordination Gate
 

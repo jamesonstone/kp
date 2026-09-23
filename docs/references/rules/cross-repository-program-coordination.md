@@ -41,9 +41,13 @@ both conditions are true:
 
 Do not create a program ledger merely for read-only multi-repository research,
 one atomic change mirrored across repositories, or several independent changes
-whose order and completion do not affect one another. Escalate into this rule
-when those tasks acquire a shared dependency, rollout, acceptance, or handoff
-boundary.
+whose order and completion do not affect one another. A small number of
+directly coupled repositories with one simple, non-staged dependency, such as
+updating a shared library and then bumping it in its callers, also does not
+need a program ledger; track that as ordinary sequential delivery in each
+repository. Escalate into this rule when those tasks acquire a shared
+dependency, rollout, acceptance, or handoff boundary that is actually staged,
+multi-milestone, or expected to cross a handoff.
 
 This rule coordinates a program. It does not replace each repository's local
 workflow, specification, issue, pull request, testing, infrastructure approval,
@@ -100,10 +104,11 @@ The ledger must contain:
 
 - a participant repository table with owner, local spec, issue, branch, pull
   request, and operational-reference pointers when applicable;
-- the authorization source and exact approved PR set, authenticated GitHub
-  actor for each repository, expected PR head/base, merge method and repository
-  policy, bounded in-place-remediation authority, replacement-PR criteria, and
-  corrective or rollback owner;
+- the standing-authority source and semantic selector, current pause,
+  revocation, expiry, or completion state, dynamically resolved exact PR set,
+  authenticated GitHub actor for each repository, expected PR head/base, merge
+  method and policy, in-place-remediation authority, replacement-PR criteria,
+  and corrective or rollback owner;
 - a dependency graph that names each workstream's prerequisites and consumers;
 - the current ready frontier: only unblocked workstreams whose prerequisites
   and approvals are currently satisfied;
@@ -168,13 +173,15 @@ program-level interpretation in the ledger. Redact secrets and protected data.
   program complete unless the program supervisor explicitly assigns that
   authority.
 - A participant may merge only specifically assigned PR nodes from the exact
-  approved `MERGE_READY` frontier. Participant or subagent assignment alone
-  does not create merge authority, and read-only verifiers never merge.
-- The accepted bounded plan or direct user request creates merge authority.
-  The ledger records and reconciles that authority; it never creates it.
-- Before every merge wave, the supervisor reconciles the authorization source,
-  approved PR set, actor, expected head/base, repository policy, current
-  evidence, approvals, and ready frontier against live sources.
+  in-scope `MERGE_READY` frontier. Participant or subagent assignment alone
+  does not invent `MERGE_READY`, and read-only verifiers never merge.
+- Explicit bounded standing authority may cover later-created in-scope PRs and
+  refreshed heads. The ledger records its semantic selector, pause/revocation
+  state, and each resolved exact current node; it never creates authority.
+- Before every merge wave, the supervisor reconciles the standing-authority
+  selector and pause state, resolved exact PR set, actor, expected head/base,
+  repository policy, current evidence, approvals, and ready frontier against
+  live sources.
 - Use `agent-team-orchestration` for the execution topology inside each ready
   wave. Its overlap, concurrency, verification, and delivery boundaries remain
   in force.
@@ -212,11 +219,16 @@ Before resume, handoff, dispatch, milestone advancement, or completion:
 5. checkpoint the reconciled state before assigning or performing more work.
 
 Before each merge wave, also resolve `pull-request-merge` and follow
-`github-pr-merge`. Revalidation of unchanged authorized heads does not require
-another prompt. A changed head loses prior readiness and merge authority and
-requires fresh exact-head authorization; adding a target or materially changing
-actor, method, environment, infrastructure effect, or recovery also requires
-follow-up authorization.
+`github-pr-merge`. A later in-scope PR or changed head may retain standing
+authority, but it must receive fresh exact current-head readiness evidence.
+Repository, base, environment, actor, identity, method, workflow, product
+scope, or material-effect expansion requires explicit updated authority.
+
+A commit SHA or head OID is an evidence pointer, never an authorization
+identity. When the standing selector still matches, a changed head invalidates
+readiness only. After fresh evidence restores `MERGE_READY`, continue the
+authorized merge, standard deployment, and browser verification without
+exact-head reauthorization.
 
 A handoff must identify the coordinator and ledger, active milestone, current
 ready frontier, blockers and owners, material decisions, exact evidence,
@@ -238,19 +250,21 @@ The program supervisor may mark the program complete only when:
 - a final reconciled checkpoint records the actual outcome and remaining
   operational obligations.
 
-Render the terminal program result through the `agent-completion-output`
-three-section contract. Group repository, owner, dependency, deployment,
-runtime, and acceptance evidence by workstream under What happened. Put
-unresolved dependencies under Deviations and exact handoffs under Next steps.
+Render the terminal program result through `agent-completion-output`, which
+prescribes no format. Keep each workstream's repository, owner, dependency,
+deployment, runtime, and acceptance evidence identifiable, and state unresolved
+dependencies and exact handoffs plainly rather than leaving them to be
+inferred.
 
 ### Safety And Existing Gates
 
 - Continue to obey every participant repository's instructions and ownership
   boundaries. The program ledger does not grant cross-repository mutation
   authority.
-- The accepted plan or direct user request creates authority; the ledger only
-  records it. Never infer merge permission from ledger existence, a ready
-  frontier, participant assignment, or check success.
+- An explicit human standing-authority grant or direct current merge request
+  creates authority; the ledger only records it. Never infer merge permission
+  from generic task acceptance, ledger existence, a ready frontier,
+  participant assignment, or check success.
 - Infrastructure changes still require the applicable consolidated approval
   boundary, target verification, rollback plan, and provider-specific gates.
 - Never store secrets, credentials, customer data, raw logs, agent transcripts,
@@ -299,8 +313,8 @@ unresolved dependencies under Deviations and exact handoffs under Next steps.
   frontier, uses the expected actor/head/base/method, and resolves
   `pull-request-merge` before mutation.
 - Confirm routine scoped remediation preserved its existing pull request and
-  changed heads received fresh checks, review, revalidation, and exact-head
-  authorization before reentering the frontier.
+  changed heads received fresh checks, review, revalidation, and standing-
+  authority selector matching before reentering the frontier.
 - Confirm a checkpoint follows each material transition and every handoff.
 - Confirm resume, handoff, dispatch, and completion reconcile against live
   repository, GitHub, runtime, and validation sources.
@@ -328,6 +342,17 @@ Not a program trigger:
 Inspect twelve repositories for the same deprecated setting and report which
 ones contain it. This is read-only research with no dependent delivery,
 deployment, shared acceptance gate, or expected handoff; do not create a
+program ledger.
+```
+
+Coupled but not a program:
+
+```text
+Bump the shared client library's version, then update the two internal
+services that import it. The dependency is real but simple and non-staged:
+one library release followed by two ordinary sequential pull requests, no
+deployment stages, and no expected agent or session handoff. Deliver each
+repository's change through its normal local workflow instead of creating a
 program ledger.
 ```
 

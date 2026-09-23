@@ -260,4 +260,4 @@ MIT. See [LICENSE](LICENSE).
 
 ## Maintainers
 
-Maintained with 🪖 and ❤️ by [Jameson](https://github.com/jamesonstone) (`jamesonstone`).
+Maintained by the [jamesonstone](https://github.com/jamesonstone) team.

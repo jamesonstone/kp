@@ -50,9 +50,9 @@ deployment environment or external integration for a project that has none.
 
 ### Confidence, Not Certainty
 
-- Follow `agent-completion-output` for terminal reporting. Put observed
-  validation results under What happened, gaps or non-passing evidence under
-  Deviations, and required reruns or remediation under Next steps.
+- Follow `agent-completion-output` for terminal reporting, which prescribes no
+  format. Keep observed validation results, gaps or non-passing evidence, and
+  any required rerun or remediation visible and distinct from one another.
 - Treat “near 100% correctness” as a risk-based confidence objective backed by
   comprehensive evidence, not as a mathematical or absolute guarantee.
 - Map changed behavior and acceptance criteria to the narrowest tests that can
@@ -62,6 +62,7 @@ deployment environment or external integration for a project that has none.
   literally. Do not convert unobserved behavior into a passing claim.
 - Use coverage reports to find untested behavior, not as a substitute for
   meaningful assertions or as a universal percentage target.
+- For rule and instruction changes, baseline on a small eval set with outcome plus trajectory grading and human spot-checks; iterate from failure audits rather than a single static score.
 
 ### Preserve Code-Level Tests
 
