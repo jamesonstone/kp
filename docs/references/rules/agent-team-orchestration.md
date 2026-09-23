@@ -63,6 +63,25 @@ waives or narrows the single-lane criteria already defined in Applies When,
 and it never substitutes for host-confirmed capability evidence gathered
 during `CAPABILITY_NEGOTIATING`.
 
+### Proportionality
+
+The depth of the recorded evaluation scales with the size and risk of the
+work, not with the mere fact that a plan exists. For a small, tightly-coupled,
+or low-risk change, the recorded topology decision may be the single-lane
+reason alone; a full Capability Manifest, Lane Manifest, and goal-coverage
+walkthrough are warranted only once the work is large or risky enough that a
+genuine multi-lane split is actually on the table. Scaling the ceremony down
+for a small change is not skipping the evaluation; it is the evaluation
+correctly concluding, quickly, that decomposition would not help. Treat an
+inflated manifest for trivial work as its own anti-pattern: it burns effort
+without adding evidence anyone will use.
+
+### Persistence And Exit Conditions
+
+- Keep going until acceptance criteria plus verification are complete; stop only on verified done, an explicit user stop, or a genuine external blocker that cannot be recovered in scope.
+- Declare the loop `exit_condition`, tool and turn budgets, bounded retries, and stall detection before `IMPLEMENTING`; never retry the same failed action without new evidence, a revised recovery path, or a changed tool path.
+- Treat stalled progress such as repeated unchanged tool output or repeated failing checks without diagnosis as a signal to re-plan, narrow scope, or request the smallest missing input, not to loop harder.
+
 ### Lifecycle And Root Accountability
 
 Use this execution lifecycle:
@@ -87,10 +106,11 @@ SCOPED -> CAPABILITY_NEGOTIATING -> MAPPING -> SYNTHESIZING
   closed with rerun evidence or accepted as explicit residual risk.
   `SOURCE_VERIFIED` requires the integrated source, tests, documentation, and
   evidence to agree; implementation completion alone cannot enter that state.
-- `PR_READY` never implies `MERGE_AUTHORIZED`. That transition requires a
-  direct user request or accepted bounded merge plan for the exact current
-  pull-request set plus revalidated head, base, actor, repository policy,
-  reviews, checks, dependencies, method, and material effects.
+- `PR_READY` never implies standing merge authority or `MERGE_READY`. An
+  explicit bounded standing-authority selector may bind later in-scope PRs and
+  refreshed heads, but every transition still requires the resolved exact
+  current node plus revalidated head, base, actor, policy, reviews, checks,
+  dependencies, method, environment, workflow, and material effects.
 - `MERGED` requires observed evidence that the exact authorized pull request
   merged. Merge success is not release evidence.
 - `RELEASE_VERIFIED` requires evidence tying the expected merged source to the
@@ -98,7 +118,7 @@ SCOPED -> CAPABILITY_NEGOTIATING -> MAPPING -> SYNTHESIZING
   merge, tag name, or local build.
 - `PROVENANCE_PR_READY` requires a separately authorized and owned
   issue/branch/worktree/pull-request lane whose ready-PR evidence records the
-  verified release provenance. It never implies merge authorization for that
+  verified release provenance. It never invents `MERGE_READY` for that
   separate pull request.
 - `COMPLETE` requires evidence for every applicable prior state. A workflow
   that does not own merge, release, or provenance reports those later states as
@@ -297,8 +317,8 @@ hypothesis to reconcile, not the source of truth for state.
 - Only the accountable supervisor owns merge-wave decisions, authorization
   reconciliation, the global ready frontier, and global gate advancement.
 - A participant may merge only specifically assigned pull-request nodes from
-  the exact authorized `MERGE_READY` frontier. Subagent assignment alone never
-  creates merge authority.
+  the exact current `MERGE_READY` frontier resolved under standing authority.
+  Subagent assignment alone never creates authority.
 - A participant must not expand the approved pull-request set, change another
   node's dependency or ownership, bypass a gate, or advance program-wide state.
 - Read-only verification agents can never merge or queue a merge.
@@ -318,6 +338,8 @@ hypothesis to reconcile, not the source of truth for state.
 - After nontrivial implementation, use a fresh independent `verifier` when the
   host confirms that capability. The verifier must have a distinct execution
   and result, must not be the implementer or advisor, and remains read-only.
+- The builder never marks its own work done; completion requires independent tool output such as tests, checks, or inspection, or a fresh verifier, never narrative alone.
+- Preserve tool-trajectory evidence such as tool order, inputs, and outputs alongside final text; evaluate trajectories as well as final answers.
 - Verification agents must not edit files, stage changes, commit, push, close
   findings, mark acceptance criteria complete, resolve review threads, or
   mutate issue, branch, pull-request, merge, or merge-queue state.
@@ -352,10 +374,10 @@ hypothesis to reconcile, not the source of truth for state.
 
 ### Two-Axis Final Reporting
 
-Follow `agent-completion-output` for terminal reporting. Map `task_outcome` to
-the first What happened status bullet. Keep material execution evidence under
-What happened, degraded or unsatisfied conformance under Deviations, and any
-required handoff under Next steps. Never let task success hide degraded or
+Follow `agent-completion-output` for terminal reporting, which prescribes no
+format. State `task_outcome` plainly, keep material execution evidence and any
+required handoff visible, and report degraded or unsatisfied conformance as
+its own fact. Never let task success hide degraded or
 unsatisfied orchestration conformance.
 
 Report task success separately from orchestration compliance:
@@ -395,6 +417,9 @@ single supervisor lane; no specialist or verification agents spawned
 
 - Hardcoding provider, model, version, effort, or numeric concurrency policy in
   this rule.
+- Producing a full Capability Manifest and Lane Manifest for trivial or
+  tightly-coupled work where a one-line single-lane reason already answers the
+  question.
 - Asking Kit to inspect host capabilities, choose a model, launch an agent,
   wait for results, or supervise execution.
 - Inferring capability from a provider label, treating `unknown` as available,
@@ -407,7 +432,7 @@ single supervisor lane; no specialist or verification agents spawned
 - Calling supervisor self-review independent verification.
 - Treating task success as proof of full orchestration conformance.
 - Copying transient capability or convergence state into spec front matter.
-- Treating participant assignment as merge authority or allowing a participant
+- Treating participant assignment as standing merge authority or allowing a participant
   to expand the authorized pull-request set or advance a global gate.
 
 ## Verification

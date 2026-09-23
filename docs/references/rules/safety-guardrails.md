@@ -50,36 +50,40 @@ Use this matrix instead of inventing an authority boundary in each workflow:
 | Read-only discovery | Implied by the task |
 | In-scope implementation and safe recovery | Current accepted task |
 | Issue, branch, commit, push, and ready PR | Accepted repository-mutating task through the default new lane, or explicit same-scope continuation |
-| Review-thread mutation | Explicitly assigned repair/resolution authority |
-| PR merge | Direct merge request or accepted bounded merge plan |
-| Multi-repository merge program | Approved plan plus reconciled program ledger |
-| Deployment or infrastructure mutation | Applicable infrastructure/deployment approval |
+| Review-thread mutation, CI/Inspector/compatibility repair | Current accepted task; standing authority when the repair is part of an authorized merge/deploy goal |
+| PR merge | Explicit bounded standing authority plus current `MERGE_READY` evidence for the resolved exact node |
+| Multi-repository merge program | Explicit bounded standing authority plus a reconciled program ledger and current `MERGE_READY` frontier |
+| Standard deployment | Explicit bounded standing authority or a direct current instruction for the recorded repository, environment, workflow, actor, and artifact |
+| Infrastructure, IAM, network, KMS, secrets, database schema/data-loss, destructive, or nonstandard deployment mutation | Its own applicable approval; never standing merge/deploy authority |
 | Protection bypass, admin override, identity substitution | Prohibited |
 
-- Authority is bounded by repository, target, action, intended effect, actor,
-  and applicable environment. Revalidation and compatible retries preserve an
-  unchanged authority boundary; material scope expansion requires follow-up
-  authorization.
-- PR-delivery consent, automatic lane allocation, subagent assignment, check
-  success, and program-ledger existence never imply merge authority.
-- Before an authorized merge, resolve the `pull-request-merge` workflow and
-  follow `github-pr-merge`.
+- Standing authority is bounded by its recorded goal and non-goals,
+  repositories, bases, environments, actions, standard deployment workflows,
+  actor, expiry or completion boundary, and exclusions. It may bind later
+  in-scope PRs and refreshed heads after exact current reconciliation.
+- Generic task acceptance, PR-delivery consent, automatic lane allocation,
+  subagent assignment, check success, and program-ledger existence never create
+  standing merge/deploy authority or `MERGE_READY`.
+- The most recent direct human instruction wins. Pause, hold, or revocation
+  stops affected actions and dependents until explicit human resume or
+  replacement authority. Material scope or risk expansion requires explicit
+  updated authority.
+- Before an in-scope merge, resolve the `pull-request-merge` workflow and
+  follow `github-pr-merge`. Exact current readiness is mandatory; renewed
+  authority is not when the active selector still matches.
 
 ### Prohibited Actions
 
 GitHub access is never permission to:
 
-- Merge without a direct request or accepted bounded merge plan.
+- Merge outside standing authority, bypass `MERGE_READY`, or ignore a pause,
+  hold, revocation, expiry, or completion boundary.
 - Force-push protected branches.
-- Delete a protected, base, unmerged, or out-of-lane branch.
+- Delete branches.
 - Change repository settings.
 - Change secrets.
 - Bypass review.
 - Alter protected branch rules.
-
-An authorized, confirmed merge of a pull request also authorizes deleting
-that exact merged head branch as routine cleanup. This is ordinary GitHub
-cleanup, not infrastructure, and needs no separate confirmation.
 
 ### Working-Tree Recon
 
@@ -219,12 +223,17 @@ Agents own the requested outcome. On a lint, test, template, tool, authenticatio
   persistent project, user, business, or external-system state. Default to
   soft delete and obtain post-outline specific manual confirmation for the
   exact current targets before every hard delete.
-- Honor explicit repo-local approval gates. For covered public-cloud, Kubernetes, or infrastructure-as-code mutations, follow `infrastructure-change-approval` before mutation; use one plan-level confirmation per complete batch, then execute that batch and compatible retries without re-prompting; consolidate additional required changes into one follow-up batch, and always obtain post-outline confirmation for deletion or removal. Routine application operations, including deployment image updates and ECS interactions that do not create or delete infrastructure, are not covered mutations and do not require that confirmation.
+- Honor explicit repo-local approval gates. Standing merge/deploy authority
+  covers only recorded standard deployment workflows on already-provisioned
+  targets. IAM, network, KMS, secrets, database schema/data-loss, cluster,
+  infrastructure creation/replacement/deletion, destructive, and nonstandard
+  deployment effects route to their own approval boundaries. Follow
+  `infrastructure-change-approval` before every covered mutation.
 - Outside explicit repo-local approval gates, ask permission only before large-scale deletion or deleting sensitive files.
 - Before requesting hard-delete confirmation, resolve the exact targets, scope,
   sensitivity, cascades, and recoverability with read-only inspection. An
   unqualified deletion request never authorizes irreversible purge.
-- This permission boundary does not authorize actions prohibited above. Never ask for permission to bypass protected branches, review, identity, secret, force-push, merge-authorization, or repository-setting safeguards.
+- This permission boundary does not authorize actions prohibited above. Never ask for permission to bypass protected branches, review, identity, secret, force-push, `MERGE_READY`, or repository-setting safeguards.
 
 ## Anti-Patterns
 
@@ -240,13 +249,15 @@ Agents own the requested outcome. On a lint, test, template, tool, authenticatio
   or a generic request for a pull request.
 - Do not commit when author or committer identity is missing, ambiguous, or not the human user's.
 - Do not ask the user to authorize a compatible `gh` or connector retry that preserves the already-authorized mutation.
-- Do not treat autonomous failure recovery as permission to bypass an explicit infrastructure-change approval gate.
+- Do not treat autonomous failure recovery or standing merge/deploy authority
+  as permission to bypass another approval boundary or an explicit pause,
+  hold, or revocation.
 - Do not blindly repeat a failed mutation without new evidence or a revised recovery path.
 - Do not perform large-scale deletion or delete sensitive files without explicit permission.
 - Do not hard-delete covered state without the exact post-outline manual
   confirmation required by `deletion-safety`.
 - Do not treat delivery consent, agent assignment, successful checks, or a
-  program ledger as authority to merge.
+  program ledger as `MERGE_READY`.
 
 ## Verification
 
@@ -274,9 +285,10 @@ Agents own the requested outcome. On a lint, test, template, tool, authenticatio
 - Confirm large-scale deletion and sensitive-file deletion did not occur without explicit permission.
 - Confirm covered deletion defaulted to a recoverable lifecycle and every hard
   delete had exact, current, post-outline manual confirmation.
-- Before any merge, confirm a direct request or accepted bounded plan created
-  authority for the exact PR set and `pull-request-merge` resolved without a
-  required evidence gap.
+- Before any merge, confirm an explicit standing-authority selector covers the
+  resolved exact current PR, its pause/revocation state is active, `MERGE_READY`
+  evidence is current, and `pull-request-merge` resolved without a required
+  evidence gap.
 
 ## Examples
 

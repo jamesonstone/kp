@@ -1,7 +1,7 @@
 ---
 kind: ruleset
 slug: infrastructure-change-approval
-description: Requires one plan-level confirmation and one-pass execution per covered infrastructure batch, excludes routine application operations, and always requires explicit deletion confirmation.
+description: Separates standing authority for standard deployments from separately approved infrastructure-class changes and destructive confirmation.
 status: active
 registry_scope: downstream
 applies_to:
@@ -29,6 +29,9 @@ read_policy_default: must
 - Keep routine application operations on already-provisioned workloads,
   including deployment image updates and ECS interactions, from becoming an
   infrastructure-approval batch.
+- Define when an explicit bounded standing-authority grant may cover an
+  existing standard deployment workflow without covering infrastructure,
+  identity, security, or data changes.
 - Give the user one meaningful approval boundary per bounded covered batch,
   and always require explicit confirmation before deleting infrastructure.
 - Preserve one-pass execution and autonomous recovery after approval while
@@ -64,6 +67,10 @@ infrastructure-as-code mutation. Project-local rules may define a broader
 scope. If it is uncertain whether an action creates, replaces, or deletes
 infrastructure, treat it as covered.
 
+Standing merge/deploy authority never authorizes a covered mutation merely
+because that mutation is additive or appears in a deployment workflow. Covered
+infrastructure still requires the complete approval boundary below.
+
 ## Rules
 
 ### Routine Application Operations
@@ -95,6 +102,27 @@ identity verification remains additive for AWS-dependent work.
 
 Creating a new cluster, service, load balancer, IAM role, network path, or
 datastore is not a routine application operation.
+
+### Standard Deployments Under Standing Authority
+
+- A standard deployment is an existing repository-approved workflow named by
+  an explicit bounded standing-authority grant, targeting an authorized
+  environment, and deploying the exact artifact produced by an authorized
+  merge onto already-provisioned application resources.
+- It includes the workflow's ordinary rollout, bounded compatible retries,
+  health checks, deployed-identity checks, runtime verification, and documented
+  rollback or recovery. Merge success is never deployment proof.
+- It excludes novel provider commands, new targets, workflow mutation, IAM,
+  network topology, KMS, secrets, persistent data-store or database-schema
+  change, data loss, cluster control-plane change, and infrastructure creation,
+  replacement, or deletion. Any such effect stops the standard deployment and
+  routes to its own approval and safety contract.
+- Generic task acceptance does not authorize deployment. Record the standing
+  grant's repositories, environments, workflows, actor, expiry or completion
+  boundary, and exclusions before using it.
+- The most recent direct human instruction wins. A pause, hold, or revocation
+  stops the affected deployment and its dependents immediately. Only an
+  explicit human resume or replacement grant restores authority.
 
 ### Read-Only Discovery
 
@@ -154,7 +182,9 @@ satisfies both contracts.
 - A merge or release whose only known cloud effect is a routine application
   operation does not require infrastructure-change-approval confirmation.
   Record the triggering workflow and environment; do not invent a covered
-  batch.
+  batch. When deployment is requested, separately prove that explicit standing
+  deployment authority or a direct current instruction covers that workflow
+  and environment.
 - Infrastructure deletion, destruction, purge, destructive replacement, and
   state removal are outside an ordinary merge or release-orchestration batch.
   Do not execute them there; isolate them as a separate task governed by this
@@ -276,6 +306,9 @@ is not a follow-up infrastructure batch.
 - Treating merge authorization as infrastructure approval, or starting a
   merge with unknown covered create, replace, or delete effects.
 - Treating an image-only CD merge as a covered infrastructure batch.
+- Treating standing merge/deploy authority as permission for IAM, network,
+  KMS, secrets, database-schema or data-loss changes, infrastructure creation,
+  replacement or deletion, a new environment, or a nonstandard deployment.
 
 ## Verification
 
@@ -284,6 +317,9 @@ is not a follow-up infrastructure batch.
 - Confirm routine application operations, including deployment image updates
   and ECS interactions that do not create or delete infrastructure, did not
   receive an infrastructure-approval prompt.
+- Confirm every deployment performed under standing authority used the exact
+  recorded repository, environment, existing standard workflow, actor, and
+  artifact, then completed required runtime verification.
 - For a large or materially risky AWS batch, confirm the outline includes the
   resolved account and Region names where available, always includes the
   stable account ID and Region code, and reports unavailable display labels

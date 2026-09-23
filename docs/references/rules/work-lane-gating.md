@@ -106,13 +106,15 @@ After read-only recon:
 - For multiple pull requests, record one continuation entry per target in the
   bounded merge or program plan. That exact target set replaces the singular
   create-or-update landing target; it does not create a coordinator pull request.
-- Follow `github-pr-merge` for dependency order and bounded in-place repair.
+- Follow `github-pr-merge` for dependency order and in-place repair.
   Scope-preserving repair stays on the existing heads with ordinary commits;
   never create recursive corrective pull requests merely to make another pull
   request current or mergeable.
-- If the user or accepted plan authorizes merge but not source repair, stop for
-  bounded in-place-remediation authority before changing a head. Missing repair
-  authority is not a reason to allocate a new worklane or replacement pull request.
+- When explicit bounded standing authority includes blocker repair, later
+  in-scope repairs and refreshed heads remain authorized even if their PR
+  numbers or final OIDs were unknown at grant time. A specific repair pause,
+  hold, or revocation prevails. Missing repair authority is not a reason to
+  allocate a new worklane or replacement pull request.
 - Use a replacement pull request only when the remediation materially changes
   scope or architecture, the original head cannot be updated safely, or
   repository policy or the user explicitly requires replacement.
@@ -145,26 +147,33 @@ Pull-Request Landing Plan:
   or the user's explicit continuation direction, and record a revised plan
   before further mutation.
 
-### Merge Authorization
+### Standing Merge Authority And Readiness
 
-- PR-delivery consent never implies merge consent. It authorizes issue, branch,
-  commit, push, and ready-PR delivery only.
-- A direct merge request or accepted bounded merge plan routes to
-  `github-pr-merge` and the `pull-request-merge` context workflow.
-- The exact existing pull-request set named by that request or plan is explicit
-  continuation under this rule; do not apply the default-new route to create a
-  separate coordination lane.
-- The authorized set is exact. Adding a new PR, repository, base branch,
-  deployment target, infrastructure effect, merge method, or actor requires
-  follow-up authorization.
-- Revalidating an unchanged authorized head, retrying a compatible path, or
-  using a repository-required merge queue does not require another prompt when
-  target, scope, intended effect, identity, and approval remain unchanged. A
-  changed head invalidates prior merge authority and requires fresh exact-head
-  authorization under `github-pr-merge`.
+- PR-delivery consent never creates standing merge authority or `MERGE_READY`.
+  It authorizes issue, branch, commit, push, and ready-PR delivery.
+- Standing merge authority exists only when a human explicitly authorizes a
+  bounded task, goal, or program to merge its resulting work. Generic task
+  acceptance, lane allocation, approval, checks, or a ledger do not create it.
+- A semantic standing-authority selector may bind later-created in-scope PRs
+  and refreshed heads. Resolve the exact current targets during pre-merge
+  reconciliation; do not ask again solely because their numbers or final OIDs
+  were unknown when authority was granted.
+- A merge routes to `github-pr-merge` and the `pull-request-merge` context
+  workflow. The resolved existing PR set is continuation under this rule; do
+  not create a separate coordination lane.
+- A changed in-scope head invalidates readiness, not standing authority.
+  Re-run all current-head checks, reviews, policy, identity, dependency, and
+  effect gates before restoring `MERGE_READY`.
+- A commit SHA or head OID is readiness evidence, never an authorization
+  identity. After a selector-matching head returns to `MERGE_READY`, continue
+  without exact-head reauthorization.
+- Repository, base, environment, actor, identity, merge method, deployment
+  workflow, product scope, or material-effect expansion requires explicit
+  updated authority. The most recent human pause, hold, or revocation prevails
+  until explicit resume or replacement authority.
 - A gate decision, issue, branch, commit, push, ready PR, approval, passing
   check, review-thread resolution, subagent assignment, or program ledger does
-  not create merge authority.
+  not invent `MERGE_READY`.
 
 ### New Lane
 
@@ -291,8 +300,9 @@ state, or to create or clear a worktree.
   or recursive corrective pull request.
 - Confirm tripwire state was preserved and no ungated change was staged,
   committed, pushed, discarded, or silently transferred.
-- Confirm PR-delivery consent was not treated as merge consent, and any direct
-  merge request or accepted bounded plan routed to `github-pr-merge`.
+- Confirm PR-delivery consent was not treated as `MERGE_READY`, and any
+  in-scope merge routed to `github-pr-merge` without a redundant consent
+  prompt.
 
 ## Examples
 

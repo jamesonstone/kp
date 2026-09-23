@@ -18,7 +18,7 @@ read_policy_default: conditional
 ## Purpose
 
 - Let a coding agent narrow validation and implementation scope to what a real, user-declared deadline requires, instead of wasting time on evidence and cleanup the deadline makes low-value.
-- Change prioritization and scope only. Deadline mode never weakens correctness, authority, or any required approval, security, or compatibility boundary.
+- Change prioritization and scope only. Deadline mode never weakens correctness, `MERGE_READY` evidence, destructive-effect fencing, security, or compatibility invariants.
 - Require every narrowing to be explicit and recorded, never silent. A recorded single-lane or reduced-scope decision is a fully valid, first-class outcome, not a shortcut to hide.
 
 ## Applies When
@@ -61,8 +61,8 @@ Do not substitute repeated broad suites for focused evidence.
 
 Deadline mode must never weaken, skip, or narrow:
 
-- required merge authorization — `docs/references/rules/github-pr-merge.md` and `pull-request-merge` still gate every merge exactly as always;
-- required infrastructure approval — `docs/references/rules/infrastructure-change-approval.md`'s consolidated outline and one-pass execution still apply in full;
+- required standing merge authority and readiness — `docs/references/rules/github-pr-merge.md` and `pull-request-merge` still require an explicit bounded grant plus current `MERGE_READY`, identity, reviews, CI, and protection evidence; later in-scope PRs and refreshed heads do not require renewed authority;
+- required deployment and infrastructure boundaries — standard deployment still requires explicit standing authority for the recorded workflow and environment, while IAM, network, KMS, secrets, database schema/data-loss, infrastructure create/replace/delete, destructive, and nonstandard effects keep their own gates;
 - independent final review — `docs/references/rules/agent-team-orchestration.md`'s fresh, read-only `verifier` requirement still applies to nontrivial implementation;
 - required post-deployment tests — `docs/references/rules/testing-and-environment-validation.md`'s `### Local And Production Execution` production-suite requirement still applies after an actual deployment;
 - one final UI verification after every result in the authorized merge or deployment wave is delivered — deadline mode defers this check until then; it does not cancel it;
@@ -95,7 +95,7 @@ One deadline-mode authorization covers the current unit of work the user declare
 ## Anti-Patterns
 
 - Entering or suggesting deadline mode without an explicit user signal.
-- Treating deadline mode as license to weaken merge authorization, infrastructure approval, independent review, required post-deployment tests, default-off/fail-closed behavior, security, or migration safety.
+- Treating deadline mode as license to weaken standing-authority scope, merge readiness, infrastructure approval, independent review, required post-deployment tests, default-off/fail-closed behavior, security, or migration safety.
 - Stopping an authorized merge or deployment wave to run UI or browser verification after each result.
 - Skipping the final UI verification entirely after all results in the authorized set are delivered, unless no UI surface exists.
 - Reporting deferred or narrowed validation as `PASS` instead of `PARTIAL` or `SKIPPED`.

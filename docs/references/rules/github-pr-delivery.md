@@ -36,9 +36,10 @@ read_policy_default: conditional
   mutation.
 - This ruleset sequences and verifies PR delivery; it does not infer consent or
   relax safety checks.
-- This ruleset never creates merge authority. A direct merge request or
-  accepted bounded merge plan must resolve `pull-request-merge` and follow
-  `github-pr-merge` separately.
+- This ruleset never creates standing merge authority or `MERGE_READY`.
+  Explicit bounded standing authority may cover later in-scope PRs and refreshed
+  heads; resolve `pull-request-merge` and follow `github-pr-merge` before every
+  merge mutation.
 
 ## Rules
 
@@ -99,6 +100,7 @@ Delivery Contract:
 - PR title format:
 - PR template:
 - Draft or ready:
+- Human assignee:
 - Required checks:
 - Cross-repo dependencies:
 - Unknowns/blockers:
@@ -113,19 +115,22 @@ Delivery Contract:
 - The `PR title format` field must resolve to the Conventional Commits title shape with the GitHub issue as scope:
   `<type>(<issue_number>): <gitmoji> <short title message>`.
 
-### Merge Is A Separate Boundary
+### Standing Merge Authority Is Separate From Delivery
 
 - PR-delivery consent authorizes issue, branch, commit, push, and ready-PR
-  delivery only. It never implies merge consent.
-- A lane decision, issue assignment, PR creation, approval, passing checks, or
-  documentation-only eligibility never authorizes merge.
-- A direct merge request or accepted bounded merge plan routes to
-  `github-pr-merge` and `pull-request-merge`.
-- Adding a merge target requires follow-up authorization. Revalidating an
-  unchanged authorized head or using a repository-required merge queue does
-  not require another prompt when scope, identity, and intended effect remain
-  unchanged. A changed head requires fresh current-head evidence and exact-head
-  authorization under `github-pr-merge`.
+  delivery. It does not create standing merge or deployment authority.
+- Standing authority exists only when a human explicitly authorizes a bounded
+  task, goal, or program for merge and/or deployment. A lane decision, issue
+  assignment, PR creation, approval, passing checks, or documentation-only
+  eligibility never creates it or `MERGE_READY`.
+- A standing selector may bind a later in-scope PR or refreshed head. Resolve
+  the exact current target under `github-pr-merge` and `pull-request-merge`;
+  fresh readiness evidence is mandatory, renewed permission is not.
+- A SHA or head OID identifies the evidence to revalidate; it is never an
+  authorization target. Do not ask the human to reauthorize a refreshed head.
+- Repository, base, environment, actor, identity, method, workflow, product
+  scope, or material-effect expansion requires explicit updated authority.
+  Pause, hold, or revocation remains effective until explicit human resume.
 
 ### Author And Committer Invariant
 
@@ -259,10 +264,13 @@ Include:
 - While remaining in that session, address remaining pull-request review
   feedback as it arrives. Handle review, authorized merge, and primary leftover
   cleanup as one continuation of the current lane.
-- Merge the worktree pull request only after merge is authorized by a direct
-  user request or an accepted bounded merge plan that names the exact authorized pull request set, following `github-pr-merge`.
-- This cleanup is leftover disposal after an authorized merge. It does not
-  create merge authority.
+- Merge the worktree pull request only when active standing authority covers its
+  resolved exact current node and it is `MERGE_READY`, following
+  `github-pr-merge`. A later in-scope head does not require renewed authority.
+- Continue any already-authorized standard deployment and browser retry after
+  final-head readiness passes; do not insert an exact-head permission prompt.
+- This cleanup is leftover disposal after an in-scope `MERGE_READY` merge. It does
+  not invent readiness.
 - After remaining pull-request feedback is addressed and the authorized merge
   is confirmed on the protected default branch, use the primary checkout on
   that default branch.
@@ -443,7 +451,7 @@ git log -1 --format='%an <%ae> | %cn <%ce>'
 
 ### Squash-And-Merge Preservation
 
-This section applies only after `github-pr-merge` establishes authority and
+This section applies only after `github-pr-merge` establishes standing authority and
 readiness for the exact pull request. Documentation-only delivery and skip
 eligibility do not create merge authority.
 
@@ -485,10 +493,11 @@ gh run list --commit "$HEAD_SHA" \
 
 ### Final Response
 
-Follow the `agent-completion-output` three-section contract. Fold the fields
-below into concise What happened bullets without omitting identity, assignment,
-or hosted-state evidence. Put pending, failed, skipped, or unavailable delivery
-evidence under Deviations and remaining operator actions under Next steps:
+Follow `agent-completion-output`, which prescribes no format. The fields below
+must be recoverable from the response, including identity, assignment, and
+hosted-state evidence; where they appear is free. Report pending, failed,
+skipped, or unavailable delivery evidence as those states, and state any
+remaining operator action plainly:
 
 - Issue number.
 - Branch name in `GH-123` form.
@@ -522,8 +531,9 @@ evidence under Deviations and remaining operator actions under Next steps:
 - Do not remove `[skip ci]` from the generated commit message while squash-merging a qualifying documentation-only pull request.
 - Do not add agent or tool attribution to commits or PR bodies.
 - Do not force-push, rebase, or amend already-pushed commits to recover from failure.
-- Do not treat PR-delivery consent, automatic lane allocation, ready state,
-  passing checks, or documentation-only eligibility as merge authorization.
+- Do not treat generic task acceptance, PR-delivery consent, automatic lane
+  allocation, ready state, passing checks, or documentation-only eligibility as
+  standing merge authorization.
 
 ## Verification
 
