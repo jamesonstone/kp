@@ -93,7 +93,8 @@ names can be reused.
   rendered line fits the terminal width and the frame fits its height.
 - The picker draws on `/dev/tty`, so stdout carries only the selected output.
   With no terminal it exits `3` with an instruction. Cancel exits `130` with
-  the existing farewell. `--no-fzf` keeps the numbered fallback.
+  the existing farewell. `kp list --no-fzf` keeps the numbered fallback; as before this change, the
+  `kp` launcher has none.
 - Direct commands must not query the terminal or slow down.
 - `kp v0 <command>` serves `agent-handoff`, `chat-handoff`, `clarify`,
   `continue`, `goal`, `parentthread`, `plan`, `pr`, `punchlist`, and `status`
@@ -148,7 +149,7 @@ names can be reused.
 - Keep the whimsical cancel farewells. They print to stderr after the picker
   closes and belong to 0001's contract, not the picker's presentation.
 - Keep the `--no-fzf` flag name for script compatibility; its help text now
-  names the interactive picker.
+  says it applies to `kp list`, the only command with a numbered fallback.
 - Serve `v0` prompts from `prompts/v0/` as Cobra subcommands so help,
   completion, and unknown-name errors come from Cobra. They are built-in only,
   not user-overridable; a user file named `clarify.md` now owns root

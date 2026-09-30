@@ -163,6 +163,29 @@ func TestParseInitDraftAcceptsPlainAndMarkdownHeadings(t *testing.T) {
 	}
 }
 
+func TestParseInitDraftKeepsListAndQuoteLinesAsAnswerText(t *testing.T) {
+	content := "Objective\nBuild it.\n- Constraints\n  - no network\n> Invariants\n" +
+		"Known business/domain context\nB\nInvariants\nC\nConstraints\nD\nDefinition of done\nE\n"
+	answers, problems, _ := parseInitDraft(content)
+	if len(problems) != 0 {
+		t.Fatalf("problems = %v", problems)
+	}
+	if want := "Build it.\n- Constraints\n  - no network\n> Invariants"; answers.objective != want {
+		t.Fatalf("objective = %q, want %q", answers.objective, want)
+	}
+	if answers.constraints != "D" || answers.invariants != "C" {
+		t.Fatalf("answers = %+v", answers)
+	}
+}
+
+func TestParseInitDraftKeepsTrailingSpaces(t *testing.T) {
+	content := "Objective\nline one  \r\nline two\nKnown business/domain context\nB\nInvariants\nC\nConstraints\nD\nDefinition of done\nE\n"
+	answers, _, _ := parseInitDraft(content)
+	if answers.objective != "line one  \nline two" {
+		t.Fatalf("objective = %q", answers.objective)
+	}
+}
+
 func TestStripInitCommentsRemovesSpansAndCommentOnlyLines(t *testing.T) {
 	got := stripInitComments("keep <!-- a --> this\n<!-- only -->\n<!-- multi\nline -->\nafter\n")
 	if got != "keep  this\nafter\n" {

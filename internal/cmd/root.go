@@ -101,7 +101,7 @@ func NewRoot(opts Options) *cobra.Command {
 
 	cmd.PersistentFlags().StringVar(&app.configDir, "config", "", "config root override")
 	cmd.PersistentFlags().BoolVar(&app.verbose, "verbose", false, "emit verbose output")
-	cmd.PersistentFlags().BoolVar(&app.noFzf, "no-fzf", false, "use the numbered picker instead of the interactive one")
+	cmd.PersistentFlags().BoolVar(&app.noFzf, "no-fzf", false, "use the numbered picker for kp list")
 	cmd.Flags().BoolVar(&app.copyOnly, "copy", false, "copy without printing")
 	cmd.Flags().BoolVar(&app.printOnly, "print", false, "print without clipboard side effects")
 

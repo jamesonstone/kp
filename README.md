@@ -107,7 +107,8 @@ with a note at the top; delete everything, or quit with `:cq`, to cancel.
 | ---------------------------- | ---------------------------------------- |
 | `j`/`k`, `↑`/`↓`, Tab/Shift-Tab | Move (wraps at both ends)             |
 | Enter                        | Run the selected item                    |
-| Esc, Ctrl-C                  | Clear the filter, or leave               |
+| Esc                          | Clear the filter, or leave               |
+| Ctrl-C                       | Leave                                    |
 | Type, or `/`                 | Filter by label or command               |
 | Ctrl-D/Ctrl-U, PgDn/PgUp     | Scroll the preview                       |
 | Home/End                     | First or last item                       |

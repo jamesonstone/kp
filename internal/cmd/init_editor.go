@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"unicode"
 )
 
 const initNoticePrefix = "<!-- kp: "
@@ -94,7 +93,7 @@ func parseInitDraft(content string) (answers initAnswers, problems []string, emp
 	current := -1
 	stray := false
 	for _, line := range strings.Split(stripInitComments(content), "\n") {
-		line = strings.TrimRight(line, " \t\r")
+		line = strings.TrimSuffix(line, "\r")
 		if i := initHeadingIndex(line); i >= 0 {
 			current, seen[i] = i, true
 			continue
@@ -126,14 +125,14 @@ func parseInitDraft(content string) (answers initAnswers, problems []string, emp
 	return answers, problems, empty
 }
 
-// initHeadingIndex matches a section heading with or without its emoji or a
-// Markdown "#" prefix, ignoring case.
+// initHeadingIndex matches a section heading: the title alone, after its
+// emoji, or after a Markdown "#" prefix, ignoring case. List items and quotes
+// such as "- Constraints" stay answer text.
 func initHeadingIndex(line string) int {
-	title := strings.TrimLeftFunc(line, func(r rune) bool {
-		return !unicode.IsLetter(r) && !unicode.IsDigit(r)
-	})
+	text := strings.TrimSpace(strings.TrimLeft(strings.TrimSpace(line), "#"))
 	for i, field := range initFields {
-		if strings.EqualFold(strings.TrimSpace(title), field.title) {
+		title := strings.TrimSpace(strings.TrimPrefix(text, field.emoji))
+		if strings.EqualFold(title, field.title) {
 			return i
 		}
 	}
