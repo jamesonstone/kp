@@ -97,11 +97,15 @@ backgrounds, and `NO_COLOR` turns them off.
 
 `kp task` (formerly `kp init`, which still works) builds a prompt for a new
 conversation, or a new task inside an existing thread. It opens the template
-in your editor (`$KP_EDITOR`, `$EDITOR`,
-then `nvim`, then `vi`). Write as much as you like under each heading; blank
-lines and indentation are kept, and `<!-- comments -->` are removed. Save and
-quit to print and copy the prompt. If a section is empty, the file reopens
-with a note at the top; delete everything, or quit with `:cq`, to cancel.
+in your editor (`$KP_EDITOR`, `$EDITOR`, then `nvim`, then `vi`) with five
+sections: objective, context the agent can't discover, invariants,
+constraints, and definition of done. Write as much as you like under each
+heading; blank lines and indentation are kept, and `<!-- comments -->` are
+removed. Save and quit to print and copy the prompt. If a section is empty,
+the file reopens with a note at the top; delete everything, or quit with
+`:cq`, to cancel. The finished prompt leaves the approach to the agent and
+closes by asking it to investigate independently, show evidence against your
+definition of done, and stop to ask if that conflicts with an invariant.
 
 | Key                          | Action                                   |
 | ---------------------------- | ---------------------------------------- |
@@ -125,7 +129,7 @@ prompt. Select Help for the complete command reference.
 | `kp task`                  | Start a task from scratch: fill in the template in your editor, then print and copy it. `kp init` is an alias. | Starting a coding-agent task      | ✅ ready        |
 | `kp task --output-only`    | Print the blank task template without copying.                    | Pipes, scripts, local files       | ✅ ready        |
 | `kp merge`                 | Print and copy the context-aware merge/deployment prompt.         | Cross-repo release coordination   | ✅ ready        |
-| `kp review`                | Print and copy the independent branch/PR correctness-review prompt. | Coding-agent chats              | ✅ ready        |
+| `kp review`                | Print and copy a read-only correctness review of the branch/PR against its target and stated intent. | Coding-agent chats              | ✅ ready        |
 | `kp ship`                  | Print and copy the task-delivery pre-authorization prompt.        | Coding-agent chats that should land through merge | ✅ ready        |
 | `kp v0 <name>`             | Print and copy a legacy prompt, unchanged from its former root command. | Existing habits and scripts       | ✅ ready        |
 | `kp <name> --copy`         | Copy a prompt without printing it.                                | Shell aliases, scripts            | ✅ ready        |
@@ -272,6 +276,9 @@ Before opening a PR:
 2. Run `go vet ./...`.
 3. Update this README when command behavior changes.
 4. Keep new dependencies rare and justified.
+5. Check prompt changes against
+   [`docs/references/coding-agent-prompts.md`](docs/references/coding-agent-prompts.md):
+   keep only what the agent can't work out on its own.
 
 ## Exit Codes
 
