@@ -46,7 +46,7 @@ func (a *app) runEditor(editor editorCommand, path string) error {
 	cmd := exec.Command(editor.name, args...)
 	cmd.Stdin, cmd.Stdout, cmd.Stderr = a.stdin, a.stdout, a.stderr
 	// Run the editor on the terminal itself so redirected stdout, as in
-	// `kp init > prompt.md`, receives only kp's output.
+	// `kp task > prompt.md`, receives only kp's output.
 	if tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0); err == nil {
 		defer tty.Close()
 		cmd.Stdin, cmd.Stdout, cmd.Stderr = tty, tty, tty

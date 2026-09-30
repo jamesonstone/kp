@@ -54,6 +54,7 @@ var reservedNames = map[string]struct{}{
 	"prompt":   {},
 	"rm":       {},
 	"scaffold": {},
+	"task":     {},
 	"v0":       {},
 	"version":  {},
 }

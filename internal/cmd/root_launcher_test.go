@@ -26,17 +26,17 @@ func TestRootLauncherListsCurrentActions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	wantIDs := []string{"command:init", "prompt:merge", "prompt:review", "prompt:ship", "command:find-port", "command:help"}
+	wantIDs := []string{"prompt:merge", "prompt:review", "prompt:ship", "command:task", "command:find-port", "command:help"}
 	if strings.Join(itemIDs(got), ",") != strings.Join(wantIDs, ",") {
 		t.Fatalf("launcher items = %v, want %v", itemIDs(got), wantIDs)
 	}
 
-	review := got[2]
+	review := got[1]
 	if review.Title != "Independent branch/PR review" || review.Command != "kp review" || review.Group != "prompts" {
 		t.Fatalf("review item = %+v", review)
 	}
-	if got[0].Title != "Start a task from scratch" || got[0].Command != "kp init" || got[0].Group != "prompts" {
-		t.Fatalf("init item = %+v", got[0])
+	if got[3].Title != "Start a task from scratch" || got[3].Command != "kp task" || got[3].Group != "prompts" {
+		t.Fatalf("task item = %+v", got[3])
 	}
 	for _, item := range got[4:] {
 		if item.Group != "commands" {
@@ -109,7 +109,7 @@ func TestRootLauncherRunsInit(t *testing.T) {
 	stdout, _, err := executeTestCommand(t,
 		withClipboard(fake),
 		withStdin(input),
-		withPicker(t, selectItem("command:init")),
+		withPicker(t, selectItem("command:task")),
 	)
 	if err != nil {
 		t.Fatal(err)

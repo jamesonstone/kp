@@ -48,7 +48,7 @@ var fullInitAnswers = map[string]string{
 func TestInitEditorPrintsAndCopiesWithSpacingPreserved(t *testing.T) {
 	fake := &fakeClipboard{}
 	calls := 0
-	stdout, _, err := executeTestCommand(t, "init", withClipboard(fake),
+	stdout, _, err := executeTestCommand(t, "task", withClipboard(fake),
 		withInitEditor(t, &calls, func(_ int, draft string) string {
 			for _, field := range initFields {
 				if !strings.Contains(draft, field.heading()) || !strings.Contains(draft, field.question) {
@@ -84,7 +84,7 @@ func TestInitEditorEmptyOrUntouchedFileCancels(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			fake := &fakeClipboard{}
 			calls := 0
-			stdout, _, err := executeTestCommand(t, "init", withClipboard(fake), withInitEditor(t, &calls, edit))
+			stdout, _, err := executeTestCommand(t, "task", withClipboard(fake), withInitEditor(t, &calls, edit))
 			if ExitCode(err) != ExitCancel || calls != 1 {
 				t.Fatalf("ExitCode = %d, calls = %d, err = %v", ExitCode(err), calls, err)
 			}
@@ -99,7 +99,7 @@ func TestInitEditorReopensWithNoticeUntilComplete(t *testing.T) {
 	fake := &fakeClipboard{}
 	calls := 0
 	partial := map[string]string{"Objective": "Do it.", "Invariants": "Stay exact."}
-	_, _, err := executeTestCommand(t, "init", withClipboard(fake),
+	_, _, err := executeTestCommand(t, "task", withClipboard(fake),
 		withInitEditor(t, &calls, func(call int, draft string) string {
 			if call == 1 {
 				return "stray note\n" + fillInitDraft(draft, partial)
@@ -130,7 +130,7 @@ func TestInitEditorReopensWithNoticeUntilComplete(t *testing.T) {
 
 func TestInitEditorAbortCancels(t *testing.T) {
 	fake := &fakeClipboard{}
-	_, _, err := executeTestCommand(t, "init", withClipboard(fake), func(opts *Options) {
+	_, _, err := executeTestCommand(t, "task", withClipboard(fake), func(opts *Options) {
 		withEditor(func(string, []string, string) error {
 			return exec.Command("sh", "-c", "exit 1").Run() // like vim's :cq
 		})(opts)
@@ -142,7 +142,7 @@ func TestInitEditorAbortCancels(t *testing.T) {
 }
 
 func TestInitEditorMissingEditorExitsConfig(t *testing.T) {
-	_, _, err := executeTestCommand(t, "init", func(opts *Options) {
+	_, _, err := executeTestCommand(t, "task", func(opts *Options) {
 		opts.StdinIsTerminal = func() bool { return true }
 		opts.Getenv = func(string) string { return "" }
 		opts.LookPath = func(string) (string, error) { return "", errors.New("not found") }

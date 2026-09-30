@@ -23,7 +23,7 @@ func (a *app) editInitAnswers() (initAnswers, error) {
 		return initAnswers{}, err
 	}
 
-	file, err := os.CreateTemp("", "kp-init-*.md")
+	file, err := os.CreateTemp("", "kp-task-*.md")
 	if err != nil {
 		return initAnswers{}, NewExitError(ExitSystem, err)
 	}
@@ -66,7 +66,7 @@ func (a *app) editInitAnswers() (initAnswers, error) {
 // answer goes. Guidance lives in HTML comments, which parsing removes.
 func renderInitDraft() (string, int) {
 	var b strings.Builder
-	b.WriteString("<!-- kp init\n")
+	b.WriteString("<!-- kp task\n")
 	b.WriteString("Write under each heading. Blank lines and indentation are kept.\n")
 	b.WriteString("Save and quit to print and copy the prompt. Comments like this one\n")
 	b.WriteString("are removed. Delete everything to cancel.\n")

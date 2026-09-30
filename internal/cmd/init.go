@@ -67,12 +67,16 @@ var initFields = []initField{
 	},
 }
 
+// newInitCommand builds `kp task`, which constructs a from-scratch task
+// prompt. `init` is its former name and stays as an alias.
 func (a *app) newInitCommand() *cobra.Command {
 	var outputOnly bool
 	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Construct a coding-agent prompt",
-		Long: "Open the prompt template in your editor ($KP_EDITOR, $EDITOR, nvim, or vi), " +
+		Use:     "task",
+		Aliases: []string{"init"},
+		Short:   "Start a task from scratch",
+		Long: "Build a prompt for a new conversation, or a new task in an existing thread. " +
+			"Open the task template in your editor ($KP_EDITOR, $EDITOR, nvim, or vi), " +
 			"then print and copy the finished prompt. Write under each heading, save, and quit; " +
 			"an empty file cancels. With piped stdin, read one line per section instead.",
 		Args: cobra.NoArgs,

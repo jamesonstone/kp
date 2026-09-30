@@ -30,8 +30,9 @@ user-facing README documentation.
 The current implementation ships the initial `v0-init-utility` surface: bare
 prompt commands such as `kp review`, legacy prompts under `kp v0`, a two-pane
 interactive picker for `kp` and `kp list`, prompt CRUD commands, user prompt
-overrides under the resolved config directory, exact clipboard verification on macOS, and `kp init` for constructing
-a coding-agent prompt from a short local questionnaire. Release packaging,
+overrides under the resolved config directory, exact clipboard verification
+on macOS, and `kp task` (alias `kp init`) for writing a from-scratch task
+prompt in the user's editor. Release packaging,
 Homebrew publishing, Linux support, Windows support, and automatic paste remain
 out of scope until a future feature spec changes that contract.
 

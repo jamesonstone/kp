@@ -75,13 +75,15 @@ names can be reused.
   Markdown headings; yellow for tags, match counts, and scroll position;
   faint for secondary text. `NO_COLOR` leaves bold and faint only.
 - Each list row shows its label and, in an aligned column, the command that
-  runs it directly (`kp review`, `kp init`), with the subcommand name
+  runs it directly (`kp review`, `kp task`), with the subcommand name
   highlighted. Items sit under `prompts` and `commands` headings. The column
   drops only when titles would get too narrow. User prompts carry a
   `user prompt` tag in the preview.
 - The preview tints Markdown structure (headings, list markers, inline and
   fenced code) without changing text or width. It is not a renderer.
-- `kp init` on a TTY opens the template in the user's editor (`$KP_EDITOR`,
+- `kp init` is renamed `kp task` ("Start a task from scratch") and listed with
+  the prompts, since it constructs a prompt; `init` stays as an alias and
+  `task` is reserved. On a TTY it opens the template in the user's editor (`$KP_EDITOR`,
   `$EDITOR`, `nvim`, then `vi`) instead of the raw-mode questionnaire; see
   `0010-init-command`. Piped stdin keeps one line per section.
 - The preview wraps to at most 88 columns with hanging indents for list items,
@@ -101,10 +103,10 @@ names can be reused.
 
 ## ACCEPTANCE CRITERIA
 
-- AC1: Launcher items are the prompts, with `kp init` ("Start a task from
+- AC1: Launcher items are the prompts, with `kp task` ("Start a task from
   scratch") among them in name order, then Find port and Help,
   with no emoji, each carrying its command, grouped under headings.
-- AC7: `kp init` on a TTY preloads the template in the editor, keeps
+- AC7: `kp task` on a TTY preloads the template in the editor, keeps
   multi-line answers and spacing, reopens incomplete drafts with a notice,
   cancels on an empty file or editor abort, and prints only the prompt to
   stdout.
@@ -140,6 +142,9 @@ names can be reused.
   as an aligned column.
 - Replace `kp init`'s raw-mode Shift+Enter input with the user's editor:
   spacing is easier to write and read, and the CSI key decoding goes away.
+- Rename `kp init` to `kp task`: it builds a from-scratch task prompt for a
+  new conversation or a new task in an existing thread, and "init" read as
+  project setup. The owner chose `task` over `start` and `brief`.
 - Keep the whimsical cancel farewells. They print to stderr after the picker
   closes and belong to 0001's contract, not the picker's presentation.
 - Keep the `--no-fzf` flag name for script compatibility; its help text now
@@ -165,6 +170,7 @@ names can be reused.
 - [x] Widen the palette, add the command column and group headings, and tint
   preview Markdown.
 - [x] Move `kp init` on a TTY to an editor draft; remove the raw-mode input.
+- [x] List it with the prompts and rename it `kp task`, keeping `init` as an alias.
 - [x] Run format, test, race, vet, build, and pty acceptance.
 
 ## VALIDATION

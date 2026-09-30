@@ -21,7 +21,7 @@ that feel good in a shell.
 ## Why Use It?
 
 - 🧠 Keep high-signal prompts in one predictable place.
-- ✍️ Construct a coding-agent prompt in your editor with `kp init`.
+- ✍️ Start a task from scratch in your editor with `kp task`.
 - 📋 Copy prompt bodies only after `pbpaste` matches the expected text.
 - 🪶 Use bare commands such as `kp review`, not a heavy command tree.
 - 🧰 Create and edit your own Markdown prompts.
@@ -66,11 +66,11 @@ kp merge
 # pre-authorize shipping the current task through merge and deploy
 kp ship
 
-# construct a coding-agent prompt
-kp init
+# start a task from scratch in your editor
+kp task
 
-# print the blank prompt template
-kp init --output-only > prompt.txt
+# print the blank task template
+kp task --output-only > prompt.txt
 
 # browse prompts interactively
 kp list
@@ -89,13 +89,15 @@ kp scaffold --dry-run
 ```
 
 The launcher is a two-pane picker: prompts and commands on the left, each with
-the command that runs it directly (`kp review`, `kp init`), and a live preview
-of the selection on the right. Prompts, including `kp init`, come first;
+the command that runs it directly (`kp review`, `kp task`), and a live preview
+of the selection on the right. Prompts, including `kp task`, come first;
 Find port and Help sit under commands; legacy `v0` prompts stay out. Colors
 come from your terminal theme's basic palette, so they suit light and dark
 backgrounds, and `NO_COLOR` turns them off.
 
-`kp init` opens the prompt template in your editor (`$KP_EDITOR`, `$EDITOR`,
+`kp task` (formerly `kp init`, which still works) builds a prompt for a new
+conversation, or a new task inside an existing thread. It opens the template
+in your editor (`$KP_EDITOR`, `$EDITOR`,
 then `nvim`, then `vi`). Write as much as you like under each heading; blank
 lines and indentation are kept, and `<!-- comments -->` are removed. Save and
 quit to print and copy the prompt. If a section is empty, the file reopens
@@ -117,10 +119,10 @@ prompt. Select Help for the complete command reference.
 
 | Command                    | What It Does                                                      | Best Used In                      | Status          |
 | -------------------------- | ----------------------------------------------------------------- | --------------------------------- | --------------- |
-| `kp`                       | Open the launcher for prompts (including `kp init`), Find port, and Help. | Interactive terminals             | ✅ ready        |
+| `kp`                       | Open the launcher for prompts (including `kp task`), Find port, and Help. | Interactive terminals             | ✅ ready        |
 | `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
-| `kp init`                  | Fill in the prompt template in your editor, then print and copy it. Piped stdin reads one line per section. | Starting a coding-agent task      | ✅ ready        |
-| `kp init --output-only`    | Print the blank prompt template without copying.                  | Pipes, scripts, local files       | ✅ ready        |
+| `kp task`                  | Start a task from scratch: fill in the template in your editor, then print and copy it. `kp init` is an alias. | Starting a coding-agent task      | ✅ ready        |
+| `kp task --output-only`    | Print the blank task template without copying.                    | Pipes, scripts, local files       | ✅ ready        |
 | `kp merge`                 | Print and copy the context-aware merge/deployment prompt.         | Cross-repo release coordination   | ✅ ready        |
 | `kp review`                | Print and copy the independent branch/PR correctness-review prompt. | Coding-agent chats              | ✅ ready        |
 | `kp ship`                  | Print and copy the task-delivery pre-authorization prompt.        | Coding-agent chats that should land through merge | ✅ ready        |
@@ -179,8 +181,8 @@ prompts, your copy in the prompt library now answers at the root (for example
 Prompt names are bare commands. There is no `kp prompt ...` namespace.
 
 Reserved names cannot be used for prompts: `help`, `init`, `list`, `new`,
-`edit`, `rm`, `scaffold`, `prompt`, `v0`, and `version`. Rename a user prompt named
-`init` before upgrading; reserved files cannot load.
+`edit`, `rm`, `scaffold`, `prompt`, `task`, `v0`, and `version`. Rename a user
+prompt named `init` or `task` before upgrading; reserved files cannot load.
 
 ## Your Prompt Library
 

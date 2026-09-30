@@ -44,6 +44,10 @@ delivery_intent: "issue_branch_pr_ready"
 ---
 # SPEC
 
+> Issue #66 renamed the command to `kp task` ("Start a task from scratch").
+> `kp init` remains an alias, and both names are reserved. The rest of this
+> spec uses the original name.
+
 ## PURPOSE
 
 Add `kp init` as a small interactive questionnaire that turns five pieces of

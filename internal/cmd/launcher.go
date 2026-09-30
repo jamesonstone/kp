@@ -23,21 +23,21 @@ func (a *app) runLauncher(cmd *cobra.Command) error {
 	return a.runLauncherSelection(cmd, selection)
 }
 
-// buildLauncherItems lists the prompts, including the constructed init
+// buildLauncherItems lists the prompts, including the constructed task
 // prompt in name order, then the few tool commands that make sense to start
 // from the launcher. Legacy `kp v0` prompts are not listed.
 func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []picker.Item {
 	initItem := picker.Item{
-		ID:      "command:init",
+		ID:      "command:task",
 		Title:   "Start a task from scratch",
-		Command: commandPath + " init",
+		Command: commandPath + " task",
 		Group:   "prompts",
 		Preview: "Construct a prompt for a new conversation, or a new task inside an existing thread.\n\nOpens the template in your editor ($KP_EDITOR, $EDITOR, nvim, or vi) with sections for:\n\n- Objective\n- Known business/domain context\n- Invariants\n- Constraints\n- Definition of done\n\nWrite as much as you like under each heading, then save and quit. The finished prompt is printed and copied. An empty file cancels.",
 	}
 
 	items := make([]picker.Item, 0, len(prompts)+3)
 	for _, p := range prompts {
-		if initItem.ID != "" && p.Name > "init" {
+		if initItem.ID != "" && p.Name > "task" {
 			items = append(items, initItem)
 			initItem.ID = ""
 		}
@@ -88,7 +88,7 @@ func (a *app) runLauncherSelection(cmd *cobra.Command, selection string) error {
 	}
 
 	switch selection {
-	case "command:init":
+	case "command:task":
 		return a.runInit(false)
 	case "command:find-port":
 		return a.runFindPort(cmd.Context(), "")
