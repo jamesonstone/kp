@@ -162,6 +162,12 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   are the user's explicit instructions; the agent names any conflict. Lane
   handling is left to `work-lane-gating`, which forbids a lane-choice question
   (issue #68 removed the earlier exact lane-consent requirement).
+- Do not prescribe per-node bookkeeping. Issue #68 removed the instruction to
+  record each node's repository, PR, head/base, method, dependencies,
+  infrastructure effects, recovery, and acceptance signal at the user's
+  direction: the agent tracks what it needs, and the prompt keeps only the
+  requirement that merge, CI, deployment, runtime, and production acceptance
+  stay distinct.
 - Name `testing-and-environment-validation.md` and the project testing reference
   before implementation or validation so prompt brevity cannot bypass the
   repository's required environment procedure.
