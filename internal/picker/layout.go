@@ -12,6 +12,8 @@ const (
 	compactRows   = 8  // below this height only header and footer remain
 	dividerWidth  = 5  // "  │  "
 	minListWidth  = 18 // narrowest useful list column
+	minTitleWidth = 14 // below this the command column is hidden
+	columnGap     = 3  // between title and command in the list
 	minPreview    = 28 // below this the preview is hidden
 	maxPreview    = 88 // comfortable reading measure on wide terminals
 	previewHeader = 3  // title, detail, blank
@@ -22,12 +24,20 @@ const (
 type layout struct {
 	compact      bool // no padding rows on very short terminals
 	listWidth    int
+	commandWidth int // 0 hides the command column
 	previewWidth int // 0 hides the preview
 	bodyHeight   int
 }
 
 // contentWidth spans the panes actually drawn, so header and footer align
 // with the content instead of the far terminal edge.
+func (l layout) titleWidth() int {
+	if l.commandWidth == 0 {
+		return max(l.listWidth-2, 0)
+	}
+	return l.listWidth - 2 - columnGap - l.commandWidth
+}
+
 func (l layout) contentWidth() int {
 	if l.previewWidth == 0 {
 		return l.listWidth
@@ -39,10 +49,11 @@ func (l layout) previewBodyHeight() int {
 	return max(l.bodyHeight-previewHeader, 1)
 }
 
-// computeLayout sizes the list to its longest title, capped at two fifths of
-// the width, and gives the rest to the preview. Narrow terminals drop the
-// preview rather than squeezing both panes.
-func computeLayout(width, height, longestTitle int) layout {
+// computeLayout sizes the list to its longest title plus the command column,
+// capped at just over half the width, and gives the rest to the preview.
+// Narrow terminals drop the preview rather than squeezing both panes, and
+// drop the command column before titles get too short to read.
+func computeLayout(width, height, longestTitle, longestCommand int) layout {
 	inner := max(width-2*marginX, 1)
 	l := layout{bodyHeight: max(height-chromeRows, 1)}
 	if height < compactRows {
@@ -50,19 +61,26 @@ func computeLayout(width, height, longestTitle int) layout {
 		l.bodyHeight = max(height-2, 1)
 	}
 
-	list := min(max(longestTitle+2, minListWidth), inner*2/5)
+	want := longestTitle + 2
+	if longestCommand > 0 {
+		want += columnGap + longestCommand
+	}
+	list := min(max(want, minListWidth), inner*11/20)
 	preview := inner - list - dividerWidth
 	if preview < minPreview {
-		l.listWidth = inner
-		return l
+		list = inner
+	} else {
+		l.previewWidth = min(preview, maxPreview)
 	}
 	l.listWidth = list
-	l.previewWidth = min(preview, maxPreview)
+	if longestCommand > 0 && list-2-columnGap-longestCommand >= min(minTitleWidth, longestTitle) {
+		l.commandWidth = longestCommand
+	}
 	return l
 }
 
 func (m *model) layout() layout {
-	return computeLayout(m.width, m.height, m.longestTitle)
+	return computeLayout(m.width, m.height, m.longestTitle, m.longestCommand)
 }
 
 // wrapText turns preview content into display lines no wider than width.

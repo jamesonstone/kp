@@ -18,8 +18,9 @@ import (
 type Item struct {
 	ID      string // returned on selection
 	Title   string // primary label in the list
-	Detail  string // secondary metadata shown under the preview title
-	Group   string // consecutive items with different groups get a spacer row
+	Command string // how to run it directly, e.g. "kp review"; shown in the list and preview
+	Note    string // optional tag shown in the preview, e.g. "user prompt"
+	Group   string // section heading; consecutive items share one heading
 	Preview string // plain text shown in the preview pane
 }
 
@@ -59,26 +60,45 @@ func Run(ctx context.Context, title string, items []Item) (string, error) {
 }
 
 type styles struct {
-	brand    lipgloss.Style
-	pointer  lipgloss.Style
-	selected lipgloss.Style
-	heading  lipgloss.Style
-	faint    lipgloss.Style
-	cursor   lipgloss.Style
+	badge       lipgloss.Style // "kp" title badge
+	pointer     lipgloss.Style // selection marker
+	selected    lipgloss.Style // selected title
+	command     lipgloss.Style // command name, e.g. "review" in "kp review"
+	commandDim  lipgloss.Style // command prefix and arguments
+	selectedCmd lipgloss.Style
+	section     lipgloss.Style // group headings
+	previewHead lipgloss.Style // preview title
+	note        lipgloss.Style // tags, counts, scroll position
+	key         lipgloss.Style // footer keys
+	faint       lipgloss.Style
+	cursor      lipgloss.Style
+	mdHeading   lipgloss.Style
+	mdMarker    lipgloss.Style
+	mdCode      lipgloss.Style
 }
 
-// newStyles uses one basic ANSI accent so the terminal theme picks a shade
-// that suits its own background; everything else is bold, faint, or default.
-// Bubble Tea downsamples or drops color for the detected terminal profile.
+// newStyles uses only the terminal's basic ANSI palette so every theme
+// shades these colors for its own background, light or dark: magenta for the
+// brand and selection, cyan for commands and keys, blue for structure, yellow
+// for tags. Bubble Tea drops color entirely under NO_COLOR.
 func newStyles() styles {
-	accent := lipgloss.Magenta
+	style := lipgloss.NewStyle
 	return styles{
-		brand:    lipgloss.NewStyle().Bold(true).Foreground(accent),
-		pointer:  lipgloss.NewStyle().Foreground(accent),
-		selected: lipgloss.NewStyle().Bold(true).Foreground(accent),
-		heading:  lipgloss.NewStyle().Bold(true),
-		faint:    lipgloss.NewStyle().Faint(true),
-		cursor:   lipgloss.NewStyle().Reverse(true),
+		badge:       style().Bold(true).Reverse(true).Foreground(lipgloss.Magenta),
+		pointer:     style().Bold(true).Foreground(lipgloss.Magenta),
+		selected:    style().Bold(true).Foreground(lipgloss.Magenta),
+		command:     style().Foreground(lipgloss.Cyan),
+		commandDim:  style().Faint(true),
+		selectedCmd: style().Bold(true).Foreground(lipgloss.Cyan),
+		section:     style().Bold(true).Foreground(lipgloss.Blue),
+		previewHead: style().Bold(true).Foreground(lipgloss.Magenta),
+		note:        style().Foreground(lipgloss.Yellow),
+		key:         style().Bold(true).Foreground(lipgloss.Cyan),
+		faint:       style().Faint(true),
+		cursor:      style().Reverse(true),
+		mdHeading:   style().Bold(true).Foreground(lipgloss.Blue),
+		mdMarker:    style().Foreground(lipgloss.Magenta),
+		mdCode:      style().Foreground(lipgloss.Cyan),
 	}
 }
 
@@ -86,7 +106,9 @@ func cleanItems(items []Item) []Item {
 	cleaned := make([]Item, len(items))
 	for i, item := range items {
 		item.Title = oneLine(item.Title)
-		item.Detail = oneLine(item.Detail)
+		item.Command = oneLine(item.Command)
+		item.Note = oneLine(item.Note)
+		item.Group = oneLine(item.Group)
 		cleaned[i] = item
 	}
 	return cleaned

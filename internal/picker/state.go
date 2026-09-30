@@ -14,7 +14,8 @@ type model struct {
 	items []Item
 	st    styles
 
-	longestTitle int // display width of the longest title, for layout
+	longestTitle   int // display widths used for layout
+	longestCommand int
 
 	visible    []int // indices into items that match the query
 	cursor     int   // position within visible
@@ -34,6 +35,7 @@ func newModel(title string, items []Item, st styles) model {
 	m := model{title: title, items: cleanItems(items), st: st, width: 80, height: 24}
 	for _, item := range m.items {
 		m.longestTitle = max(m.longestTitle, ansi.StringWidth(item.Title))
+		m.longestCommand = max(m.longestCommand, ansi.StringWidth(item.Command))
 	}
 	m.applyFilter()
 	return m
@@ -118,7 +120,7 @@ func (m *model) applyFilter() {
 // matches reports whether every term appears in the item's title or detail.
 // Substring terms keep results predictable and in their original order.
 func matches(item Item, terms []string) bool {
-	haystack := strings.ToLower(item.Title + " " + item.Detail)
+	haystack := strings.ToLower(item.Title + " " + item.Command)
 	for _, term := range terms {
 		if !strings.Contains(haystack, term) {
 			return false
@@ -127,15 +129,27 @@ func matches(item Item, terms []string) bool {
 	return true
 }
 
-// listRows maps list rows to visible positions. A -1 row is a spacer between
-// item groups.
-func (m *model) listRows() []int {
-	rows := make([]int, 0, len(m.visible)+2)
+// listRow is one line of the list: an item, a group heading, or a blank
+// separator before a later group.
+type listRow struct {
+	pos     int // position in visible, or -1
+	heading string
+}
+
+// listRows lays out visible items under their group headings.
+func (m *model) listRows() []listRow {
+	rows := make([]listRow, 0, len(m.visible)+4)
 	for pos, idx := range m.visible {
-		if pos > 0 && m.items[idx].Group != m.items[m.visible[pos-1]].Group {
-			rows = append(rows, -1)
+		group := m.items[idx].Group
+		if pos == 0 || group != m.items[m.visible[pos-1]].Group {
+			if pos > 0 {
+				rows = append(rows, listRow{pos: -1})
+			}
+			if group != "" {
+				rows = append(rows, listRow{pos: -1, heading: group})
+			}
 		}
-		rows = append(rows, pos)
+		rows = append(rows, listRow{pos: pos})
 	}
 	return rows
 }
@@ -145,14 +159,18 @@ func (m *model) clampList() {
 	height := m.layout().bodyHeight
 	rows := m.listRows()
 	row := 0
-	for i, pos := range rows {
-		if pos == m.cursor {
+	for i, r := range rows {
+		if r.pos == m.cursor {
 			row = i
 			break
 		}
 	}
-	if row < m.listTop {
-		m.listTop = row
+	top := row
+	if top > 0 && rows[top-1].heading != "" {
+		top-- // bring the group heading along when scrolling up to it
+	}
+	if top < m.listTop {
+		m.listTop = top
 	}
 	if row >= m.listTop+height {
 		m.listTop = row - height + 1

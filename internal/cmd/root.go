@@ -14,6 +14,7 @@ import (
 	"github.com/jamesonstone/kp/internal/picker"
 	"github.com/jamesonstone/kp/internal/prompt"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
 )
 
 const (
@@ -78,6 +79,7 @@ type Options struct {
 	PortStop         func(pid int, force bool) error
 	Getenv           func(key string) string
 	EditorRunner     func(name string, args []string, path string) error
+	StdinIsTerminal  func() bool
 }
 
 func NewRoot(opts Options) *cobra.Command {
@@ -131,6 +133,7 @@ type app struct {
 	portStopper      func(context.Context, PortProcess, bool) error
 	getenv           func(key string) string
 	editorRunner     func(name string, args []string, path string) error
+	stdinIsTerminal  func() bool
 
 	configDir string
 	verbose   bool
@@ -189,6 +192,14 @@ func newApp(opts Options) *app {
 		}
 	}
 
+	stdinIsTerminal := opts.StdinIsTerminal
+	if stdinIsTerminal == nil {
+		stdinIsTerminal = func() bool {
+			f, ok := opts.Stdin.(*os.File)
+			return ok && term.IsTerminal(int(f.Fd()))
+		}
+	}
+
 	return &app{
 		version:          opts.Version,
 		commit:           opts.Commit,
@@ -204,6 +215,7 @@ func newApp(opts Options) *app {
 		portStopper:      portStopper,
 		getenv:           opts.Getenv,
 		editorRunner:     opts.EditorRunner,
+		stdinIsTerminal:  stdinIsTerminal,
 	}
 }
 

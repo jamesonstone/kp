@@ -32,10 +32,10 @@ func TestRootLauncherListsCurrentActions(t *testing.T) {
 	}
 
 	review := got[1]
-	if review.Title != "Independent branch/PR review" || review.Detail != "kp review" || review.Group != "prompts" {
+	if review.Title != "Independent branch/PR review" || review.Command != "kp review" || review.Group != "prompts" {
 		t.Fatalf("review item = %+v", review)
 	}
-	if got[3].Title != "Init" || got[3].Detail != "kp init" || got[3].Group != "commands" {
+	if got[3].Title != "Init" || got[3].Command != "kp init" || got[3].Group != "commands" {
 		t.Fatalf("init item = %+v", got[3])
 	}
 
@@ -57,7 +57,7 @@ func TestLauncherItemsHaveNoEmoji(t *testing.T) {
 		return "", errPickerCanceled
 	}))
 	for _, item := range got {
-		for _, text := range []string{item.Title, item.Detail} {
+		for _, text := range []string{item.Title, item.Command, item.Note} {
 			for _, r := range text {
 				if r > unicode.MaxLatin1 && r != '·' {
 					t.Fatalf("item %q contains non-text glyph %q in %q", item.ID, r, text)
@@ -83,7 +83,7 @@ func TestLauncherMarksUserPromptsAsSecondaryDetail(t *testing.T) {
 	}
 	for _, item := range got {
 		if item.ID == "prompt:standup" {
-			if item.Title != "Daily standup" || item.Detail != "kp standup · user prompt" {
+			if item.Title != "Daily standup" || item.Command != "kp standup" || item.Note != "user prompt" {
 				t.Fatalf("user item = %+v", item)
 			}
 			return

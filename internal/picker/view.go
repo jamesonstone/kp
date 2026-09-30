@@ -59,12 +59,12 @@ func (m model) render() string {
 }
 
 func (m model) header(width int) string {
-	left := m.st.brand.Render(m.title)
+	left := m.st.badge.Render(" " + m.title + " ")
 	if !m.filtering {
 		return left
 	}
-	right := m.st.faint.Render(fmt.Sprintf("%d/%d", len(m.visible), len(m.items)))
-	prefix := left + "  " + m.st.faint.Render("/") + " "
+	right := m.st.note.Render(fmt.Sprintf("%d/%d", len(m.visible), len(m.items)))
+	prefix := left + "  " + m.st.key.Render("/") + " "
 	// Keep the end of a long query, where the user is typing, in view.
 	room := width - ansi.StringWidth(prefix) - ansi.StringWidth(right) - 2
 	query := ansi.TruncateLeft(m.query, max(ansi.StringWidth(m.query)-room, 0), ellipsis)
@@ -81,18 +81,50 @@ func (m model) listLines(l layout) []string {
 	rows := m.listRows()
 	for row := range lines {
 		i := m.listTop + row
-		if i >= len(rows) || rows[i] < 0 {
-			continue
+		if i >= len(rows) {
+			break
 		}
-		pos := rows[i]
-		title := ansi.Truncate(m.items[m.visible[pos]].Title, l.listWidth-2, ellipsis)
-		if pos == m.cursor {
-			lines[row] = m.st.pointer.Render(pointer) + " " + m.st.selected.Render(title)
-		} else {
-			lines[row] = "  " + title
+		r := rows[i]
+		switch {
+		case r.heading != "":
+			lines[row] = "  " + m.st.section.Render(ansi.Truncate(r.heading, l.listWidth-2, ellipsis))
+		case r.pos >= 0:
+			lines[row] = m.itemLine(l, m.items[m.visible[r.pos]], r.pos == m.cursor)
 		}
 	}
 	return lines
+}
+
+// itemLine renders one list entry: pointer, title, and the aligned command.
+func (m model) itemLine(l layout, item Item, selected bool) string {
+	title := ansi.Truncate(item.Title, l.titleWidth(), ellipsis)
+	lead := "  "
+	if selected {
+		lead = m.st.pointer.Render(pointer) + " "
+		title = m.st.selected.Render(title)
+	}
+	if l.commandWidth == 0 || item.Command == "" {
+		return lead + title
+	}
+	return lead + padRight(title, l.titleWidth()+columnGap) + m.renderCommand(item.Command, selected)
+}
+
+// renderCommand highlights the part people recognize, the subcommand name,
+// and dims the "kp" prefix and any argument placeholders.
+func (m model) renderCommand(command string, selected bool) string {
+	fields := strings.Fields(command)
+	if len(fields) < 2 {
+		return m.st.command.Render(command)
+	}
+	name := m.st.command
+	if selected {
+		name = m.st.selectedCmd
+	}
+	out := m.st.commandDim.Render(fields[0]) + " " + name.Render(fields[1])
+	if len(fields) > 2 {
+		out += " " + m.st.commandDim.Render(strings.Join(fields[2:], " "))
+	}
+	return out
 }
 
 func (m model) previewLines(l layout) []string {
@@ -102,14 +134,18 @@ func (m model) previewLines(l layout) []string {
 		return lines
 	}
 
+	meta := m.renderCommand(item.Command, false)
+	if item.Note != "" {
+		meta += m.st.faint.Render("  ·  ") + m.st.note.Render(item.Note)
+	}
 	header := []string{
-		m.st.heading.Render(ansi.Truncate(item.Title, l.previewWidth, ellipsis)),
-		m.st.faint.Render(ansi.Truncate(item.Detail, l.previewWidth, ellipsis)),
+		m.st.previewHead.Render(ansi.Truncate(item.Title, l.previewWidth, ellipsis)),
+		ansi.Truncate(meta, l.previewWidth, ellipsis),
 		"",
 	}
 	copy(lines, header)
 
-	body := wrapText(item.Preview, l.previewWidth)
+	body := tintLines(wrapText(item.Preview, l.previewWidth), m.st)
 	for row := previewHeader; row < l.bodyHeight; row++ {
 		i := m.previewTop + row - previewHeader
 		if i >= len(body) {
@@ -134,7 +170,7 @@ func (m model) footer(width int) string {
 	right := ""
 	if maxTop := m.maxPreviewTop(); maxTop > 0 {
 		hints = append(hints, hint{"ctrl-d/u", "scroll"})
-		right = m.st.faint.Render(fmt.Sprintf("%d%%", m.previewTop*100/maxTop))
+		right = m.st.note.Render(fmt.Sprintf("%d%%", m.previewTop*100/maxTop))
 	}
 
 	room := width - ansi.StringWidth(right) - 2
@@ -149,7 +185,7 @@ func (m model) footer(width int) string {
 func (m model) renderHints(hints []hint) string {
 	parts := make([]string, len(hints))
 	for i, h := range hints {
-		parts[i] = h.key + " " + m.st.faint.Render(h.label)
+		parts[i] = m.st.key.Render(h.key) + " " + m.st.faint.Render(h.label)
 	}
 	return strings.Join(parts, "   ")
 }

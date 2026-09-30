@@ -111,7 +111,7 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **STATUS**: deliver
 - **PAUSED**: no
 - **INTENT**: Make the `kp` picker feel native to `kp` rather than configured `fzf`, without changing the interaction model, and free ten root prompt names by serving them from `kp v0`.
-- **APPROACH**: 1. Add `internal/picker` on Bubble Tea v2 and Lip Gloss v2 (v1 rejected for its init-time terminal query); it owns layout, keys, scrolling, resize, and styles, and returns a selected ID. 2. Keep registry, clipboard, and execution in `internal/cmd` behind one `pick` helper. 3. Draw on `/dev/tty` so stdout stays clean. 4. Serve moved prompts from `prompts/v0/` as Cobra subcommands with unchanged bodies and flags.
+- **APPROACH**: 1. Add `internal/picker` on Bubble Tea v2 and Lip Gloss v2 (v1 rejected for its init-time terminal query); it owns layout, keys, scrolling, resize, and styles, and returns a selected ID. 2. Keep registry, clipboard, and execution in `internal/cmd` behind one `pick` helper. 3. Draw on `/dev/tty` so stdout stays clean. 4. Serve moved prompts from `prompts/v0/` as Cobra subcommands with unchanged bodies and flags. 5. Use the basic ANSI palette by role, show each item's command in an aligned list column under group headings, and tint preview Markdown. 6. Move `kp init` on a TTY to an editor draft (`$KP_EDITOR`, `$EDITOR`, `nvim`, `vi`); piped stdin keeps line mode.
 - **OPEN ITEMS**: Issue #66 tracks delivery on `GH-66`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
 - **POINTERS**: `docs/specs/0011-picker-tui/SPEC.md`
 

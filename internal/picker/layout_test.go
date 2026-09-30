@@ -11,26 +11,32 @@ import (
 
 func TestComputeLayout(t *testing.T) {
 	tests := []struct {
-		name                string
-		width, height, long int
-		wantList, wantPrev  int
-		wantBody            int
+		name                     string
+		width, height, long, cmd int
+		wantList, wantPrev       int
+		wantCmd, wantBody        int
 	}{
-		{"fits longest title", 120, 30, 30, 32, 79, 25},
-		{"short titles use minimum", 100, 30, 4, minListWidth, 73, 25},
-		{"list capped at two fifths", 100, 30, 80, 38, 53, 25},
-		{"preview capped for reading", 240, 30, 30, 32, maxPreview, 25},
-		{"narrow terminal hides preview", 50, 20, 30, 46, 0, 15},
-		{"tiny height keeps one row", 80, 3, 10, 18, 53, 1},
+		{"fits longest title", 120, 30, 30, 0, 32, 79, 0, 25},
+		{"short titles use minimum", 100, 30, 4, 0, minListWidth, 73, 0, 25},
+		{"list capped just over half", 100, 30, 80, 0, 52, 39, 0, 25},
+		{"preview capped for reading", 240, 30, 30, 0, 32, maxPreview, 0, 25},
+		{"narrow terminal hides preview", 50, 20, 30, 0, 46, 0, 0, 15},
+		{"tiny height is compact", 80, 3, 10, 0, 18, 53, 0, 1},
+		{"command column fits", 120, 30, 37, 19, 61, 50, 19, 25},
+		{"list-only keeps commands", 60, 20, 37, 19, 56, 0, 19, 15},
+		{"tight list hides commands", 40, 20, 37, 19, 36, 0, 0, 15},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := computeLayout(tt.width, tt.height, tt.long)
-			if l.listWidth != tt.wantList || l.previewWidth != tt.wantPrev || l.bodyHeight != tt.wantBody {
-				t.Fatalf("layout = %+v, want list=%d preview=%d body=%d", l, tt.wantList, tt.wantPrev, tt.wantBody)
+			l := computeLayout(tt.width, tt.height, tt.long, tt.cmd)
+			if l.listWidth != tt.wantList || l.previewWidth != tt.wantPrev || l.commandWidth != tt.wantCmd || l.bodyHeight != tt.wantBody {
+				t.Fatalf("layout = %+v, want list=%d preview=%d cmd=%d body=%d", l, tt.wantList, tt.wantPrev, tt.wantCmd, tt.wantBody)
 			}
 			if l.contentWidth() > tt.width-2*marginX {
 				t.Fatalf("content width %d exceeds inner width %d", l.contentWidth(), tt.width-2*marginX)
+			}
+			if l.commandWidth > 0 && l.titleWidth() < min(minTitleWidth, tt.long) {
+				t.Fatalf("title column %d narrower than %d", l.titleWidth(), minTitleWidth)
 			}
 		})
 	}
@@ -78,12 +84,33 @@ func TestResizeKeepsSelectionVisible(t *testing.T) {
 	}
 }
 
-func TestGroupsRenderWithOneSpacerRow(t *testing.T) {
+func TestGroupsRenderUnderHeadings(t *testing.T) {
 	m := newTestModel(testItems())
+	var got []string
+	for _, r := range m.listRows() {
+		switch {
+		case r.heading != "":
+			got = append(got, r.heading)
+		case r.pos < 0:
+			got = append(got, "")
+		default:
+			got = append(got, fmt.Sprint(r.pos))
+		}
+	}
+	want := []string{"prompts", "0", "1", "2", "", "commands", "3", "4"}
+	if strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Fatalf("rows = %q, want %q", got, want)
+	}
+}
+
+func TestScrollingUpRevealsGroupHeading(t *testing.T) {
+	m := newTestModel(testItems())
+	m, _ = press(t, m, tea.WindowSizeMsg{Width: 100, Height: chromeRows + 3})
+	m.jump(4)
+	m.jump(3)
 	rows := m.listRows()
-	want := []int{0, 1, 2, -1, 3, 4}
-	if fmt.Sprint(rows) != fmt.Sprint(want) {
-		t.Fatalf("rows = %v, want %v", rows, want)
+	if rows[m.listTop].heading != "commands" {
+		t.Fatalf("list top row = %+v, want the commands heading", rows[m.listTop])
 	}
 }
 
@@ -179,15 +206,29 @@ func TestFooterDropsWholeHintsWhenNarrow(t *testing.T) {
 	}
 }
 
-func TestRenderUsesSecondaryDetailAndPointer(t *testing.T) {
+func TestRenderShowsPointerHeadingsAndAlignedCommands(t *testing.T) {
 	m := newTestModel(testItems())
 	out := ansi.Strip(m.render())
-	for _, want := range []string{"kp", "› Merge", "kp merge", "merge body", "↑↓ move", "enter select", "esc quit"} {
+	for _, want := range []string{" kp ", "prompts", "commands", "› Merge", "kp merge", "merge body", "↑↓ move", "enter select", "esc quit"} {
 		if !strings.Contains(out, want) {
 			t.Fatalf("render missing %q:\n%s", want, out)
 		}
 	}
-	if strings.Contains(out, "kp review") {
-		t.Fatal("unselected item details should not render in the list")
+	col := -1
+	for _, line := range strings.Split(out, "\n") {
+		if !strings.Contains(line, "│") {
+			continue
+		}
+		list, _, _ := strings.Cut(line, "│")
+		if i := strings.Index(list, "kp "); i >= 0 {
+			i = ansi.StringWidth(list[:i])
+			if col >= 0 && i != col {
+				t.Fatalf("command column misaligned at %d, want %d: %q", i, col, line)
+			}
+			col = i
+		}
+	}
+	if col < 0 {
+		t.Fatal("list shows no command column")
 	}
 }

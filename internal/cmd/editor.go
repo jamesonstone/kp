@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -19,6 +20,9 @@ func (a *app) resolveEditor() (editorCommand, error) {
 	}
 	if strings.TrimSpace(editorText) == "" {
 		editorText = "vi"
+		if _, err := a.lookPath("nvim"); err == nil {
+			editorText = "nvim"
+		}
 	}
 
 	fields := strings.Fields(editorText)
@@ -40,9 +44,13 @@ func (a *app) runEditor(editor editorCommand, path string) error {
 
 	args := append(append([]string{}, editor.args...), path)
 	cmd := exec.Command(editor.name, args...)
-	cmd.Stdin = a.stdin
-	cmd.Stdout = a.stdout
-	cmd.Stderr = a.stderr
+	cmd.Stdin, cmd.Stdout, cmd.Stderr = a.stdin, a.stdout, a.stderr
+	// Run the editor on the terminal itself so redirected stdout, as in
+	// `kp init > prompt.md`, receives only kp's output.
+	if tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0); err == nil {
+		defer tty.Close()
+		cmd.Stdin, cmd.Stdout, cmd.Stderr = tty, tty, tty
+	}
 	return mapEditorError(cmd.Run())
 }
 

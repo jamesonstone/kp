@@ -25,7 +25,7 @@ func TestListPickerSelection(t *testing.T) {
 	if strings.Join(itemIDs(got), ",") != "merge,review,ship" {
 		t.Fatalf("list items = %v", itemIDs(got))
 	}
-	if got[2].Detail != "kp ship" || got[2].Preview != stdout {
+	if got[2].Command != "kp ship" || got[2].Preview != stdout {
 		t.Fatalf("ship item = %+v", got[2])
 	}
 	if fake.copied != stdout || fake.pasted {

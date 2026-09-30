@@ -9,11 +9,11 @@ import (
 
 func testItems() []Item {
 	return []Item{
-		{ID: "merge", Title: "Merge", Detail: "kp merge", Group: "prompts", Preview: "merge body"},
-		{ID: "review", Title: "Review", Detail: "kp review", Group: "prompts", Preview: "review body"},
-		{ID: "ship", Title: "Ship", Detail: "kp ship", Group: "prompts", Preview: "ship body"},
-		{ID: "init", Title: "Init", Detail: "kp init", Group: "commands", Preview: "init body"},
-		{ID: "help", Title: "Help", Detail: "kp --help", Group: "commands", Preview: "help body"},
+		{ID: "merge", Title: "Merge", Command: "kp merge", Group: "prompts", Preview: "merge body"},
+		{ID: "review", Title: "Review", Command: "kp review", Group: "prompts", Preview: "review body"},
+		{ID: "ship", Title: "Ship", Command: "kp ship", Group: "prompts", Preview: "ship body"},
+		{ID: "init", Title: "Init", Command: "kp init", Group: "commands", Preview: "init body"},
+		{ID: "help", Title: "Help", Command: "kp --help", Group: "commands", Preview: "help body"},
 	}
 }
 

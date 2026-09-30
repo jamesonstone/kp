@@ -37,41 +37,40 @@ func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []picker.It
 		picker.Item{
 			ID:      "command:init",
 			Title:   "Init",
-			Detail:  commandPath + " init",
+			Command: commandPath + " init",
 			Group:   "commands",
-			Preview: "Construct a coding-agent prompt.\n\nAsk for objective, context, invariants, constraints, and definition of done. On a TTY, enter continues and Shift+Enter inserts a newline. The generated prompt is printed and copied.",
+			Preview: "Construct a coding-agent prompt.\n\nOpens the prompt template in your editor ($KP_EDITOR, $EDITOR, nvim, or vi) with sections for:\n\n- Objective\n- Known business/domain context\n- Invariants\n- Constraints\n- Definition of done\n\nWrite as much as you like under each heading, then save and quit. The finished prompt is printed and copied. An empty file cancels.",
 		},
 		picker.Item{
 			ID:      "command:find-port",
 			Title:   "Find port",
-			Detail:  commandPath + " find-port <port>",
+			Command: commandPath + " find-port <port>",
 			Group:   "commands",
 			Preview: "Inspect a port and act on the process.\n\nSearch TCP and UDP listeners on a port, inspect the matching process details, copy values, or stop the process after confirmation.",
 		},
 		picker.Item{
 			ID:      "command:help",
 			Title:   "Help",
-			Detail:  commandPath + " --help",
+			Command: commandPath + " --help",
 			Group:   "commands",
 			Preview: "Show all commands.\n\nEvery command, including prompt management, repo scaffolding, legacy v0 prompts, and version information.",
 		},
 	)
 }
 
-// promptItem renders a prompt as a picker row. The command stays secondary
-// metadata in the preview rather than a competing list column.
+// promptItem renders a prompt as a picker row with its direct command.
 func promptItem(commandPath string, p prompt.Prompt) picker.Item {
-	detail := commandPath + " " + p.Name
-	if p.Source == prompt.SourceUser {
-		detail += " · user prompt"
-	}
-	return picker.Item{
+	item := picker.Item{
 		ID:      p.Name,
 		Title:   p.Label,
-		Detail:  detail,
+		Command: commandPath + " " + p.Name,
 		Group:   "prompts",
 		Preview: p.Body,
 	}
+	if p.Source == prompt.SourceUser {
+		item.Note = "user prompt"
+	}
+	return item
 }
 
 func (a *app) runLauncherSelection(cmd *cobra.Command, selection string) error {

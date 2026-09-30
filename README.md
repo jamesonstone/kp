@@ -21,7 +21,7 @@ that feel good in a shell.
 ## Why Use It?
 
 - 🧠 Keep high-signal prompts in one predictable place.
-- ✍️ Construct a coding-agent prompt from five short answers with `kp init`.
+- ✍️ Construct a coding-agent prompt in your editor with `kp init`.
 - 📋 Copy prompt bodies only after `pbpaste` matches the expected text.
 - 🪶 Use bare commands such as `kp review`, not a heavy command tree.
 - 🧰 Create and edit your own Markdown prompts.
@@ -88,9 +88,18 @@ kp new rubber-duck
 kp scaffold --dry-run
 ```
 
-The launcher is a two-pane picker: actions on the left, a live preview of the
-selected prompt on the right. It lists the current prompts plus Init, Find
-port, and Help; legacy `v0` prompts stay out of it.
+The launcher is a two-pane picker: prompts and commands on the left, each with
+the command that runs it directly (`kp review`, `kp init`), and a live preview
+of the selection on the right. It lists the current prompts plus Init, Find
+port, and Help; legacy `v0` prompts stay out of it. Colors come from your
+terminal theme's basic palette, so they suit light and dark backgrounds, and
+`NO_COLOR` turns them off.
+
+`kp init` opens the prompt template in your editor (`$KP_EDITOR`, `$EDITOR`,
+then `nvim`, then `vi`). Write as much as you like under each heading; blank
+lines and indentation are kept, and `<!-- comments -->` are removed. Save and
+quit to print and copy the prompt. If a section is empty, the file reopens
+with a note at the top; delete everything, or quit with `:cq`, to cancel.
 
 | Key                          | Action                                   |
 | ---------------------------- | ---------------------------------------- |
@@ -110,7 +119,7 @@ prompt. Select Help for the complete command reference.
 | -------------------------- | ----------------------------------------------------------------- | --------------------------------- | --------------- |
 | `kp`                       | Open the focused launcher for prompts, Init, Find port, and Help. | Interactive terminals             | ✅ ready        |
 | `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
-| `kp init`                  | Construct a coding-agent prompt from five short answers. On a TTY, Shift+Enter inserts a newline. | Starting a coding-agent task      | ✅ ready        |
+| `kp init`                  | Fill in the prompt template in your editor, then print and copy it. Piped stdin reads one line per section. | Starting a coding-agent task      | ✅ ready        |
 | `kp init --output-only`    | Print the blank prompt template without copying.                  | Pipes, scripts, local files       | ✅ ready        |
 | `kp merge`                 | Print and copy the context-aware merge/deployment prompt.         | Cross-repo release coordination   | ✅ ready        |
 | `kp review`                | Print and copy the independent branch/PR correctness-review prompt. | Coding-agent chats              | ✅ ready        |

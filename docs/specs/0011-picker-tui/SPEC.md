@@ -68,12 +68,22 @@ names can be reused.
 - The TUI owns pane sizing, rendering, selection, scrolling, the preview
   viewport, keys, resize, and styles. Prompt discovery, loading, clipboard,
   and execution stay in `internal/cmd`.
-- No emoji in the picker. One accent (basic ANSI magenta, so the terminal
-  theme picks the shade) for the brand, pointer, and selected row; bold for
-  the preview title; faint for secondary text; no fixed background colors; no
-  Nerd Font glyphs.
-- The command (`kp review`) is secondary metadata under the preview title, not
-  a list column. User prompts add `· user prompt` to that line.
+- No emoji in the picker and no Nerd Font glyphs. Color comes only from the
+  terminal's basic ANSI palette, so each theme shades it for its own
+  background: magenta for the `kp` badge, pointer, selected row, and preview
+  title; cyan for command names and key hints; blue for group headings and
+  Markdown headings; yellow for tags, match counts, and scroll position;
+  faint for secondary text. `NO_COLOR` leaves bold and faint only.
+- Each list row shows its label and, in an aligned column, the command that
+  runs it directly (`kp review`, `kp init`), with the subcommand name
+  highlighted. Items sit under `prompts` and `commands` headings. The column
+  drops only when titles would get too narrow. User prompts carry a
+  `user prompt` tag in the preview.
+- The preview tints Markdown structure (headings, list markers, inline and
+  fenced code) without changing text or width. It is not a renderer.
+- `kp init` on a TTY opens the template in the user's editor (`$KP_EDITOR`,
+  `$EDITOR`, `nvim`, then `vi`) instead of the raw-mode questionnaire; see
+  `0010-init-command`. Piped stdin keeps one line per section.
 - The preview wraps to at most 88 columns with hanging indents for list items,
   expands tabs, strips control characters, and shows a scroll position only
   when the body overflows.
@@ -92,7 +102,11 @@ names can be reused.
 ## ACCEPTANCE CRITERIA
 
 - AC1: Launcher items are the root prompts, then Init, Find port, and Help,
-  with no emoji and the command as secondary detail.
+  with no emoji, each carrying its command, grouped under headings.
+- AC7: `kp init` on a TTY preloads the template in the editor, keeps
+  multi-line answers and spacing, reopens incomplete drafts with a notice,
+  cancels on an empty file or editor abort, and prints only the prompt to
+  stdout.
 - AC2: Navigation, wrap, filter, Esc, Ctrl-C, Enter, and empty-result
   behavior match the key requirements (pure model tests through `Update`).
 - AC3: Layout math, list windowing on resize, preview scroll clamping, and
@@ -119,6 +133,12 @@ names can be reused.
   lines of list windowing and scroll clamping.
 - Use substring filtering, not subsequence. Subsequence matched `rev` in
   "Pre-authorize task delivery" and, without ranking, reads as noise.
+- A first pass used one accent and kept commands out of the list. Review
+  feedback: it read as too plain, and people recognize actions by command
+  name. The palette widened to basic ANSI roles and commands joined the list
+  as an aligned column.
+- Replace `kp init`'s raw-mode Shift+Enter input with the user's editor:
+  spacing is easier to write and read, and the CSI key decoding goes away.
 - Keep the whimsical cancel farewells. They print to stderr after the picker
   closes and belong to 0001's contract, not the picker's presentation.
 - Keep the `--no-fzf` flag name for script compatibility; its help text now
@@ -141,6 +161,9 @@ names can be reused.
 - [x] Update README, Constitution dependencies, testing reference, and the
   progress summary.
 - [x] Independent review for unnecessary visuals and complexity.
+- [x] Widen the palette, add the command column and group headings, and tint
+  preview Markdown.
+- [x] Move `kp init` on a TTY to an editor draft; remove the raw-mode input.
 - [x] Run format, test, race, vet, build, and pty acceptance.
 
 ## VALIDATION
@@ -156,6 +179,7 @@ names can be reused.
 - AC5: `internal/cmd/v0_test.go`, moved prompt hash tests, registry and
   built-in tests.
 - AC6: startup timing and pty terminal-query check below.
+- AC7: `internal/cmd/init_editor_test.go` plus a real `nvim` pty session.
 
 ## DELIVERY DECISION
 
@@ -196,10 +220,18 @@ truncates), and `›`/`│`/`…` (ambiguous width only in CJK-width terminals).
   redirected. No controlling terminal exits `3` with an instruction.
 - Terminal queries — `PASS`: `kp merge --print` in a pty sends no OSC 11 or
   cursor-position query. First picker frame in about 22 ms.
-- Startup — `PASS`: `kp review --print` averaged 4.7 ms per run over 50 runs
-  against 4.5 ms for the previous `fzf` build.
-- Color — `PASS`: SGR codes limited to bold, faint, and basic magenta `35`;
-  `NO_COLOR=1` leaves only bold and faint.
+- Startup — `PASS`: `kp review --print` over two rounds of 100 runs:
+  3.46 and 3.69 ms per run against 3.76 and 3.21 ms for the previous `fzf`
+  build (noise-level difference).
+- Color — `PASS`: SGR codes limited to bold, faint, reverse, and basic ANSI
+  foregrounds `33`–`36`; `NO_COLOR=1` leaves only bold, faint, and reverse.
+  Dark and light theme renders of the pty screen were reviewed visually.
+- `kp init` editor — `PASS`: real `nvim --clean` in a pty opened the draft
+  on the first answer line; saving one section reopened the file with a
+  notice listing the four empty sections and kept the text; deleting
+  everything cancelled with empty stdout. A scripted editor completing every
+  section produced exactly the rendered prompt on redirected stdout, with
+  blank lines and indented bullets intact.
 - Hosted pull-request correctness checks — `UNAVAILABLE`: the repository has
   no hosted format, test, race, vet, or build workflow.
 - Real-terminal visual check on light and dark themes — `PENDING` for the
