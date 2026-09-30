@@ -108,7 +108,8 @@ request against the target branch, without making changes.
   - state the purpose (catch defects the author would want fixed before merge);
   - check the change against its stated intent (PR description, issue, or
     spec), not only its code;
-  - make no changes to the checkout or to external state;
+  - run only validation that leaves the checkout and external state
+    unchanged; skipped checks surface as validation gaps;
   - confirm each finding before reporting it and list unconfirmed concerns as
     open questions; report issues that predate the change separately; skip
     style nits that no repository rule requires;

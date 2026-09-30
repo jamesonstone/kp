@@ -11,7 +11,7 @@ import (
 	"github.com/jamesonstone/kp/internal/prompt"
 )
 
-const approvedReviewSHA256 = "c795bf4a8f80892af32d2c2fd3a2fd2fe6ae8810ffd98652f8d94cb6cf1585d9"
+const approvedReviewSHA256 = "d63be506a227f8c577ab7898223ea64eefcf979fa5645b94b1a065cb7494f383"
 
 func TestReviewPromptPrintsApprovedInstructions(t *testing.T) {
 	stdout, stderr, err := executeTestCommand(t, "review", "--print")
@@ -67,7 +67,7 @@ func TestReviewPromptRequiresCorrectnessContract(t *testing.T) {
 		"identify any remaining validation gaps or residual risks",
 		"The goal is to catch defects before merge",
 		"Check it against its stated intent",
-		"Do not make changes yet, to the checkout or to external state",
+		"skipping any that would change the checkout or external state",
 		"Confirm each finding before you report it",
 		"list what you could not confirm as open questions",
 		"Report issues that predate this change separately",

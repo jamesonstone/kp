@@ -21,9 +21,9 @@ Review for:
 
 Trace important execution paths rather than reviewing only the diff syntactically. Inspect surrounding code and existing tests/contracts when necessary to determine intended behavior.
 
-Run the relevant tests, linters, type checks, and other repository validation available to you.
+Run the relevant tests, linters, type checks, and other repository validation available to you, skipping any that would change the checkout or external state.
 
-Do not make changes yet, to the checkout or to external state.
+Do not make changes yet.
 
 Confirm each finding before you report it, and list what you could not confirm as open questions. Report issues that predate this change separately, and skip style nits that no repository rule requires.
 
