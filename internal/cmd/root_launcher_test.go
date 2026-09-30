@@ -15,6 +15,7 @@ import (
 func TestRootLaunchesInteractiveSelectorForPrompt(t *testing.T) {
 	fake := &fakeClipboard{}
 	var sawClarify bool
+	var sawInit bool
 	var sawFindPort bool
 	var sawHelp bool
 	stdout, stderr, err := executeTestCommand(t,
@@ -26,6 +27,11 @@ func TestRootLaunchesInteractiveSelectorForPrompt(t *testing.T) {
 					sawClarify = item.Emoji == "🧠" &&
 						item.Command == "kp clarify" &&
 						item.Description == "Print and copy prompt"
+				case "command:init":
+					sawInit = item.Emoji == "✍️" &&
+						item.Title == "Init" &&
+						item.Command == "kp init" &&
+						item.Description == "Construct a coding-agent prompt"
 				case "command:find-port":
 					sawFindPort = item.Emoji == "🔍" &&
 						item.Command == "kp find-port <port>" &&
@@ -42,8 +48,8 @@ func TestRootLaunchesInteractiveSelectorForPrompt(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !sawClarify || !sawFindPort || !sawHelp {
-		t.Fatalf("launcher items missing expected entries: sawClarify=%v sawFindPort=%v sawHelp=%v", sawClarify, sawFindPort, sawHelp)
+	if !sawClarify || !sawInit || !sawFindPort || !sawHelp {
+		t.Fatalf("launcher items missing expected entries: sawClarify=%v sawInit=%v sawFindPort=%v sawHelp=%v", sawClarify, sawInit, sawFindPort, sawHelp)
 	}
 	if !strings.HasPrefix(stdout, "Clarify before implementing.") {
 		t.Fatalf("stdout = %q", stdout)
@@ -56,13 +62,49 @@ func TestRootLaunchesInteractiveSelectorForPrompt(t *testing.T) {
 	}
 }
 
+func TestRootLauncherRunsInit(t *testing.T) {
+	fake := &fakeClipboard{}
+	input := strings.Join([]string{
+		"Ship the init command.",
+		"kp is a local macOS prompt CLI.",
+		"Clipboard verification stays exact.",
+		"Do not add network calls.",
+		"kp init prints and copies the prompt.",
+	}, "\n") + "\n"
+	stdout, stderr, err := executeTestCommand(t,
+		withClipboard(fake),
+		withStdin(input),
+		withLauncher(func([]LauncherItem) (string, error) {
+			return "command:init", nil
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := renderInitPrompt(initAnswers{
+		objective:   "Ship the init command.",
+		context:     "kp is a local macOS prompt CLI.",
+		invariants:  "Clipboard verification stays exact.",
+		constraints: "Do not add network calls.",
+		done:        "kp init prints and copies the prompt.",
+	})
+	if stdout != want {
+		t.Fatalf("stdout = %q, want %q", stdout, want)
+	}
+	if fake.copied != stdout {
+		t.Fatalf("clipboard copied=%q stdout=%q", fake.copied, stdout)
+	}
+	if !strings.Contains(stderr, "🎯  Objective") {
+		t.Fatalf("stderr = %q", stderr)
+	}
+}
+
 func TestRootLauncherShowsStaticHelp(t *testing.T) {
 	secondaryCommands := map[string]bool{
 		"command:list":     false,
 		"command:new":      false,
 		"command:edit":     false,
 		"command:rm":       false,
-		"command:init":     false,
 		"command:scaffold": false,
 		"command:version":  false,
 	}

@@ -56,7 +56,7 @@ func (a *app) runLauncher(cmd *cobra.Command) error {
 }
 
 func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []LauncherItem {
-	items := make([]LauncherItem, 0, len(prompts)+2)
+	items := make([]LauncherItem, 0, len(prompts)+3)
 	for _, p := range prompts {
 		items = append(items, LauncherItem{
 			ID:          "prompt:" + p.Name,
@@ -69,6 +69,14 @@ func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []LauncherI
 	}
 
 	items = append(items,
+		LauncherItem{
+			ID:          "command:init",
+			Emoji:       "✍️",
+			Title:       "Init",
+			Command:     commandPath + " init",
+			Description: "Construct a coding-agent prompt",
+			Preview:     "Ask for objective, context, invariants, constraints, and definition of done. On a TTY, enter continues and Shift+Enter inserts a newline. The generated prompt is printed and copied.",
+		},
 		LauncherItem{
 			ID:          "command:find-port",
 			Emoji:       "🔍",
@@ -95,6 +103,8 @@ func (a *app) runLauncherSelection(cmd *cobra.Command, selection string) error {
 	}
 
 	switch selection {
+	case "command:init":
+		return a.runInit(false)
 	case "command:find-port":
 		return a.runFindPort(cmd.Context(), "")
 	case "command:help":

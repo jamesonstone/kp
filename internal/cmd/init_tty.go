@@ -93,7 +93,7 @@ func (a *app) applyInitKey(field *strings.Builder, action initKeyAction, r rune)
 		return strings.TrimSpace(field.String()), true, nil
 	case initKeyNewline:
 		field.WriteByte('\n')
-		fmt.Fprint(a.stderr, "\n> ")
+		fmt.Fprint(a.stderr, "\n"+initPromptPrefix)
 	case initKeyBackspace:
 		a.backspaceInitField(field)
 	case initKeyChar:

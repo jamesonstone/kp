@@ -103,7 +103,7 @@ kp new rubber-duck
 kp scaffold --dry-run
 ```
 
-The launcher keeps its first view focused on prompts, Find port, and Help. Use
+The launcher keeps its first view focused on prompts, Init, Find port, and Help. Use
 `j`/`k`, the arrow keys, or Tab/Shift-Tab to move; the preview pane wraps long
 text. Select Help for the complete prompt-management, scaffolding, version, and
 utility command reference.
@@ -112,7 +112,7 @@ utility command reference.
 
 | Command                    | What It Does                                                      | Best Used In                      | Status          |
 | -------------------------- | ----------------------------------------------------------------- | --------------------------------- | --------------- |
-| `kp`                       | Open the focused launcher for prompts, Find port, and Help.       | Interactive terminals             | ✅ ready        |
+| `kp`                       | Open the focused launcher for prompts, Init, Find port, and Help. | Interactive terminals             | ✅ ready        |
 | `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
 | `kp init`                  | Construct a coding-agent prompt from five short answers. On a TTY, Shift+Enter inserts a newline. | Starting a coding-agent task      | ✅ ready        |
 | `kp init --output-only`    | Print the blank prompt template without copying.                  | Pipes, scripts, local files       | ✅ ready        |
