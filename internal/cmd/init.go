@@ -10,7 +10,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const initInvestigationSentence = "Independently investigate. Do not assume my suspected implementation or root cause is correct."
+const (
+	initInvestigationSentence = "Independently investigate. Do not assume my suspected implementation or root cause is correct."
+	initPromptPrefix          = "› "
+)
 
 type initAnswers struct {
 	objective   string
@@ -28,7 +31,7 @@ type initField struct {
 }
 
 func (f initField) heading() string {
-	return f.emoji + " " + f.title
+	return f.emoji + "  " + f.title
 }
 
 var initFields = []initField{
@@ -110,15 +113,18 @@ func (a *app) writeInitPrompt(body string) error {
 
 func (a *app) collectInitAnswers() (initAnswers, error) {
 	var answers initAnswers
+	if a.useInitTTY() {
+		style := styleForWriter(a.stderr)
+		fmt.Fprintln(a.stderr, style.title("🎛️", "kp init"))
+		fmt.Fprintln(a.stderr, "    enter continue · shift+enter newline")
+		fmt.Fprintln(a.stderr)
+	}
 	for i, field := range initFields {
 		if i > 0 {
 			fmt.Fprintln(a.stderr)
 		}
 		fmt.Fprintln(a.stderr, field.heading())
-		fmt.Fprintln(a.stderr, field.question)
-		if a.useInitTTY() {
-			fmt.Fprintln(a.stderr, "Shift+Enter newline · Enter continue")
-		}
+		fmt.Fprintln(a.stderr, "    "+field.question)
 		value, err := a.readInitAnswer()
 		if err != nil {
 			return initAnswers{}, err
@@ -130,7 +136,7 @@ func (a *app) collectInitAnswers() (initAnswers, error) {
 
 func (a *app) readInitAnswer() (string, error) {
 	for {
-		fmt.Fprint(a.stderr, "> ")
+		fmt.Fprint(a.stderr, initPromptPrefix)
 		value, err := a.readInitField()
 		if err != nil {
 			return "", err
@@ -164,7 +170,7 @@ func renderInitPrompt(answers initAnswers) string {
 	}
 	var b strings.Builder
 	for i, field := range initFields {
-		writeInitSection(&b, field.heading()+":", values[i])
+		writeInitSection(&b, field.heading(), values[i])
 	}
 	b.WriteString(initInvestigationSentence)
 	b.WriteByte('\n')
@@ -174,9 +180,10 @@ func renderInitPrompt(answers initAnswers) string {
 func writeInitSection(b *strings.Builder, heading, body string) {
 	b.WriteString(heading)
 	b.WriteByte('\n')
+	b.WriteByte('\n')
 	if body != "" {
 		b.WriteString(body)
 		b.WriteByte('\n')
+		b.WriteByte('\n')
 	}
-	b.WriteByte('\n')
 }

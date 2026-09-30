@@ -24,6 +24,14 @@ references:
     read_policy: "must"
     used_for: "follow-up issue, branch, commit, and pull-request traceability"
     status: "active"
+  - id: "github-issue-64"
+    name: "Put kp init on the launcher and fix its questionnaire layout"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/64"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "follow-up issue, branch, commit, and pull-request traceability"
+    status: "active"
   - id: "v0-init-utility"
     name: "v0 init utility"
     type: "feature_artifact"
@@ -75,19 +83,24 @@ stdout, and copies the identical body to the macOS clipboard.
   beyond the emoji prefixes on section headers:
 
 ```text
-🎯 Objective:
+🎯  Objective
+
 <objective>
 
-🧭 Known business/domain context:
+🧭  Known business/domain context
+
 <context>
 
-🔒 Invariants:
+🔒  Invariants
+
 <invariants>
 
-🚧 Constraints:
+🚧  Constraints
+
 <constraints>
 
-✅ Definition of done:
+✅  Definition of done
+
 <definition of done>
 
 Independently investigate. Do not assume my suspected implementation or root cause is correct.
@@ -100,8 +113,13 @@ Independently investigate. Do not assume my suspected implementation or root cau
 - Preserve the bare-command CLI model. Do not add a `prompt` namespace.
 - Reserve `init` so user prompts cannot shadow the command.
 - Document the command in grouped `--help` and README.
+- Add `init` to the focused `kp` launcher as a command row. Selecting it runs
+  the same questionnaire as `kp init`.
+- Questionnaire chrome uses aligned emoji titles, an indented question, the
+  launcher `›` prompt, and a single TTY session hint. Do not repeat the key
+  hint on every field.
 - Do not add persistence, history, templates, AI calls, network behavior, a
-  general form framework, launcher entries, or unrelated refactors.
+  general form framework, or unrelated refactors.
 
 ## ASSUMPTIONS
 
@@ -121,6 +139,8 @@ Independently investigate. Do not assume my suspected implementation or root cau
   independent-investigation sentence.
 - On a TTY, Shift+Enter inserts a newline in the current section and Enter
   continues. Piped stdin does not show the TTY key hint.
+- Bare `kp` includes an Init launcher row. Selecting it starts the
+  questionnaire. Other secondary commands stay hidden.
 - `kp init --output-only` prints only the blank template and does not touch
   the clipboard.
 - EOF during the questionnaire exits `130` with no clipboard side effects.
@@ -145,6 +165,7 @@ Independently investigate. Do not assume my suspected implementation or root cau
 - [x] Reserve `init` and update help, README, and progress summary.
 - [x] Add focused tests for rendering, clipboard, errors, and cancellation.
 - [x] Add TTY Shift+Enter multiline input and emoji-prefixed section headers.
+- [x] Add Init to the focused launcher and restyle questionnaire chrome.
 - [x] Run format, test, race, vet, and build validation.
 
 ## VALIDATION
@@ -178,6 +199,9 @@ proven by a CLI test whose clipboard factory must not be called. Interactive
 stdout/clipboard equality is proven by comparing stdout to the fake clipboard
 body. Cancellation and empty-then-retry behavior are proven by stdin fixtures.
 Existing-command regressions are proven by unchanged list/help/prompt tests.
+Launcher discovery and `command:init` execution are proven by focused launcher
+tests. Questionnaire chrome uses aligned emoji headings, an indented question,
+and the `›` prompt.
 
 ## DECISIONS
 
@@ -185,7 +209,8 @@ Existing-command regressions are proven by unchanged list/help/prompt tests.
   constructed at runtime from operator input.
 - Do not reuse root `--print`. The requested flag is `--output-only`, and root
   `--print` applies only to stored prompt execution.
-- Do not add `init` to the focused launcher. Discovery is help and README.
+- Expose `init` on the focused launcher. Discovery is launcher, help, and
+  README.
 - Record topology as `single-lane, because tightly coupled and high-overlap:
   one command, shared clipboard/stdin/help/reserved-name paths, and docs in a
   single delivery lane`.
@@ -208,9 +233,9 @@ Existing-command regressions are proven by unchanged list/help/prompt tests.
 
 ## DELIVERY DECISION
 
-Issue #62, branch `GH-62`, canonical worktree
-`~/worktrees/jamesonstone/kp/GH-62`, ready pull request to `main`. The original
-command landed through issue #60 / `GH-60`.
+Issue #64, branch `GH-64`, canonical worktree
+`~/worktrees/jamesonstone/kp/GH-64`, ready pull request to `main`. Earlier
+delivery: issue #60 / `GH-60` and issue #62 / `GH-62`.
 
 ## OUTCOME
 
@@ -222,9 +247,9 @@ command landed through issue #60 / `GH-60`.
   section. Piped stdin remains one line per section.
 - `kp init --output-only` prints only the blank template and does not touch
   the clipboard.
-- `init` is reserved. Stored prompt commands, list output, and the focused
-  launcher remain unchanged. Issue #62 tracks the multiline and emoji follow-up
-  on `GH-62`.
+- `init` is reserved. Stored prompt commands and list output remain unchanged.
+  The focused launcher now includes Init. Issue #64 tracks launcher discovery
+  and questionnaire layout on `GH-64`.
 
 ## REPOSITORY MEMORY
 

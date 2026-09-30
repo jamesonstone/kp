@@ -12,7 +12,7 @@
 | 0007 | goal-command | `docs/specs/0007-goal-command` | deliver | no | 2026-09-01 | Adds `kp goal` as a built-in prompt for Evidence-Backed Goal Convergence: research before asking, accumulate one goal model, challenge material ambiguity, and return a user-confirmed executable `/goal` before `kp plan`. |
 | 0008 | ship-command | `docs/specs/0008-ship-command` | deliver | no | 2026-09-01 | Adds `kp ship` as a built-in prompt that pre-authorizes a coding agent to complete the current task thread through branch, pull-request, review, CI, in-scope merge, and established-workflow deployment without expanding `continue`, `goal`, or `merge`. |
 | 0009 | review-command | `docs/specs/0009-review-command` | deliver | no | 2026-09-29 | Adds `kp review` as a built-in prompt for an independent, read-only correctness review of the current branch or pull request against the target branch, without expanding `pr`, `punchlist`, `ship`, or `merge`. |
-| 0010 | init-command | `docs/specs/0010-init-command` | deliver | no | 2026-09-29 | Adds `kp init` as a dedicated interactive questionnaire that constructs a coding-agent prompt from objective, context, invariants, constraints, and definition of done, then prints and copies the generated body. TTY Shift+Enter inserts newlines; generated section headers use emoji prefixes. |
+| 0010 | init-command | `docs/specs/0010-init-command` | deliver | no | 2026-09-29 | Adds `kp init` as a dedicated interactive questionnaire that constructs a coding-agent prompt from objective, context, invariants, constraints, and definition of done, then prints and copies the generated body. TTY Shift+Enter inserts newlines; generated section headers use emoji prefixes. The focused `kp` launcher includes Init. |
 
 ## PROJECT INTENT
 
@@ -101,10 +101,10 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **STATUS**: deliver
 - **PAUSED**: no
 - **INTENT**: Provide one low-friction interactive path from five pieces of human knowledge to a complete coding-agent prompt, plus a pipeable blank template via `--output-only`.
-- **APPROACH**: 1. Add a dedicated `init` Cobra command rather than an embedded prompt, because the body is constructed at runtime. 2. Reuse existing stdin line reading for pipes, clipboard copy/verify, exit codes, and reserved-name enforcement. 3. Keep questionnaire chrome on stderr so stdout remains the product. 4. On a TTY, enter raw mode so Shift+Enter inserts a newline and Enter continues; prefix generated section headers with emojis. 5. Pin rendering, clipboard isolation, cancellation, key decoding, and reserved-name tests. 6. Document the command in help, README, and the progress summary.
-- **OPEN ITEMS**: Issue #62 tracks TTY multiline input and emoji section headers on `GH-62`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **APPROACH**: 1. Add a dedicated `init` Cobra command rather than an embedded prompt, because the body is constructed at runtime. 2. Reuse existing stdin line reading for pipes, clipboard copy/verify, exit codes, and reserved-name enforcement. 3. Keep questionnaire chrome on stderr so stdout remains the product. 4. On a TTY, enter raw mode so Shift+Enter inserts a newline and Enter continues; prefix generated section headers with emojis and give the questionnaire the same aligned `›` chrome as the launcher. 5. Expose Init on the focused `kp` launcher. 6. Pin rendering, clipboard isolation, cancellation, key decoding, launcher, and reserved-name tests. 7. Document the command in help, README, and the progress summary.
+- **OPEN ITEMS**: Issue #64 tracks launcher discovery and questionnaire layout on `GH-64`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
 - **POINTERS**: `docs/specs/0010-init-command/SPEC.md`
 
 ## LAST UPDATED
 
-2026-09-30 08:30:00 EDT
+2026-09-30 09:10:00 EDT

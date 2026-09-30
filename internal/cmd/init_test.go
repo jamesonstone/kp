@@ -18,19 +18,24 @@ func TestRenderInitPromptPinsExactBody(t *testing.T) {
 	})
 
 	want := "" +
-		"🎯 Objective:\n" +
+		"🎯  Objective\n" +
+		"\n" +
 		"Ship the init command.\n" +
 		"\n" +
-		"🧭 Known business/domain context:\n" +
+		"🧭  Known business/domain context\n" +
+		"\n" +
 		"kp is a local macOS prompt CLI.\n" +
 		"\n" +
-		"🔒 Invariants:\n" +
+		"🔒  Invariants\n" +
+		"\n" +
 		"Clipboard verification stays exact.\n" +
 		"\n" +
-		"🚧 Constraints:\n" +
+		"🚧  Constraints\n" +
+		"\n" +
 		"Do not add network calls.\n" +
 		"\n" +
-		"✅ Definition of done:\n" +
+		"✅  Definition of done\n" +
+		"\n" +
 		"kp init prints and copies the prompt.\n" +
 		"\n" +
 		"Independently investigate. Do not assume my suspected implementation or root cause is correct.\n"
@@ -39,11 +44,11 @@ func TestRenderInitPromptPinsExactBody(t *testing.T) {
 	}
 
 	order := []string{
-		"🎯 Objective:",
-		"🧭 Known business/domain context:",
-		"🔒 Invariants:",
-		"🚧 Constraints:",
-		"✅ Definition of done:",
+		"🎯  Objective",
+		"🧭  Known business/domain context",
+		"🔒  Invariants",
+		"🚧  Constraints",
+		"✅  Definition of done",
 		initInvestigationSentence,
 	}
 	previous := -1
@@ -108,15 +113,15 @@ func TestInitOutputOnlyPrintsBlankTemplate(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := "" +
-		"🎯 Objective:\n" +
+		"🎯  Objective\n" +
 		"\n" +
-		"🧭 Known business/domain context:\n" +
+		"🧭  Known business/domain context\n" +
 		"\n" +
-		"🔒 Invariants:\n" +
+		"🔒  Invariants\n" +
 		"\n" +
-		"🚧 Constraints:\n" +
+		"🚧  Constraints\n" +
 		"\n" +
-		"✅ Definition of done:\n" +
+		"✅  Definition of done\n" +
 		"\n" +
 		"Independently investigate. Do not assume my suspected implementation or root cause is correct.\n"
 	if stdout != want {
@@ -159,17 +164,23 @@ func TestInitCopiesStdoutToClipboard(t *testing.T) {
 	}
 	previous := -1
 	for _, title := range []string{
-		"🎯 Objective",
-		"🧭 Known business/domain context",
-		"🔒 Invariants",
-		"🚧 Constraints",
-		"✅ Definition of done",
+		"🎯  Objective",
+		"🧭  Known business/domain context",
+		"🔒  Invariants",
+		"🚧  Constraints",
+		"✅  Definition of done",
 	} {
 		index := strings.Index(stderr, title+"\n")
 		if index < 0 || index <= previous {
 			t.Fatalf("stderr missing or reordered %q:\n%s", title, stderr)
 		}
 		previous = index
+	}
+	if !strings.Contains(stderr, "    What outcome are you trying to achieve?") {
+		t.Fatalf("stderr missing indented question:\n%s", stderr)
+	}
+	if !strings.Contains(stderr, initPromptPrefix) {
+		t.Fatalf("stderr missing %q:\n%s", initPromptPrefix, stderr)
 	}
 	if !strings.Contains(stderr, "✅ 📋 Prompt copied to clipboard.") {
 		t.Fatalf("stderr = %q", stderr)
