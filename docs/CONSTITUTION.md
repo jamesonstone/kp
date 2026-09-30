@@ -28,9 +28,9 @@ module, runtime source, embedded prompt assets, tests, local Make targets, and
 user-facing README documentation.
 
 The current implementation ships the initial `v0-init-utility` surface: bare
-prompt commands such as `kp clarify`, an interactive `kp list` selector,
-prompt CRUD commands, user prompt overrides under the resolved config
-directory, exact clipboard verification on macOS, and `kp init` for constructing
+prompt commands such as `kp review`, legacy prompts under `kp v0`, a two-pane
+interactive picker for `kp` and `kp list`, prompt CRUD commands, user prompt
+overrides under the resolved config directory, exact clipboard verification on macOS, and `kp init` for constructing
 a coding-agent prompt from a short local questionnaire. Release packaging,
 Homebrew publishing, Linux support, Windows support, and automatic paste remain
 out of scope until a future feature spec changes that contract.
@@ -188,8 +188,14 @@ Current verified dependencies and tools:
 - YAML v3 (`gopkg.in/yaml.v3`): parses optional prompt frontmatter metadata.
 - macOS clipboard tools: `pbcopy` and `pbpaste` implement local copy and exact
   read-back verification on Darwin.
-- `fzf`: optional user-installed interactive picker dependency. Missing `fzf`
-  must produce a clear fallback instruction unless `--no-fzf` is used.
+- Bubble Tea v2 (`charm.land/bubbletea/v2`) and Lip Gloss v2
+  (`charm.land/lipgloss/v2`): the event loop, renderer, and styles for the
+  two-pane picker in `internal/picker`, used by `kp` and `kp list`. v2 is
+  required because v1 queries the terminal background in a package `init`,
+  which would slow every `kp` invocation. The picker draws on `/dev/tty`; with
+  no terminal it exits with a clear instruction, and `--no-fzf` keeps the
+  numbered fallback. `github.com/charmbracelet/x/ansi` measures, wraps, and
+  truncates styled text.
 - `$KP_EDITOR`, `$EDITOR`, or `vi`: editor resolution order for user prompt
   creation and editing.
 - Make: local convenience targets for format, test, build, install, and clean.

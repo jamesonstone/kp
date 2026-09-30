@@ -84,6 +84,13 @@ func renderRootHelp(cmd *cobra.Command) error {
 		return err
 	}
 
+	legacyRows := []helpRow{
+		{command: cmd.CommandPath() + " v0 <command>", summary: "Legacy prompts; list them with \"" + cmd.CommandPath() + " v0 --help\""},
+	}
+	if err := renderHelpSection(out, style, "🗄️", "Legacy v0 Prompts", legacyRows); err != nil {
+		return err
+	}
+
 	utilityRows := []helpRow{
 		{command: cmd.CommandPath() + " --version", summary: "Show version metadata"},
 		{command: cmd.CommandPath() + " help <command>", summary: "Show command help"},
@@ -115,10 +122,9 @@ func builtInPromptRows(commandPath string) []helpRow {
 	builtIns, err := prompt.BuiltIns()
 	if err != nil {
 		return []helpRow{
-			{command: commandPath + " clarify", summary: "Clarify before implementing"},
-			{command: commandPath + " agent-handoff", summary: "Agent-to-agent handoff"},
-			{command: commandPath + " chat-handoff", summary: "Chat-to-agent handoff"},
-			{command: commandPath + " pr", summary: "Pull request workflow"},
+			{command: commandPath + " merge", summary: "Context-aware PR merge and deployment"},
+			{command: commandPath + " review", summary: "Independent branch/PR review"},
+			{command: commandPath + " ship", summary: "Pre-authorize task delivery"},
 		}
 	}
 

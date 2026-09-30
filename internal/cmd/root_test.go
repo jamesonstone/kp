@@ -15,7 +15,7 @@ func TestListPlain(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stdout != "agent-handoff\nchat-handoff\nclarify\ncontinue\ngoal\nmerge\nparentthread\nplan\npr\npunchlist\nreview\nship\nstatus\n" {
+	if stdout != "merge\nreview\nship\n" {
 		t.Fatalf("stdout = %q", stdout)
 	}
 }
@@ -26,41 +26,11 @@ func TestListVerbose(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !strings.Contains(stdout, "clarify\tClarify before implementing\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "continue\tContinue autonomously\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "goal\tConstruct an executable goal\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "agent-handoff\tAgent-to-agent handoff\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "chat-handoff\tChat-to-agent handoff\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "merge\tContext-aware PR merge and deployment\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "plan\tDrive plan to implementation-ready\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "pr\tPull request workflow\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "punchlist\tPunch list control loop\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "review\tIndependent branch/PR review\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "ship\tPre-authorize task delivery\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
-	}
-	if !strings.Contains(stdout, "status\tThread completion audit\tbuiltin\n") {
-		t.Fatalf("stdout = %q", stdout)
+	want := "merge\tContext-aware PR merge and deployment\tbuiltin\n" +
+		"review\tIndependent branch/PR review\tbuiltin\n" +
+		"ship\tPre-authorize task delivery\tbuiltin\n"
+	if stdout != want {
+		t.Fatalf("stdout = %q, want %q", stdout, want)
 	}
 }
 
@@ -85,18 +55,9 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"Usage",
 		"kp <prompt>",
 		"Prompt Commands",
-		"kp clarify",
-		"kp continue",
-		"kp goal",
-		"kp agent-handoff",
-		"kp chat-handoff",
 		"kp merge",
-		"kp plan",
-		"kp pr",
-		"kp punchlist",
 		"kp review",
 		"kp ship",
-		"kp status",
 		"Prompt Library",
 		"kp init",
 		"kp init --output-only",
@@ -107,6 +68,9 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"kp port-find <port>",
 		"Repo Setup",
 		"kp scaffold",
+		"Legacy v0 Prompts",
+		"kp v0 <command>",
+		"kp v0 --help",
 		"Utilities",
 	}
 	for _, text := range expected {
@@ -117,13 +81,16 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 	if strings.Index(stdout, "Prompt Commands") > strings.Index(stdout, "Prompt Library") {
 		t.Fatalf("prompt command section appears after library section:\n%s", stdout)
 	}
-	if strings.Index(stdout, "kp clarify") > strings.Index(stdout, "kp list") {
+	if strings.Index(stdout, "kp merge") > strings.Index(stdout, "kp list") {
 		t.Fatalf("direct prompt commands appear after list commands:\n%s", stdout)
 	}
 	if strings.Contains(stdout, "kp"+" prompt") {
 		t.Fatalf("stdout = %q", stdout)
 	}
-	if strings.Contains(stdout, "kp handoff") {
+	if strings.Index(stdout, "Legacy v0 Prompts") < strings.Index(stdout, "Repo Setup") {
+		t.Fatalf("legacy section appears before current commands:\n%s", stdout)
+	}
+	if strings.Contains(stdout, "kp clarify ") || strings.Contains(stdout, "kp handoff") {
 		t.Fatalf("stdout includes removed legacy command: %q", stdout)
 	}
 	if registryCalled || clipboardCalled {
@@ -149,6 +116,7 @@ func TestRootHelpUsesKitStyleWhenTerminal(t *testing.T) {
 		"\x1b[1;37m🧰 Prompt Library\x1b[0m",
 		"\x1b[1;37m🔍 Port Tools\x1b[0m",
 		"\x1b[1;37m🏗️ Repo Setup\x1b[0m",
+		"\x1b[1;37m🗄️ Legacy v0 Prompts\x1b[0m",
 		"\x1b[1;37m🛠️ Utilities\x1b[0m",
 		"\x1b[1;37m⚙️ Flags\x1b[0m",
 	}

@@ -1,100 +1,77 @@
 package cmd
 
 import (
-	"bytes"
-	"context"
-	"errors"
 	"fmt"
-	"os"
-	"os/exec"
-	"path/filepath"
 	"strings"
-	"unicode"
 
+	"github.com/jamesonstone/kp/internal/picker"
 	"github.com/jamesonstone/kp/internal/prompt"
 	"github.com/spf13/cobra"
 )
 
-const launcherPointer = "›"
-
-type LauncherItem struct {
-	ID          string
-	Emoji       string
-	Title       string
-	Command     string
-	Description string
-	Preview     string
-}
-
 func (a *app) runLauncher(cmd *cobra.Command) error {
-	if a.launcherRunner == nil {
-		if _, err := a.lookPath("fzf"); err != nil {
-			return NewExitError(ExitConfig, errors.New("fzf not found; install fzf via 'brew install fzf' or run 'kp --help'"))
-		}
-	}
-
 	reg, err := a.loadRegistry()
 	if err != nil {
 		return err
 	}
 
-	items := buildLauncherItems(cmd.CommandPath(), reg.List())
-	selection := ""
-	if a.launcherRunner != nil {
-		selection, err = a.launcherRunner(items)
-	} else {
-		selection, err = runLauncherFZF(cmd.Context(), items)
-	}
+	items := buildLauncherItems(cmd.Root().CommandPath(), reg.List())
+	selection, err := a.pick(cmd, items)
 	if err != nil {
-		return mapPickerError(err)
-	}
-
-	if !launcherHasSelection(items, selection) {
-		return NewExitError(ExitUser, fmt.Errorf("invalid launcher selection %q", selection))
+		return err
 	}
 	return a.runLauncherSelection(cmd, selection)
 }
 
-func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []LauncherItem {
-	items := make([]LauncherItem, 0, len(prompts)+3)
+// buildLauncherItems lists root prompts, then the few commands that make sense
+// to start from the launcher. Legacy `kp v0` prompts are not listed.
+func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []picker.Item {
+	items := make([]picker.Item, 0, len(prompts)+3)
 	for _, p := range prompts {
-		items = append(items, LauncherItem{
-			ID:          "prompt:" + p.Name,
-			Emoji:       launcherPromptEmoji(p),
-			Title:       p.Label,
-			Command:     commandPath + " " + p.Name,
-			Description: "Print and copy prompt",
-			Preview:     p.Body,
-		})
+		item := promptItem(commandPath, p)
+		item.ID = "prompt:" + p.Name
+		items = append(items, item)
 	}
 
-	items = append(items,
-		LauncherItem{
-			ID:          "command:init",
-			Emoji:       "✍️",
-			Title:       "Init",
-			Command:     commandPath + " init",
-			Description: "Construct a coding-agent prompt",
-			Preview:     "Ask for objective, context, invariants, constraints, and definition of done. On a TTY, enter continues and Shift+Enter inserts a newline. The generated prompt is printed and copied.",
+	return append(items,
+		picker.Item{
+			ID:      "command:init",
+			Title:   "Init",
+			Detail:  commandPath + " init",
+			Group:   "commands",
+			Preview: "Construct a coding-agent prompt.\n\nAsk for objective, context, invariants, constraints, and definition of done. On a TTY, enter continues and Shift+Enter inserts a newline. The generated prompt is printed and copied.",
 		},
-		LauncherItem{
-			ID:          "command:find-port",
-			Emoji:       "🔍",
-			Title:       "Find port",
-			Command:     commandPath + " find-port <port>",
-			Description: "Inspect a port and act on the process",
-			Preview:     "Search TCP and UDP listeners on a port, inspect the matching process details, copy values, or stop the process after confirmation.",
+		picker.Item{
+			ID:      "command:find-port",
+			Title:   "Find port",
+			Detail:  commandPath + " find-port <port>",
+			Group:   "commands",
+			Preview: "Inspect a port and act on the process.\n\nSearch TCP and UDP listeners on a port, inspect the matching process details, copy values, or stop the process after confirmation.",
 		},
-		LauncherItem{
-			ID:          "command:help",
-			Emoji:       "❓",
-			Title:       "Help",
-			Command:     commandPath + " --help",
-			Description: "Show all commands",
-			Preview:     "Show every command, including prompt management, repo scaffolding, and version information.",
+		picker.Item{
+			ID:      "command:help",
+			Title:   "Help",
+			Detail:  commandPath + " --help",
+			Group:   "commands",
+			Preview: "Show all commands.\n\nEvery command, including prompt management, repo scaffolding, legacy v0 prompts, and version information.",
 		},
 	)
-	return items
+}
+
+// promptItem renders a prompt as a picker row. The command stays secondary
+// metadata in the preview rather than a competing list column.
+func promptItem(commandPath string, p prompt.Prompt) picker.Item {
+	detail := commandPath + " " + p.Name
+	if p.Source == prompt.SourceUser {
+		detail += " · user prompt"
+	}
+	return picker.Item{
+		ID:      p.Name,
+		Title:   p.Label,
+		Detail:  detail,
+		Group:   "prompts",
+		Preview: p.Body,
+	}
 }
 
 func (a *app) runLauncherSelection(cmd *cobra.Command, selection string) error {
@@ -112,123 +89,4 @@ func (a *app) runLauncherSelection(cmd *cobra.Command, selection string) error {
 	default:
 		return NewExitError(ExitUser, fmt.Errorf("invalid launcher selection %q", selection))
 	}
-}
-
-func launcherHasSelection(items []LauncherItem, selection string) bool {
-	for _, item := range items {
-		if item.ID == selection {
-			return true
-		}
-	}
-	return false
-}
-
-func runLauncherFZF(ctx context.Context, items []LauncherItem) (string, error) {
-	previewDir, err := os.MkdirTemp("", "kp-launcher-preview-*")
-	if err != nil {
-		return "", err
-	}
-	defer os.RemoveAll(previewDir)
-
-	var input strings.Builder
-	displayRows := launcherDisplayRows(items)
-	for _, item := range items {
-		if err := os.WriteFile(filepath.Join(previewDir, item.ID), []byte(item.Preview), 0o600); err != nil {
-			return "", err
-		}
-		fmt.Fprintf(&input, "%s\t%s\t%s\t%s\t%s\n", item.ID, displayRows[item.ID], item.Title, item.Command, item.Description)
-	}
-
-	cmd := exec.CommandContext(ctx, "fzf", launcherFZFArgs(previewDir)...)
-	cmd.Stdin = strings.NewReader(input.String())
-	var stdout bytes.Buffer
-	cmd.Stdout = &stdout
-
-	if err := cmd.Run(); err != nil {
-		return "", fzfRunError(ctx, err)
-	}
-
-	selected := strings.TrimSpace(stdout.String())
-	if selected == "" {
-		return "", errPickerCanceled
-	}
-	id, _, _ := strings.Cut(selected, "\t")
-	if id == "" {
-		return "", fmt.Errorf("invalid launcher selection")
-	}
-	return id, nil
-}
-
-func launcherFZFArgs(previewDir string) []string {
-	return []string{
-		"--height", "70%",
-		"--reverse",
-		"--cycle",
-		"--info", "hidden",
-		"--no-separator",
-		"--no-hscroll",
-		"--prompt", "🎛️ kp › ",
-		"--pointer", launcherPointer,
-		"--header", "j/k or arrows: move · enter: select · esc: close",
-		"--delimiter", "\t",
-		"--with-nth", "2",
-		"--nth", "2,3,4,5",
-		"--bind", "j:down,k:up,tab:down,btab:up",
-		"--preview", "cat " + shellQuote(previewDir) + "/{1}",
-		"--preview-window", "right,55%,wrap",
-	}
-}
-
-func launcherDisplayRows(items []LauncherItem) map[string]string {
-	titleWidth := displayWidth("Item")
-	for _, item := range items {
-		titleWidth = max(titleWidth, displayWidth(item.Title))
-	}
-
-	rows := make(map[string]string, len(items))
-	for _, item := range items {
-		rows[item.ID] = fmt.Sprintf(
-			"%s  %s  %s",
-			padDisplay(item.Emoji, 2),
-			padDisplay(item.Title, titleWidth),
-			item.Command,
-		)
-	}
-	return rows
-}
-
-func padDisplay(value string, width int) string {
-	padding := width - displayWidth(value)
-	if padding <= 0 {
-		return value
-	}
-	return value + strings.Repeat(" ", padding)
-}
-
-func displayWidth(value string) int {
-	width := 0
-	for _, r := range value {
-		switch {
-		case r == '\uFE0F':
-			continue
-		case unicode.Is(unicode.Mn, r):
-			continue
-		case r < 0x20:
-			continue
-		case r >= 0x1F300 && r <= 0x1FAFF:
-			width += 2
-		case r >= 0x2600 && r <= 0x27BF:
-			width += 2
-		default:
-			width++
-		}
-	}
-	return width
-}
-
-func launcherPromptEmoji(p prompt.Prompt) string {
-	if p.Source == prompt.SourceUser {
-		return "📝"
-	}
-	return "🧠"
 }

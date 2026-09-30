@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/jamesonstone/kp/internal/clipboard"
+	"github.com/jamesonstone/kp/internal/picker"
 	"github.com/jamesonstone/kp/internal/prompt"
 	"github.com/spf13/cobra"
 )
@@ -72,8 +73,7 @@ type Options struct {
 	RegistryFactory  func(userDir string) (prompt.Registry, error)
 	ClipboardFactory func() clipboard.Clipboard
 	LookPath         func(file string) (string, error)
-	FZFRunner        func(prompts []prompt.Prompt) (string, error)
-	LauncherRunner   func(items []LauncherItem) (string, error)
+	PickerRunner     func(items []picker.Item) (string, error)
 	PortLookup       func(port int) ([]PortProcess, error)
 	PortStop         func(pid int, force bool) error
 	Getenv           func(key string) string
@@ -99,7 +99,7 @@ func NewRoot(opts Options) *cobra.Command {
 
 	cmd.PersistentFlags().StringVar(&app.configDir, "config", "", "config root override")
 	cmd.PersistentFlags().BoolVar(&app.verbose, "verbose", false, "emit verbose output")
-	cmd.PersistentFlags().BoolVar(&app.noFzf, "no-fzf", false, "use numbered picker instead of fzf")
+	cmd.PersistentFlags().BoolVar(&app.noFzf, "no-fzf", false, "use the numbered picker instead of the interactive one")
 	cmd.Flags().BoolVar(&app.copyOnly, "copy", false, "copy without printing")
 	cmd.Flags().BoolVar(&app.printOnly, "print", false, "print without clipboard side effects")
 
@@ -110,6 +110,7 @@ func NewRoot(opts Options) *cobra.Command {
 	cmd.AddCommand(app.newRMCommand())
 	cmd.AddCommand(app.newFindPortCommand())
 	cmd.AddCommand(app.newScaffoldCommand())
+	cmd.AddCommand(app.newV0Command())
 	configureRootHelp(cmd)
 
 	return cmd
@@ -125,8 +126,7 @@ type app struct {
 	registryFactory  func(userDir string) (prompt.Registry, error)
 	clipboardFactory func() clipboard.Clipboard
 	lookPath         func(file string) (string, error)
-	fzfRunner        func(prompts []prompt.Prompt) (string, error)
-	launcherRunner   func(items []LauncherItem) (string, error)
+	pickerRunner     func(items []picker.Item) (string, error)
 	portLookup       func(context.Context, int) ([]PortProcess, error)
 	portStopper      func(context.Context, PortProcess, bool) error
 	getenv           func(key string) string
@@ -199,8 +199,7 @@ func newApp(opts Options) *app {
 		registryFactory:  opts.RegistryFactory,
 		clipboardFactory: opts.ClipboardFactory,
 		lookPath:         opts.LookPath,
-		fzfRunner:        opts.FZFRunner,
-		launcherRunner:   opts.LauncherRunner,
+		pickerRunner:     opts.PickerRunner,
 		portLookup:       portLookup,
 		portStopper:      portStopper,
 		getenv:           opts.Getenv,

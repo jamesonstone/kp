@@ -23,7 +23,7 @@ that feel good in a shell.
 - 🧠 Keep high-signal prompts in one predictable place.
 - ✍️ Construct a coding-agent prompt from five short answers with `kp init`.
 - 📋 Copy prompt bodies only after `pbpaste` matches the expected text.
-- 🪶 Use bare commands such as `kp clarify`, not a heavy command tree.
+- 🪶 Use bare commands such as `kp review`, not a heavy command tree.
 - 🧰 Create and edit your own Markdown prompts.
 - 🔍 Inspect and stop processes by port when you need to clean up a dev server.
 - 🏗️ Scaffold lightweight agent/review docs for other repos.
@@ -57,29 +57,11 @@ kp
 # see the grouped help page
 kp --help
 
-# print and copy a built-in prompt
-kp clarify
-
-# construct an accepted executable goal before planning
-kp goal
-
-# drive a plan to implementation-ready
-kp plan
-
-# hand off a brainstorm to a coding agent
-kp chat-handoff
-
-# transfer a live coding-agent task to another agent system
-kp agent-handoff
+# independently review the current branch or PR for correctness
+kp review
 
 # coordinate context-derived PR merges and deployments
 kp merge
-
-# drive an operational punch list through clustered fixes
-kp punchlist
-
-# independently review the current branch or PR for correctness
-kp review
 
 # pre-authorize shipping the current task through merge and deploy
 kp ship
@@ -93,6 +75,9 @@ kp init --output-only > prompt.txt
 # browse prompts interactively
 kp list
 
+# run a legacy prompt from the v0 compatibility namespace
+kp v0 clarify
+
 # inspect listeners on a port
 kp find-port 4005
 
@@ -103,10 +88,21 @@ kp new rubber-duck
 kp scaffold --dry-run
 ```
 
-The launcher keeps its first view focused on prompts, Init, Find port, and Help. Use
-`j`/`k`, the arrow keys, or Tab/Shift-Tab to move; the preview pane wraps long
-text. Select Help for the complete prompt-management, scaffolding, version, and
-utility command reference.
+The launcher is a two-pane picker: actions on the left, a live preview of the
+selected prompt on the right. It lists the current prompts plus Init, Find
+port, and Help; legacy `v0` prompts stay out of it.
+
+| Key                          | Action                                   |
+| ---------------------------- | ---------------------------------------- |
+| `j`/`k`, `↑`/`↓`, Tab/Shift-Tab | Move (wraps at both ends)             |
+| Enter                        | Run the selected item                    |
+| Esc, Ctrl-C                  | Clear the filter, or leave               |
+| Type, or `/`                 | Filter by label or command               |
+| Ctrl-D/Ctrl-U, PgDn/PgUp     | Scroll the preview                       |
+| Home/End                     | First or last item                       |
+
+The picker draws on the terminal directly, so stdout carries only the selected
+prompt. Select Help for the complete command reference.
 
 ## Command Guide
 
@@ -116,23 +112,15 @@ utility command reference.
 | `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
 | `kp init`                  | Construct a coding-agent prompt from five short answers. On a TTY, Shift+Enter inserts a newline. | Starting a coding-agent task      | ✅ ready        |
 | `kp init --output-only`    | Print the blank prompt template without copying.                  | Pipes, scripts, local files       | ✅ ready        |
-| `kp clarify`               | Print and copy the clarify-before-implementing prompt.            | Coding-agent chats                | ✅ ready        |
-| `kp continue`              | Print and copy the autonomous-continuation prompt.                | Coding-agent chats                | ✅ ready        |
-| `kp goal`                  | Construct an evidence-backed executable goal.                     | Vague or consequential engineering objectives | ✅ ready        |
-| `kp agent-handoff`         | Print and copy the zero-context agent transfer prompt.            | Coding-agent migration            | ✅ ready        |
-| `kp chat-handoff`          | Print and copy the chat-to-coding-agent handoff prompt.           | Brainstorms, chat-only planning   | ✅ ready        |
 | `kp merge`                 | Print and copy the context-aware merge/deployment prompt.         | Cross-repo release coordination   | ✅ ready        |
-| `kp parentthread`          | Print and copy the parent-thread response prompt.                 | Coding-agent chats                | ✅ ready        |
-| `kp plan`                  | Print and copy the plan-convergence prompt.                       | Coding-agent chats                | ✅ ready        |
-| `kp pr`                    | Print and copy the Kit workflow prompt for a new worklane.        | Coding-agent chats, repo handoff  | ✅ ready        |
-| `kp punchlist`             | Print and copy the punch-list control-loop prompt.                | Product validation, operator notes| ✅ ready        |
 | `kp review`                | Print and copy the independent branch/PR correctness-review prompt. | Coding-agent chats              | ✅ ready        |
 | `kp ship`                  | Print and copy the task-delivery pre-authorization prompt.        | Coding-agent chats that should land through merge | ✅ ready        |
+| `kp v0 <name>`             | Print and copy a legacy prompt, unchanged from its former root command. | Existing habits and scripts       | ✅ ready        |
 | `kp <name> --copy`         | Copy a prompt without printing it.                                | Shell aliases, scripts            | ✅ ready        |
 | `kp <name> --print`        | Print a prompt without touching the clipboard.                    | Pipes, inspection                 | ✅ ready        |
 | `kp find-port <port>`      | Inspect processes listening on a port and choose an action.       | Dev-server cleanup                | ✅ ready        |
 | `kp port-find <port>`      | Alias for `kp find-port <port>`.                                  | Dev-server cleanup                | ✅ ready        |
-| `kp list`                  | Open the emoji-enhanced `fzf` prompt picker.                      | Interactive terminals             | ✅ ready        |
+| `kp list`                  | Open the two-pane prompt picker.                                  | Interactive terminals             | ✅ ready        |
 | `kp list --no-fzf`         | Use the numbered fallback picker.                                 | Minimal terminals                 | ✅ ready        |
 | `kp list --plain`          | Print prompt names, one per line.                                 | Scripts, completion experiments   | ✅ ready        |
 | `kp list --verbose`        | Print `name`, `label`, and `source`.                              | Prompt audits                     | ✅ ready        |
@@ -149,25 +137,40 @@ utility command reference.
 
 ## Built-In Prompts
 
-| Prompt         | Label                       | Status      |
-| -------------- | --------------------------- | ----------- |
-| `clarify`      | Clarify before implementing | ✅ embedded |
-| `continue`     | Continue autonomously       | ✅ embedded |
-| `goal`         | Construct an executable goal | ✅ embedded |
-| `agent-handoff` | Agent-to-agent handoff       | ✅ embedded |
-| `chat-handoff`  | Chat-to-agent handoff        | ✅ embedded |
-| `merge`        | Context-aware PR merge and deployment | ✅ embedded |
-| `parentthread` | Parent thread response      | ✅ embedded |
-| `plan`         | Drive plan to implementation-ready | ✅ embedded |
-| `pr`           | Pull request workflow       | ✅ embedded |
-| `punchlist`    | Punch list control loop     | ✅ embedded |
-| `review`       | Independent branch/PR review | ✅ embedded |
-| `ship`         | Pre-authorize task delivery | ✅ embedded |
+| Prompt   | Label                                 | Status      |
+| -------- | ------------------------------------- | ----------- |
+| `merge`  | Context-aware PR merge and deployment | ✅ embedded |
+| `review` | Independent branch/PR review          | ✅ embedded |
+| `ship`   | Pre-authorize task delivery           | ✅ embedded |
+
+### Legacy `v0` Prompts
+
+These prompts moved under `kp v0` so their names are free for new root
+commands. Each behaves exactly as its former root command did, including
+`--print` and `--copy`. Running an old name at the root, such as `kp clarify`,
+reports where it moved unless you have a user prompt with that name.
+
+`kp v0` always serves the built-in text. If you had edited one of these
+prompts, your copy in the prompt library now answers at the root (for example
+`kp clarify`), and `kp v0 clarify` still gives the original.
+
+| Command            | Label                             |
+| ------------------ | --------------------------------- |
+| `kp v0 agent-handoff` | Agent-to-agent handoff         |
+| `kp v0 chat-handoff`  | Chat-to-agent handoff          |
+| `kp v0 clarify`       | Clarify before implementing    |
+| `kp v0 continue`      | Continue autonomously          |
+| `kp v0 goal`          | Construct an executable goal   |
+| `kp v0 parentthread`  | Parent thread response         |
+| `kp v0 plan`          | Drive plan to implementation-ready |
+| `kp v0 pr`            | Pull request workflow          |
+| `kp v0 punchlist`     | Punch list control loop        |
+| `kp v0 status`        | Thread completion audit        |
 
 Prompt names are bare commands. There is no `kp prompt ...` namespace.
 
 Reserved names cannot be used for prompts: `help`, `init`, `list`, `new`,
-`edit`, `rm`, `scaffold`, `prompt`, and `version`. Rename a user prompt named
+`edit`, `rm`, `scaffold`, `prompt`, `v0`, and `version`. Rename a user prompt named
 `init` before upgrading; reserved files cannot load.
 
 ## Your Prompt Library
@@ -231,9 +234,8 @@ Not created by `kp scaffold`: `.kit.yaml`, `.kit/`, global Kit config,
 | Requirement                                   | Why                                                         |
 | --------------------------------------------- | ----------------------------------------------------------- |
 | macOS 13+ on `darwin/arm64` or `darwin/amd64` | Clipboard support uses macOS tools.                         |
-| Go 1.22+                                      | Builds the local binary.                                    |
+| Go 1.26+                                      | Builds the local binary.                                    |
 | `pbcopy` and `pbpaste`                        | Copy and verify prompt bodies.                              |
-| `fzf`                                         | Powers `kp` and `kp list`; install with `brew install fzf`. |
 | `KP_EDITOR`, `EDITOR`, or `vi`                | Opens prompts for `new` and `edit`.                         |
 
 ## Development
@@ -266,7 +268,7 @@ Before opening a PR:
 | 0    | Success                                                               |
 | 1    | User input or prompt data error                                       |
 | 2    | Clipboard, platform, or system-command failure                        |
-| 3    | Config, filesystem bootstrap, editor lookup, or missing `fzf` failure |
+| 3    | Config, filesystem bootstrap, editor lookup, or no terminal for the picker |
 | 130  | User cancellation; interactive pickers wave goodbye with a whimsical farewell |
 
 ## License

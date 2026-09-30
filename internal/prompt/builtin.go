@@ -22,6 +22,16 @@ func BuiltIns() ([]Prompt, error) {
 	return loadBuiltInsFromDefault()
 }
 
+// V0BuiltIns returns the legacy prompts served by the `kp v0` compatibility
+// namespace. They are not part of the root registry.
+func V0BuiltIns() ([]Prompt, error) {
+	fsys, err := fs.Sub(kp.PromptFS, "prompts/v0")
+	if err != nil {
+		return nil, fmt.Errorf("open v0 prompts: %w", err)
+	}
+	return loadBuiltIns(fsys)
+}
+
 func loadBuiltInSource(name string) ([]byte, error) {
 	if err := ValidateName(name); err != nil {
 		return nil, err
