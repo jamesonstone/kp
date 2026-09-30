@@ -12,6 +12,7 @@ import (
 
 const (
 	initInvestigationSentence = "Independently investigate. Do not assume my suspected implementation or root cause is correct."
+	initFinishInstruction     = "When you finish, show evidence that the definition of done is met, flagging anything unmet or unverified, and list work the objective doesn't need as follow-ups. If the definition of done conflicts with an invariant or constraint, stop and ask me."
 	initPromptPrefix          = "› "
 )
 
@@ -38,7 +39,7 @@ var initFields = []initField{
 	{
 		emoji:    "🎯",
 		title:    "Objective",
-		question: "What outcome are you trying to achieve?",
+		question: "What outcome do you want, and why does it matter?",
 		set:      func(a *initAnswers, value string) { a.objective = value },
 	},
 	{
@@ -50,19 +51,19 @@ var initFields = []initField{
 	{
 		emoji:    "🔒",
 		title:    "Invariants",
-		question: "What must remain true?",
+		question: "What must remain true, and why?",
 		set:      func(a *initAnswers, value string) { a.invariants = value },
 	},
 	{
 		emoji:    "🚧",
 		title:    "Constraints",
-		question: "What hard boundaries must the agent respect?",
+		question: "What hard boundaries must the agent respect, and what is out of scope?",
 		set:      func(a *initAnswers, value string) { a.constraints = value },
 	},
 	{
 		emoji:    "✅",
 		title:    "Definition of done",
-		question: "What evidence or observable result proves the task is complete?",
+		question: "What check can the agent run, or what result can it observe, to prove the task is complete?",
 		set:      func(a *initAnswers, value string) { a.done = value },
 	},
 }
@@ -179,6 +180,8 @@ func renderInitPrompt(answers initAnswers) string {
 		writeInitSection(&b, field.heading(), values[i])
 	}
 	b.WriteString(initInvestigationSentence)
+	b.WriteByte('\n')
+	b.WriteString(initFinishInstruction)
 	b.WriteByte('\n')
 	return b.String()
 }

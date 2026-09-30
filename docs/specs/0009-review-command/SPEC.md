@@ -40,6 +40,22 @@ references:
     read_policy: "must"
     used_for: "bare prompt-name execution, clipboard verification, list/help/launcher discovery"
     status: "active"
+  - id: "github-issue-68"
+    name: "Review kp prompts against current coding-agent prompting practice"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/68"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "verified findings, scope, severity scale, and read-only validation"
+    status: "active"
+  - id: "coding-agent-prompt-practice"
+    name: "Coding-agent prompt practice reference"
+    type: "reference"
+    target: "docs/references/coding-agent-prompts.md"
+    relation: "informs"
+    read_policy: "should"
+    used_for: "sourced rubric for reviewing built-in prompts"
+    status: "active"
 delivery_intent: "issue_branch_pr_ready"
 ---
 # SPEC
@@ -88,6 +104,18 @@ request against the target branch, without making changes.
     smallest fix, and proving tests; and
   - avoid manufactured findings, stating correctness explicitly when warranted
     and naming residual validation gaps.
+- Issue #68 added, after a review against current coding-agent guidance:
+  - state the purpose (catch defects the author would want fixed before merge);
+  - check the change against its stated intent (PR description, issue, or
+    spec), not only its code;
+  - run only validation that leaves the checkout and external state
+    unchanged; skipped checks surface as validation gaps;
+  - confirm each finding before reporting it and list unconfirmed concerns as
+    open questions; report issues that predate the change separately; skip
+    style nits that no repository rule requires;
+  - cite file and line.
+- Leave investigation method to the agent: how it finds the base, diffs,
+  reproduces a finding, or grades severity is not prescribed.
 - Prompt listing, verbose listing, grouped help, launcher discovery, and user
   override behavior must include `review` through the existing registry path.
 - Automated tests must pin the exact prompt output and updated built-in
@@ -112,6 +140,11 @@ request against the target branch, without making changes.
 
 ## DECISIONS
 
+- Issue #68: keep the broad review checklist and filter afterwards. Current
+  guidance warns that "only report high-severity issues" makes literal models
+  under-report, while unverified findings erode trust; the checklist gives
+  breadth, and the prompt asks for verification plus a separate list of
+  unconfirmed concerns instead of dropping them.
 - Use a built-in prompt asset instead of a dedicated Cobra command because the
   existing bare-name registry already supplies print, copy, help, launcher, and
   user-override behavior.

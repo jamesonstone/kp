@@ -96,6 +96,14 @@ references:
     read_policy: "must"
     used_for: "branch-deletion confirmation scope, issue, branch, commit, and pull-request traceability"
     status: "active"
+  - id: "github-issue-prompt-practice-review"
+    name: "Review kp prompts against current coding-agent prompting practice"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/68"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "removing contradictions with current work-lane and standing-merge-authority rules"
+    status: "active"
 delivery_intent: "issue_branch_pr_ready"
 ---
 # SPEC
@@ -147,10 +155,19 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   repository disables.
 - Require repository-local merge, infrastructure, orchestration, and completion
   rules to remain authoritative.
-- Name `docs/agents/GUARDRAILS.md` and `work-lane-gating` before mutation,
-  require read-only safety recon, and verify the exact lane-choice question was
-  explicitly answered for the current lane. Generic approval cannot substitute
-  for lane consent, while an already-recorded exact choice is not repeated.
+- Name `docs/agents/GUARDRAILS.md`, `work-lane-gating`, and `github-pr-merge`
+  before mutation, loading them when the repository defines them, and require
+  read-only safety recon. Those rules win over the prompt, except the
+  merged-branch cleanup permission and the deadline validation budget, which
+  are the user's explicit instructions; the agent names any conflict. Lane
+  handling is left to `work-lane-gating`, which forbids a lane-choice question
+  (issue #68 removed the earlier exact lane-consent requirement).
+- Do not prescribe per-node bookkeeping. Issue #68 removed the instruction to
+  record each node's repository, PR, head/base, method, dependencies,
+  infrastructure effects, recovery, and acceptance signal at the user's
+  direction: the agent tracks what it needs, and the prompt keeps only the
+  requirement that merge, CI, deployment, runtime, and production acceptance
+  stay distinct.
 - Name `testing-and-environment-validation.md` and the project testing reference
   before implementation or validation so prompt brevity cannot bypass the
   repository's required environment procedure.
@@ -166,8 +183,11 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   routine GitHub cleanup, not infrastructure, and needs no separate
   confirmation; deleting a protected, base, unmerged, or out-of-lane branch
   still requires separate authorization.
-- Present one consolidated approval request before the first merge or covered
-  infrastructure mutation unless equivalent exact approval remains valid.
+- Present one consolidated approval request for the full in-scope set and its
+  known effects before the first merge or covered infrastructure mutation,
+  unless standing authority already covers them. A changed head needs fresh
+  exact-head evidence, and new approval only if scope or effects change;
+  `github-pr-merge` owns the rest of the authority model.
 - Prohibit infrastructure deletion, destruction, purge, destructive
   replacement, and state removal inside the merge workflow; isolate them for a
   separate explicitly authorized task.
@@ -225,6 +245,10 @@ prioritizing work that unlocks the greatest downstream dependency closure.
    to cloud/infra resources and explicitly authorize routine post-merge
    branch cleanup, in the merge prompt, `safety-guardrails.md`, the
    exact-output pin, and this specification.
+9. Use issue #68, branch `GH-68`, and its canonical non-primary worktree to
+   remove the prompt's contradictions with the current `work-lane-gating` and
+   `github-pr-merge` rules, as part of a review of kp prompts against current
+   coding-agent prompting practice.
 
 ## DECISIONS
 
@@ -285,15 +309,24 @@ prioritizing work that unlocks the greatest downstream dependency closure.
 - Define post-merge terminal states and their audit fields so merge, artifact
   publication, deployment, activation, and acceptance cannot collapse into one
   overstated claim.
-- Freeze exact heads only for merge authorization. Routine corrective work may
-  update the existing PR under separate repair authority, but the new head must
-  lose prior readiness and receive fresh checks, review, revalidation, and
-  exact-head merge authorization before merging.
+- Freeze exact heads only for merge readiness. Routine corrective work may
+  update the existing PR under separate repair authority, and the new head must
+  lose prior readiness and receive fresh checks, review, and revalidation
+  before merging. Issue #68 superseded the earlier exact-head re-authorization
+  step: standing authority survives a head change under current
+  `github-pr-merge`.
 - Keep replacement pull requests exceptional. Material scope or architecture
   change, an unsafe or inaccessible original head, or explicit policy or user
   direction justifies replacement; minor in-scope fixes do not.
 
 ## DISCOVERIES
+
+- Issue #68: the GH-56 Kit refresh (`e5fd257`) replaced the repository's
+  `safety-guardrails.md`, silently dropping the GH-43 exception for deleting a
+  just-merged PR's own head branch; it again lists "Delete branches." as
+  prohibited. The prompt therefore names that permission as the user's
+  explicit instruction so its rule-precedence sentence cannot cancel it.
+  Restoring the exception in Kit's managed ruleset is a separate follow-up.
 
 - Issue #30 showed that the prior prompt duplicated the complete Kit ruleset,
   encouraged unnecessary rechecking, and forced callers to restate context the

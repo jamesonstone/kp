@@ -34,6 +34,7 @@
 ## Starter Files
 
 - `testing.md` — repo-wide testing norms and evidence expectations
+- `coding-agent-prompts.md` — sourced rubric for writing and reviewing the built-in prompts
 - `tooling.md` — local tooling and command references that are broader than one feature
 - `external-systems.md` — durable notes about external systems, APIs, or integrations
 - `rules/` — pointer-loaded durable rulesets such as frontend UI rules, testing rules, API conventions, security constraints, or domain rules

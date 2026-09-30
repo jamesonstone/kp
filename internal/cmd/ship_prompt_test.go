@@ -11,7 +11,7 @@ import (
 	"github.com/jamesonstone/kp/internal/prompt"
 )
 
-const approvedShipSHA256 = "ddd0fecaa4a333e69785d4d838cca092c5dd6806e2b9fa9295e6cdc3894268b8"
+const approvedShipSHA256 = "a12abcf9c299f274a6933843cd136a0129ebd848227c28718e8563ef30c5b2b8"
 
 func TestShipPromptPrintsApprovedInstructions(t *testing.T) {
 	stdout, stderr, err := executeTestCommand(t, "ship", "--print")
@@ -59,6 +59,12 @@ func TestShipPromptRequiresDeliveryAuthorizationContract(t *testing.T) {
 		"bypass required protections",
 		"ignore failing required checks",
 		"Continue autonomously until the task is delivered",
+		"so you can finish without waiting on me for routine approvals",
+		"This message is the explicit merge authority your repository rules ask for",
+		"anything else they reserve for separate approval still needs it",
+		"The task is delivered when every in-scope pull request is merged",
+		"report the outcome with evidence, keeping merge, deployment, and runtime results separate",
+		"say what you need and from whom",
 	} {
 		if !strings.Contains(stdout, want) {
 			t.Errorf("stdout missing %q", want)

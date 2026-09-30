@@ -40,7 +40,7 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **PAUSED**: no
 - **INTENT**: Provide one low-friction prompt that turns an explicitly authorized PR set into an evidence-backed graphical dependency plan and safe merge waves without overstating merge, deployment, runtime, or production state.
 - **APPROACH**: 1. Add one embedded `merge` prompt through the existing registry. 2. Synthesize LoopC's observe-act-remeasure discipline, Merge Controller's PR-forest and downstream-unlock model, and the repository's exact merge gate into six concise steps. 3. Keep routine, separately authorized remediation on the existing PR head between waves while invalidating old-head readiness and merge authority; reserve replacement PRs for material or unsafe changes. 4. Default to squash and merge with merge-commit fallback in the merge rule; both methods are authorized by default. 5. Apply a deadline validation budget of operational correctness with `NOT_RUN_BY_INSTRUCTION` for excluded suites. 6. Pin exact output and discovery behavior in prompt, registry, list, verbose-list, and help tests. 7. Update durable merge guidance, README, and testing guidance. 8. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
-- **OPEN ITEMS**: Issue #40 tracks the deadline validation budget on `GH-40`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **OPEN ITEMS**: Issue #40 tracks the deadline validation budget on `GH-40`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow. Issue #68 (`GH-68`) revised the prompt after a review against current coding-agent prompting guidance; see `docs/references/coding-agent-prompts.md`.
 - **POINTERS**: `docs/specs/0003-merge-command/SPEC.md`
 
 ### punchlist-command
@@ -85,7 +85,7 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **PAUSED**: no
 - **INTENT**: Provide one low-friction prompt that pre-authorizes shipping the current task thread through the full delivery lifecycle, scoped only to that task, without expanding `continue`, `goal`, or `merge`.
 - **APPROACH**: 1. Add one embedded `ship` prompt through the existing registry. 2. Preserve the supplied authorization contract, including the leading `/goal`. 3. Pin exact output, approved-body hash, required contract phrases, and discovery behavior in prompt, registry, list, verbose-list, and help tests. 4. Update README and the project progress summary. 5. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
-- **OPEN ITEMS**: Issue #48 tracks the command on `GH-48`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **OPEN ITEMS**: Issue #48 tracks the command on `GH-48`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow. Issue #68 (`GH-68`) revised the prompt after a review against current coding-agent prompting guidance; see `docs/references/coding-agent-prompts.md`.
 - **POINTERS**: `docs/specs/0008-ship-command/SPEC.md`
 
 ### review-command
@@ -94,7 +94,7 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **PAUSED**: no
 - **INTENT**: Provide one low-friction prompt that independently reviews the current branch or pull request for correctness against the target branch, without making changes or expanding `pr`, `punchlist`, `ship`, or `merge`.
 - **APPROACH**: 1. Add one embedded `review` prompt through the existing registry. 2. Preserve the supplied untrusted-implementation review contract. 3. Pin exact output, approved-body hash, required contract phrases, and discovery behavior in prompt, registry, list, verbose-list, and help tests. 4. Update README and the project progress summary. 5. Validate format, tests, race behavior, vet, build, CLI output, diff hygiene, and source-file size before ready-PR delivery.
-- **OPEN ITEMS**: Issue #58 tracks the command on `GH-58`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **OPEN ITEMS**: Issue #58 tracks the command on `GH-58`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow. Issue #68 (`GH-68`) revised the prompt after a review against current coding-agent prompting guidance; see `docs/references/coding-agent-prompts.md`.
 - **POINTERS**: `docs/specs/0009-review-command/SPEC.md`
 
 ### init-command
@@ -103,7 +103,7 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **PAUSED**: no
 - **INTENT**: Provide one low-friction interactive path from five pieces of human knowledge to a complete coding-agent prompt, plus a pipeable blank template via `--output-only`.
 - **APPROACH**: 1. Add a dedicated `init` Cobra command rather than an embedded prompt, because the body is constructed at runtime. 2. Reuse existing stdin line reading for pipes, clipboard copy/verify, exit codes, and reserved-name enforcement. 3. Keep questionnaire chrome on stderr so stdout remains the product. 4. On a TTY, enter raw mode so Shift+Enter inserts a newline and Enter continues; prefix generated section headers with emojis and give the questionnaire the same aligned `›` chrome as the launcher. 5. Expose Init on the focused `kp` launcher. 6. Pin rendering, clipboard isolation, cancellation, key decoding, launcher, and reserved-name tests. 7. Document the command in help, README, and the progress summary.
-- **OPEN ITEMS**: Issue #64 tracks launcher discovery and questionnaire layout on `GH-64`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **OPEN ITEMS**: Issue #64 tracks launcher discovery and questionnaire layout on `GH-64`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow. Issue #68 (`GH-68`) revised the prompt after a review against current coding-agent prompting guidance; see `docs/references/coding-agent-prompts.md`.
 - **POINTERS**: `docs/specs/0010-init-command/SPEC.md`
 
 ### picker-tui

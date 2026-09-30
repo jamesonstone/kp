@@ -40,6 +40,22 @@ references:
     read_policy: "must"
     used_for: "bare prompt-name execution, clipboard verification, list/help/launcher discovery"
     status: "active"
+  - id: "github-issue-68"
+    name: "Review kp prompts against current coding-agent prompting practice"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/68"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "purpose, repository-rule precedence, definition of delivered, and the final report"
+    status: "active"
+  - id: "coding-agent-prompt-practice"
+    name: "Coding-agent prompt practice reference"
+    type: "reference"
+    target: "docs/references/coding-agent-prompts.md"
+    relation: "informs"
+    read_policy: "should"
+    used_for: "sourced rubric for reviewing built-in prompts"
+    status: "active"
 delivery_intent: "issue_branch_pr_ready"
 ---
 # SPEC
@@ -93,6 +109,17 @@ or `merge`.
     outside the normal delivery workflow; and
   - continue autonomously until the task is delivered or a material
     blocker cannot be resolved safely without new information.
+- Issue #68 added, after a review against current coding-agent guidance:
+  - a purpose clause: finish without waiting on the user for routine
+    approvals;
+  - the message is the explicit merge authority repository rules ask for, so
+    a stricter or older rule cannot bring back per-PR confirmation; anything
+    else a rule reserves for separate approval still needs it;
+  - "delivered" means every in-scope pull request is merged and, where the
+    workflow deploys, the deployment completed and passed its standard checks;
+  - when the agent stops, it reports the outcome with evidence, keeping merge,
+    deployment, and runtime results separate, and says what it needs and from
+    whom if blocked.
 - Prompt listing, verbose listing, grouped help, launcher discovery, and user
   override behavior must include `ship` through the existing registry path.
 - Automated tests must pin the exact prompt output and updated built-in
@@ -116,6 +143,12 @@ or `merge`.
 
 ## DECISIONS
 
+- Issue #68: say which source wins instead of restating repository policy.
+  The prompt is the explicit standing merge authority for in-scope PRs, and
+  actions a repository rule reserves for their own approval (Kit's
+  `github-pr-merge` keeps IAM, secrets, schema or data-loss, and
+  infrastructure changes outside standing authority) still need it. This
+  avoids both a contradiction and a copied list that could drift.
 - Use a built-in prompt asset instead of a dedicated Cobra command because the
   existing bare-name registry already supplies print, copy, help, launcher, and
   user-override behavior.

@@ -1,9 +1,9 @@
 ---
 label: Independent branch/PR review
 ---
-Perform an independent review of the changes in this branch/PR against the target branch.
+Perform an independent review of the changes in this branch/PR against the target branch. The goal is to catch defects before merge, so report the problems the author would want to fix.
 
-Treat the existing implementation as untrusted. Do not assume the approach is correct because another agent wrote it or because tests currently pass.
+Treat the existing implementation as untrusted. Do not assume the approach is correct because another agent wrote it or because tests currently pass. Check it against its stated intent (PR description, issue, or spec), not only its code.
 
 Focus primarily on correctness.
 
@@ -21,13 +21,15 @@ Review for:
 
 Trace important execution paths rather than reviewing only the diff syntactically. Inspect surrounding code and existing tests/contracts when necessary to determine intended behavior.
 
-Run the relevant tests, linters, type checks, and other repository validation available to you.
+Run the relevant tests, linters, type checks, and other repository validation available to you, skipping any that would change the checkout or external state.
 
 Do not make changes yet.
 
+Confirm each finding before you report it, and list what you could not confirm as open questions. Report issues that predate this change separately, and skip style nits that no repository rule requires.
+
 Return findings ordered by severity. For each finding include:
 1. severity
-2. file/location
+2. file and line
 3. concrete problem
 4. why it is incorrect or risky
 5. the smallest appropriate fix
