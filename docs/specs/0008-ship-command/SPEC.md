@@ -110,19 +110,16 @@ or `merge`.
   - continue autonomously until the task is delivered or a material
     blocker cannot be resolved safely without new information.
 - Issue #68 added, after a review against current coding-agent guidance:
-  - one sentence of purpose: finish delivery without waiting for routine
+  - a purpose clause: finish without waiting on the user for routine
     approvals;
-  - for in-scope merges this message is the explicit standing authority that
-    repository rules ask for, so a stricter or older rule cannot bring back
-    per-PR confirmation; any other action a rule reserves for separate
-    approval still needs it, and the agent asks when it reaches one while
-    continuing independent in-scope work;
+  - the message is the explicit merge authority repository rules ask for, so
+    a stricter or older rule cannot bring back per-PR confirmation; anything
+    else a rule reserves for separate approval still needs it;
   - "delivered" means every in-scope pull request is merged and, where the
     workflow deploys, the deployment completed and passed its standard checks;
-  - whenever the agent stops, including to wait on someone else's review or
-    access, the report leads with the outcome, keeps merge, CI, deployment,
-    and runtime evidence as separate claims, marks anything unverified, and
-    names exactly what is needed and from whom.
+  - when the agent stops, it reports the outcome with evidence, keeping merge,
+    deployment, and runtime results separate, and says what it needs and from
+    whom if blocked.
 - Prompt listing, verbose listing, grouped help, launcher discovery, and user
   override behavior must include `ship` through the existing registry path.
 - Automated tests must pin the exact prompt output and updated built-in

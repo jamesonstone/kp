@@ -157,14 +157,11 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   rules to remain authoritative.
 - Name `docs/agents/GUARDRAILS.md`, `work-lane-gating`, and `github-pr-merge`
   before mutation, loading them when the repository defines them, and require
-  read-only safety recon. Where the prompt conflicts with a repository rule,
-  follow the rule and name the conflict, except the merged-branch cleanup
-  permission and the deadline validation budget, which are the user's explicit
-  instructions. Treat each in-scope pull request as continuation of its
-  existing lane and repair it on its own head branch, without new,
-  coordination, or corrective pull requests. Do not ask a lane-choice
-  question: current `work-lane-gating` forbids it (issue #68 replaced the
-  earlier exact lane-consent requirement).
+  read-only safety recon. Those rules win over the prompt, except the
+  merged-branch cleanup permission and the deadline validation budget, which
+  are the user's explicit instructions; the agent names any conflict. Lane
+  handling is left to `work-lane-gating`, which forbids a lane-choice question
+  (issue #68 removed the earlier exact lane-consent requirement).
 - Name `testing-and-environment-validation.md` and the project testing reference
   before implementation or validation so prompt brevity cannot bypass the
   repository's required environment procedure.
@@ -180,13 +177,11 @@ prioritizing work that unlocks the greatest downstream dependency closure.
   routine GitHub cleanup, not infrastructure, and needs no separate
   confirmation; deleting a protected, base, unmerged, or out-of-lane branch
   still requires separate authorization.
-- Merge only under explicit authority. Present one consolidated approval
-  request before the first merge or covered infrastructure mutation only when
-  no standing authority already covers the full in-scope set and its known
-  effects. Head SHAs are readiness evidence, not authority: never ask to
-  approve one, and do not re-ask because a PR number or head was unknown when
-  authority was granted. A changed head needs fresh exact-head evidence, not
-  new approval, unless it changes scope or effects (current `github-pr-merge`).
+- Present one consolidated approval request for the full in-scope set and its
+  known effects before the first merge or covered infrastructure mutation,
+  unless standing authority already covers them. A changed head needs fresh
+  exact-head evidence, and new approval only if scope or effects change;
+  `github-pr-merge` owns the rest of the authority model.
 - Prohibit infrastructure deletion, destruction, purge, destructive
   replacement, and state removal inside the merge workflow; isolate them for a
   separate explicitly authorized task.

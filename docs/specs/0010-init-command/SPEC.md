@@ -112,15 +112,15 @@ stdout, and copies the identical body to the macOS clipboard.
 <definition of done>
 
 Independently investigate. Do not assume my suspected implementation or root cause is correct.
-When you finish, show the evidence for each part of the definition of done, marking anything unmet or unverified, and list work the objective does not require as follow-ups rather than doing it. If the definition of done conflicts with an invariant or constraint, stop and tell me instead of choosing.
+When you finish, show evidence that the definition of done is met, flagging anything unmet or unverified, and list work the objective doesn't need as follow-ups. If the definition of done conflicts with an invariant or constraint, stop and ask me.
 ```
 
 - Issue #68 added the finishing instruction after reviewing the template
   against current coding-agent prompting guidance. The rendered prompt had no
-  instruction to show evidence for each part of the definition of done, to
-  mark unmet or unverified parts, to keep work the objective does not require
-  as follow-ups, or to stop when the definition of done conflicts with an
-  invariant or constraint. The guidance questions shown while
+  hand-back: show evidence against the definition of done, flag anything unmet
+  or unverified, keep work the objective does not need as follow-ups, and stop
+  to ask when the definition of done conflicts with an invariant or
+  constraint. It still leaves the approach to the agent. The guidance questions shown while
   filling the template also ask for the objective's reason, the reason behind
   invariants, what is out of scope, and a check the agent can run.
 

@@ -12,7 +12,7 @@ import (
 
 const (
 	initInvestigationSentence = "Independently investigate. Do not assume my suspected implementation or root cause is correct."
-	initFinishInstruction     = "When you finish, show the evidence for each part of the definition of done, marking anything unmet or unverified, and list work the objective does not require as follow-ups rather than doing it. If the definition of done conflicts with an invariant or constraint, stop and tell me instead of choosing."
+	initFinishInstruction     = "When you finish, show evidence that the definition of done is met, flagging anything unmet or unverified, and list work the objective doesn't need as follow-ups. If the definition of done conflicts with an invariant or constraint, stop and ask me."
 	initPromptPrefix          = "› "
 )
 

@@ -106,18 +106,15 @@ request against the target branch, without making changes.
     and naming residual validation gaps.
 - Issue #68 added, after a review against current coding-agent guidance:
   - state the purpose (catch defects the author would want fixed before merge);
-  - establish scope from the target branch's remote copy and the merge-base
-    diff, plus uncommitted changes, and read the change's stated intent;
-    check behavior against that intent;
-  - run validation without modifying tracked files or external state, and
-    name any check that cannot run;
-  - search broadly, then confirm each finding by tracing the path or
-    demonstrating it in a temporary copy of the repository; keep unconfirmed
-    concerns as open questions; report problems the change introduces or makes
-    reachable, list pre-existing issues separately, and skip style nits unless
-    a repository rule requires them or they carry correctness risk;
-  - use a P0–P3 severity scale (P0 data loss, exploitable security flaw, or
-    outage; P3 low-impact correctness issue) and cite file and line.
+  - check the change against its stated intent (PR description, issue, or
+    spec), not only its code;
+  - make no changes to the checkout or to external state;
+  - confirm each finding before reporting it and list unconfirmed concerns as
+    open questions; report issues that predate the change separately; skip
+    style nits that no repository rule requires;
+  - cite file and line.
+- Leave investigation method to the agent: how it finds the base, diffs,
+  reproduces a finding, or grades severity is not prescribed.
 - Prompt listing, verbose listing, grouped help, launcher discovery, and user
   override behavior must include `review` through the existing registry path.
 - Automated tests must pin the exact prompt output and updated built-in
@@ -144,8 +141,9 @@ request against the target branch, without making changes.
 
 - Issue #68: keep the broad review checklist and filter afterwards. Current
   guidance warns that "only report high-severity issues" makes literal models
-  under-report, while unverified findings erode trust; the prompt asks for
-  broad search, verification, and a separate list of unconfirmed concerns.
+  under-report, while unverified findings erode trust; the checklist gives
+  breadth, and the prompt asks for verification plus a separate list of
+  unconfirmed concerns instead of dropping them.
 - Use a built-in prompt asset instead of a dedicated Cobra command because the
   existing bare-name registry already supplies print, copy, help, launcher, and
   user-override behavior.

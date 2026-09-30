@@ -10,6 +10,16 @@
 - Each prompt's spec still wins over this rubric; record any deliberate
   deviation in that spec.
 
+## The Core Test
+
+Keep a sentence only if it tells the model something it cannot work out on
+its own: the outcome and why it matters, the scope and authority boundaries,
+the user's preferences, the check that defines done, the shape of the report,
+or a guard against a failure that has actually happened. Leave investigation,
+sequencing, tool choice, and strategy to the model. A prompt that grows when
+it is "improved" is a signal to re-run this test; issue #68 trimmed its own
+first revision (review had grown from 188 to 405 words) after applying it.
+
 ## Rubric
 
 1. Lead with the outcome, a check that defines done, and when to stop or hand
