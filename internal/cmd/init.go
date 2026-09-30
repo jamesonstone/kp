@@ -21,33 +21,43 @@ type initAnswers struct {
 }
 
 type initField struct {
+	emoji    string
 	title    string
 	question string
 	set      func(*initAnswers, string)
 }
 
+func (f initField) heading() string {
+	return f.emoji + " " + f.title
+}
+
 var initFields = []initField{
 	{
+		emoji:    "🎯",
 		title:    "Objective",
 		question: "What outcome are you trying to achieve?",
 		set:      func(a *initAnswers, value string) { a.objective = value },
 	},
 	{
+		emoji:    "🧭",
 		title:    "Known business/domain context",
 		question: "What context would the agent be unable to reliably discover itself?",
 		set:      func(a *initAnswers, value string) { a.context = value },
 	},
 	{
+		emoji:    "🔒",
 		title:    "Invariants",
 		question: "What must remain true?",
 		set:      func(a *initAnswers, value string) { a.invariants = value },
 	},
 	{
+		emoji:    "🚧",
 		title:    "Constraints",
 		question: "What hard boundaries must the agent respect?",
 		set:      func(a *initAnswers, value string) { a.constraints = value },
 	},
 	{
+		emoji:    "✅",
 		title:    "Definition of done",
 		question: "What evidence or observable result proves the task is complete?",
 		set:      func(a *initAnswers, value string) { a.done = value },
@@ -59,7 +69,7 @@ func (a *app) newInitCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Construct a coding-agent prompt",
-		Long:  "Ask for objective, context, invariants, constraints, and definition of done, then print and copy the generated prompt.",
+		Long:  "Ask for objective, context, invariants, constraints, and definition of done, then print and copy the generated prompt. On a TTY, Shift+Enter inserts a newline and Enter continues to the next section.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return a.runInit(outputOnly)
@@ -104,8 +114,11 @@ func (a *app) collectInitAnswers() (initAnswers, error) {
 		if i > 0 {
 			fmt.Fprintln(a.stderr)
 		}
-		fmt.Fprintln(a.stderr, field.title)
+		fmt.Fprintln(a.stderr, field.heading())
 		fmt.Fprintln(a.stderr, field.question)
+		if a.useInitTTY() {
+			fmt.Fprintln(a.stderr, "Shift+Enter newline · Enter continue")
+		}
 		value, err := a.readInitAnswer()
 		if err != nil {
 			return initAnswers{}, err
@@ -118,11 +131,11 @@ func (a *app) collectInitAnswers() (initAnswers, error) {
 func (a *app) readInitAnswer() (string, error) {
 	for {
 		fmt.Fprint(a.stderr, "> ")
-		line, err := a.readInitLine()
+		value, err := a.readInitField()
 		if err != nil {
 			return "", err
 		}
-		value := strings.TrimSpace(line)
+		value = strings.TrimSpace(value)
 		if value != "" {
 			return value, nil
 		}
@@ -151,7 +164,7 @@ func renderInitPrompt(answers initAnswers) string {
 	}
 	var b strings.Builder
 	for i, field := range initFields {
-		writeInitSection(&b, field.title+":", values[i])
+		writeInitSection(&b, field.heading()+":", values[i])
 	}
 	b.WriteString(initInvestigationSentence)
 	b.WriteByte('\n')
