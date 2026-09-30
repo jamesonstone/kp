@@ -52,6 +52,10 @@ delivery_intent: "issue_branch_pr_ready"
 ---
 # SPEC
 
+> Issue #66 renamed the command to `kp task` ("Start a task from scratch").
+> `kp init` remains an alias, and both names are reserved. The rest of this
+> spec uses the original name.
+
 ## PURPOSE
 
 Add `kp init` as a small interactive questionnaire that turns five pieces of
@@ -82,8 +86,13 @@ stdout, and copies the identical body to the macOS clipboard.
   5. ✅ Definition of done
 - Each step asks the user to enter one or more sentences. Answers have no
   arbitrary practical length limit beyond ordinary stdin reading.
-- On a TTY, Shift+Enter inserts a newline in the current section and Enter
-  submits that section. Piped or non-TTY stdin stays one line per section.
+- On a TTY, `kp init` preloads the template into a temporary Markdown file and
+  opens the user's editor (`$KP_EDITOR`, `$EDITOR`, `nvim`, then `vi`) on the
+  first answer line. `<!-- -->` comments are removed on save. Empty or
+  untouched files and a non-zero editor exit cancel with exit `130`. Missing
+  or empty sections reopen the same file with a notice. Piped or non-TTY
+  stdin stays one line per section. (Issue #66 replaced the earlier raw-mode
+  Shift+Enter questionnaire.)
 - Empty or whitespace-only answers are rejected until a non-empty sentence is
   provided. EOF or other cancellation uses the existing exit `130` path and
   must not copy to the clipboard.
@@ -131,11 +140,12 @@ When you finish, show evidence that the definition of done is met, flagging anyt
 - Preserve the bare-command CLI model. Do not add a `prompt` namespace.
 - Reserve `init` so user prompts cannot shadow the command.
 - Document the command in grouped `--help` and README.
-- Add `init` to the focused `kp` launcher as a command row. Selecting it runs
+- List `init` in the `kp` launcher with the prompts (issue #66 moved it out of
+  the commands group; it constructs a prompt). Selecting it runs
   the same questionnaire as `kp init`.
-- Questionnaire chrome uses aligned emoji titles, an indented question, the
-  launcher `›` prompt, and a single TTY session hint. Do not repeat the key
-  hint on every field.
+- Piped-mode chrome uses aligned emoji titles, an indented question, and the
+  `›` prompt on stderr. The TTY editor draft carries its guidance in
+  removable comments.
 - Do not add persistence, history, templates, AI calls, network behavior, a
   general form framework, or unrelated refactors.
 
@@ -143,8 +153,8 @@ When you finish, show evidence that the definition of done is met, flagging anyt
 
 - Piped and non-TTY stdin keep one line per section so scripts and tests stay
   stable.
-- On a TTY, Shift+Enter is distinguishable from Enter only in raw mode with
-  xterm `modifyOtherKeys` (or equivalent CSI) sequences.
+- On a TTY, the editor runs on `/dev/tty` so `kp init > prompt.md` captures
+  only the finished prompt.
 - Questionnaire chrome belongs on stderr so stdout stays pipeable.
 - Reusing `errPickerCanceled` keeps cancellation messaging consistent.
 
@@ -155,8 +165,9 @@ When you finish, show evidence that the definition of done is met, flagging anyt
 - Rendered output preserves user text including internal newlines, keeps the
   specified emoji-prefixed section order, and always ends with the evidence-report line after the
   independent-investigation sentence.
-- On a TTY, Shift+Enter inserts a newline in the current section and Enter
-  continues. Piped stdin does not show the TTY key hint.
+- On a TTY, the editor draft keeps multi-line answers, blank lines, and
+  indentation; incomplete drafts reopen with a notice. Piped stdin reads one
+  line per section.
 - Bare `kp` includes an Init launcher row. Selecting it starts the
   questionnaire. Other secondary commands stay hidden.
 - `kp init --output-only` prints only the blank template and does not touch
@@ -232,8 +243,9 @@ and the `›` prompt.
 - Record topology as `single-lane, because tightly coupled and high-overlap:
   one command, shared clipboard/stdin/help/reserved-name paths, and docs in a
   single delivery lane`.
-- Enable TTY Shift+Enter by entering raw mode and decoding CSI sequences rather
-  than adding a form framework. Keep non-TTY input as one line per section.
+- Issue #66 replaced raw-mode Shift+Enter input with the user's editor, which
+  makes spacing easy to write and read and removes the CSI key decoding. Keep
+  non-TTY input as one line per section.
 
 ## DISCOVERIES
 

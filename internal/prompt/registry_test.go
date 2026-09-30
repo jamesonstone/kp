@@ -16,7 +16,7 @@ func TestRegistry_ListSorted(t *testing.T) {
 	for i, prompt := range prompts {
 		got[i] = prompt.Name
 	}
-	want := []string{"agent-handoff", "chat-handoff", "clarify", "continue", "goal", "merge", "parentthread", "plan", "pr", "punchlist", "review", "ship", "status"}
+	want := []string{"merge", "review", "ship"}
 	if len(got) != len(want) {
 		t.Fatalf("names = %v, want %v", got, want)
 	}
@@ -29,13 +29,13 @@ func TestRegistry_ListSorted(t *testing.T) {
 
 func TestRegistry_UserOverrides(t *testing.T) {
 	dir := t.TempDir()
-	writePrompt(t, dir, "agent-handoff.md", "---\nlabel: User handoff\n---\nuser body")
+	writePrompt(t, dir, "review.md", "---\nlabel: User handoff\n---\nuser body")
 
 	reg, err := NewRegistry(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := reg.Get("agent-handoff")
+	p, err := reg.Get("review")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +63,7 @@ func TestRegistry_AddRejectsEmpty(t *testing.T) {
 func TestRegistry_AddRejectsCollision(t *testing.T) {
 	reg := newTestRegistry(t)
 
-	_, err := reg.Add("agent-handoff", "body")
+	_, err := reg.Add("review", "body")
 	if !errors.Is(err, ErrExists) {
 		t.Fatalf("Add error = %v, want ErrExists", err)
 	}
@@ -98,7 +98,7 @@ func TestRegistry_AddCreatesUserPrompt(t *testing.T) {
 func TestRegistry_RemoveBuiltinFails(t *testing.T) {
 	reg := newTestRegistry(t)
 
-	err := reg.Remove("agent-handoff")
+	err := reg.Remove("review")
 	if !errors.Is(err, ErrBuiltIn) {
 		t.Fatalf("Remove error = %v, want ErrBuiltIn", err)
 	}
@@ -125,16 +125,16 @@ func TestRegistry_RemoveUserPrompt(t *testing.T) {
 
 func TestRegistry_RemoveUserOverrideRestoresBuiltin(t *testing.T) {
 	dir := t.TempDir()
-	writePrompt(t, dir, "clarify.md", "user body")
+	writePrompt(t, dir, "merge.md", "user body")
 	reg, err := NewRegistry(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := reg.Remove("clarify"); err != nil {
+	if err := reg.Remove("merge"); err != nil {
 		t.Fatal(err)
 	}
-	p, err := reg.Get("clarify")
+	p, err := reg.Get("merge")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -150,7 +150,7 @@ func TestRegistry_PromoteToUserCopiesSource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	p, err := reg.PromoteToUser("clarify")
+	p, err := reg.PromoteToUser("merge")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,11 +158,11 @@ func TestRegistry_PromoteToUserCopiesSource(t *testing.T) {
 		t.Fatalf("Source = %v, want SourceUser", p.Source)
 	}
 
-	got, err := os.ReadFile(filepath.Join(dir, "clarify.md"))
+	got, err := os.ReadFile(filepath.Join(dir, "merge.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	want, err := loadBuiltInSource("clarify")
+	want, err := loadBuiltInSource("merge")
 	if err != nil {
 		t.Fatal(err)
 	}

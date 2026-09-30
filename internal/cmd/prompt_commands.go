@@ -24,7 +24,7 @@ func (a *app) newListCommand() *cobra.Command {
 				return err
 			}
 			if !a.listPlain && !a.verbose {
-				return a.runPicker(cmd.Context())
+				return a.runPicker(cmd, reg.List())
 			}
 			for _, p := range reg.List() {
 				if a.verbose {
@@ -84,9 +84,16 @@ func (a *app) runPrompt(name string) error {
 	}
 	p, err := reg.Get(name)
 	if err != nil {
+		if errors.Is(err, prompt.ErrNotFound) && isV0Prompt(name) {
+			err = fmt.Errorf("%w (moved to \"kp v0 %s\")", err, name)
+		}
 		return mapPromptError(err)
 	}
+	return a.emitPrompt(p)
+}
 
+// emitPrompt prints and copies a resolved prompt according to --print and --copy.
+func (a *app) emitPrompt(p prompt.Prompt) error {
 	if a.printOnly {
 		fmt.Fprint(a.stdout, p.Body)
 		return nil

@@ -1,59 +1,59 @@
 package cmd
 
 import (
-	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"io"
 	"math/rand/v2"
-	"os"
-	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync/atomic"
 
+	"github.com/jamesonstone/kp/internal/picker"
 	"github.com/jamesonstone/kp/internal/prompt"
+	"github.com/spf13/cobra"
 )
 
-func (a *app) runPicker(ctx context.Context) error {
-	reg, err := a.loadRegistry()
-	if err != nil {
-		return err
-	}
-
-	name := ""
+func (a *app) runPicker(cmd *cobra.Command, prompts []prompt.Prompt) error {
+	var (
+		name string
+		err  error
+	)
 	if a.noFzf {
-		name, err = a.pickNumbered(reg.List())
+		name, err = a.pickNumbered(prompts)
 	} else {
-		name, err = a.pickFZF(ctx, reg.List())
+		items := make([]picker.Item, len(prompts))
+		for i, p := range prompts {
+			items[i] = promptItem(cmd.Root().CommandPath(), p)
+		}
+		name, err = a.pick(cmd, items)
 	}
 	if err != nil {
 		return err
 	}
-
 	return a.runPrompt(name)
 }
 
-func (a *app) pickFZF(ctx context.Context, prompts []prompt.Prompt) (string, error) {
-	if _, err := a.lookPath("fzf"); err != nil {
-		return "", NewExitError(ExitConfig, errors.New("fzf not found; install fzf via 'brew install fzf' or use --no-fzf"))
-	}
-
-	if a.fzfRunner != nil {
-		name, err := a.fzfRunner(prompts)
-		if err != nil {
-			return "", mapPickerError(err)
+// pick runs the interactive picker, or the injected test runner, and returns
+// the selected item ID.
+func (a *app) pick(cmd *cobra.Command, items []picker.Item) (string, error) {
+	run := a.pickerRunner
+	if run == nil {
+		run = func(items []picker.Item) (string, error) {
+			return picker.Run(cmd.Context(), cmd.CommandPath(), items)
 		}
-		return name, nil
 	}
 
-	name, err := runFZF(ctx, prompts)
+	id, err := run(items)
 	if err != nil {
 		return "", mapPickerError(err)
 	}
-	return name, nil
+	for _, item := range items {
+		if item.ID == id {
+			return id, nil
+		}
+	}
+	return "", NewExitError(ExitUser, fmt.Errorf("invalid picker selection %q", id))
 }
 
 func (a *app) pickNumbered(prompts []prompt.Prompt) (string, error) {
@@ -85,7 +85,7 @@ func (a *app) pickNumbered(prompts []prompt.Prompt) (string, error) {
 	return prompts[choice-1].Name, nil
 }
 
-var errPickerCanceled = errors.New("picker cancelled")
+var errPickerCanceled = picker.ErrCanceled
 
 var pickerFarewells = []string{
 	"👋 Tiny wave goodbye—your prompts will be right here.",
@@ -121,81 +121,12 @@ func nextPickerFarewell() string {
 }
 
 func mapPickerError(err error) error {
-	if errors.Is(err, errPickerCanceled) {
+	switch {
+	case errors.Is(err, errPickerCanceled):
 		return NewExitError(ExitCancel, err)
+	case errors.Is(err, picker.ErrNoTerminal):
+		return NewExitError(ExitConfig, fmt.Errorf("%w; run 'kp --help' or 'kp list --no-fzf'", err))
+	default:
+		return NewExitError(ExitUser, err)
 	}
-	return NewExitError(ExitUser, err)
-}
-
-func runFZF(ctx context.Context, prompts []prompt.Prompt) (string, error) {
-	previewDir, err := os.MkdirTemp("", "kp-preview-*")
-	if err != nil {
-		return "", err
-	}
-	defer os.RemoveAll(previewDir)
-
-	var input strings.Builder
-	for _, p := range prompts {
-		if err := os.WriteFile(filepath.Join(previewDir, p.Name), []byte(p.Body), 0o600); err != nil {
-			return "", err
-		}
-		fmt.Fprintf(&input, "%s\t%s\t%s\n", promptIcon(p), p.Name, p.Label)
-	}
-
-	cmd := exec.CommandContext(
-		ctx,
-		"fzf",
-		"--height", "60%",
-		"--reverse",
-		"--cycle",
-		"--prompt", "📋 kp list › ",
-		"--pointer", "👉",
-		"--header", "enter: copy prompt · tab/shift-tab: cycle · esc: cancel",
-		"--delimiter", "\t",
-		"--with-nth", "1,2,3",
-		"--nth", "2,3",
-		"--bind", "tab:down,btab:up",
-		"--preview", "cat "+shellQuote(previewDir)+"/{2}",
-	)
-	cmd.Stdin = strings.NewReader(input.String())
-	var stdout bytes.Buffer
-	cmd.Stdout = &stdout
-
-	if err := cmd.Run(); err != nil {
-		return "", fzfRunError(ctx, err)
-	}
-
-	selected := strings.TrimSpace(stdout.String())
-	if selected == "" {
-		return "", errPickerCanceled
-	}
-	_, rest, ok := strings.Cut(selected, "\t")
-	if !ok {
-		return "", fmt.Errorf("invalid picker selection")
-	}
-	name, _, _ := strings.Cut(rest, "\t")
-	return name, nil
-}
-
-func fzfRunError(ctx context.Context, err error) error {
-	if ctxErr := ctx.Err(); ctxErr != nil {
-		return fmt.Errorf("%w: %v", errPickerCanceled, ctxErr)
-	}
-
-	var exitErr *exec.ExitError
-	if errors.As(err, &exitErr) && (exitErr.ExitCode() == 1 || exitErr.ExitCode() == 130) {
-		return fmt.Errorf("%w: %v", errPickerCanceled, err)
-	}
-	return err
-}
-
-func shellQuote(value string) string {
-	return "'" + strings.ReplaceAll(value, "'", "'\\''") + "'"
-}
-
-func promptIcon(p prompt.Prompt) string {
-	if p.Source == prompt.SourceUser {
-		return "📝"
-	}
-	return "📦"
 }

@@ -68,13 +68,19 @@ var initFields = []initField{
 	},
 }
 
+// newInitCommand builds `kp task`, which constructs a from-scratch task
+// prompt. `init` is its former name and stays as an alias.
 func (a *app) newInitCommand() *cobra.Command {
 	var outputOnly bool
 	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Construct a coding-agent prompt",
-		Long:  "Ask for objective, context, invariants, constraints, and definition of done, then print and copy the generated prompt. On a TTY, Shift+Enter inserts a newline and Enter continues to the next section.",
-		Args:  cobra.NoArgs,
+		Use:     "task",
+		Aliases: []string{"init"},
+		Short:   "Start a task from scratch",
+		Long: "Build a prompt for a new conversation, or a new task in an existing thread. " +
+			"Open the task template in your editor ($KP_EDITOR, $EDITOR, nvim, or vi), " +
+			"then print and copy the finished prompt. Write under each heading, save, and quit; " +
+			"an empty file cancels. With piped stdin, read one line per section instead.",
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return a.runInit(outputOnly)
 		},
@@ -88,7 +94,11 @@ func (a *app) runInit(outputOnly bool) error {
 		return a.writeInitPrompt(renderInitPrompt(initAnswers{}))
 	}
 
-	answers, err := a.collectInitAnswers()
+	collect := a.collectInitAnswers
+	if a.stdinIsTerminal() {
+		collect = a.editInitAnswers
+	}
+	answers, err := collect()
 	if err != nil {
 		return err
 	}
@@ -112,14 +122,10 @@ func (a *app) writeInitPrompt(body string) error {
 	return nil
 }
 
+// collectInitAnswers reads one line per section from non-terminal stdin so
+// scripts and pipes keep working.
 func (a *app) collectInitAnswers() (initAnswers, error) {
 	var answers initAnswers
-	if a.useInitTTY() {
-		style := styleForWriter(a.stderr)
-		fmt.Fprintln(a.stderr, style.title("🎛️", "kp init"))
-		fmt.Fprintln(a.stderr, "    enter continue · shift+enter newline")
-		fmt.Fprintln(a.stderr)
-	}
 	for i, field := range initFields {
 		if i > 0 {
 			fmt.Fprintln(a.stderr)
@@ -138,7 +144,7 @@ func (a *app) collectInitAnswers() (initAnswers, error) {
 func (a *app) readInitAnswer() (string, error) {
 	for {
 		fmt.Fprint(a.stderr, initPromptPrefix)
-		value, err := a.readInitField()
+		value, err := a.readInitLine()
 		if err != nil {
 			return "", err
 		}

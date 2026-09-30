@@ -13,6 +13,7 @@
 | 0008 | ship-command | `docs/specs/0008-ship-command` | deliver | no | 2026-09-01 | Adds `kp ship` as a built-in prompt that pre-authorizes a coding agent to complete the current task thread through branch, pull-request, review, CI, in-scope merge, and established-workflow deployment without expanding `continue`, `goal`, or `merge`. |
 | 0009 | review-command | `docs/specs/0009-review-command` | deliver | no | 2026-09-29 | Adds `kp review` as a built-in prompt for an independent, read-only correctness review of the current branch or pull request against the target branch, without expanding `pr`, `punchlist`, `ship`, or `merge`. |
 | 0010 | init-command | `docs/specs/0010-init-command` | deliver | no | 2026-09-29 | Adds `kp init` as a dedicated interactive questionnaire that constructs a coding-agent prompt from objective, context, invariants, constraints, and definition of done, then prints and copies the generated body. TTY Shift+Enter inserts newlines; generated section headers use emoji prefixes. The focused `kp` launcher includes Init. |
+| 0011 | picker-tui | `docs/specs/0011-picker-tui` | deliver | no | 2026-09-30 | Replaces the `fzf` picker behind `kp` and `kp list` with a restrained two-pane Bubble Tea v2 TUI that keeps the same keys, preview, stdout, clipboard, and exit semantics, and moves ten legacy prompts under a `kp v0` compatibility namespace. |
 
 ## PROJECT INTENT
 
@@ -105,6 +106,15 @@ See `docs/CONSTITUTION.md` for project-wide constraints and principles.
 - **OPEN ITEMS**: Issue #64 tracks launcher discovery and questionnaire layout on `GH-64`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow. Issue #68 (`GH-68`) revised the prompt after a review against current coding-agent prompting guidance; see `docs/references/coding-agent-prompts.md`.
 - **POINTERS**: `docs/specs/0010-init-command/SPEC.md`
 
+### picker-tui
+
+- **STATUS**: deliver
+- **PAUSED**: no
+- **INTENT**: Make the `kp` picker feel native to `kp` rather than configured `fzf`, without changing the interaction model, and free ten root prompt names by serving them from `kp v0`.
+- **APPROACH**: 1. Add `internal/picker` on Bubble Tea v2 and Lip Gloss v2 (v1 rejected for its init-time terminal query); it owns layout, keys, scrolling, resize, and styles, and returns a selected ID. 2. Keep registry, clipboard, and execution in `internal/cmd` behind one `pick` helper. 3. Draw on `/dev/tty` so stdout stays clean. 4. Serve moved prompts from `prompts/v0/` as Cobra subcommands with unchanged bodies and flags. 5. Use the basic ANSI palette by role, show each item's command in an aligned list column under group headings, and tint preview Markdown. 6. Rename `kp init` to `kp task` (alias kept), list it with the prompts, and move it on a TTY to an editor draft (`$KP_EDITOR`, `$EDITOR`, `nvim`, `vi`); piped stdin keeps line mode.
+- **OPEN ITEMS**: Issue #66 tracks delivery on `GH-66`. Hosted pull-request correctness checks remain unavailable because the repository has no validation workflow.
+- **POINTERS**: `docs/specs/0011-picker-tui/SPEC.md`
+
 ## LAST UPDATED
 
-2026-09-30 09:10:00 EDT
+2026-09-30 12:00:00 EDT

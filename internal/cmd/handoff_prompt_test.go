@@ -46,7 +46,7 @@ func TestHandoffPromptsPrintApprovedContracts(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stdout, stderr, err := executeTestCommand(t, tt.name, "--print")
+			stdout, stderr, err := executeTestCommand(t, "v0", tt.name, "--print")
 			if err != nil {
 				t.Fatal(err)
 			}

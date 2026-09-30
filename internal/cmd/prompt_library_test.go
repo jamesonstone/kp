@@ -90,20 +90,20 @@ func TestNewEditorCancelDeletesStub(t *testing.T) {
 func TestEditPromotesBuiltin(t *testing.T) {
 	configDir := t.TempDir()
 	_, stderr, err := executeTestCommandWithConfig(t, configDir,
-		"edit", "clarify",
+		"edit", "review",
 		withEditor(func(string, []string, string) error { return nil }),
 	)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(stderr, "promoted built-in \"clarify\"") {
+	if !strings.Contains(stderr, "promoted built-in \"review\"") {
 		t.Fatalf("stderr = %q", stderr)
 	}
-	got, err := os.ReadFile(filepath.Join(configDir, "prompts", "clarify.md"))
+	got, err := os.ReadFile(filepath.Join(configDir, "prompts", "review.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasPrefix(string(got), "---\nlabel: Clarify before implementing") {
+	if !strings.HasPrefix(string(got), "---\nlabel: Independent branch/PR review") {
 		t.Fatalf("promoted file = %q", got)
 	}
 }
@@ -141,7 +141,7 @@ func TestRMUserPrompt(t *testing.T) {
 }
 
 func TestRMBuiltinFails(t *testing.T) {
-	_, _, err := executeTestCommand(t, "rm", "agent-handoff")
+	_, _, err := executeTestCommand(t, "rm", "review")
 	if ExitCode(err) != ExitUser {
 		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
 	}

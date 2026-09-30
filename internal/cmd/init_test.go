@@ -102,7 +102,7 @@ func TestRenderInitPromptPreservesUserText(t *testing.T) {
 
 func TestInitOutputOnlyPrintsBlankTemplate(t *testing.T) {
 	var factoryCalled bool
-	stdout, stderr, err := executeTestCommand(t, "init", "--output-only", func(opts *Options) {
+	stdout, stderr, err := executeTestCommand(t, "task", "--output-only", func(opts *Options) {
 		opts.ClipboardFactory = func() clipboard.Clipboard {
 			factoryCalled = true
 			return &fakeClipboard{}
@@ -144,7 +144,7 @@ func TestInitCopiesStdoutToClipboard(t *testing.T) {
 		"Do not add network calls.",
 		"kp init prints and copies the prompt.",
 	}, "\n") + "\n"
-	stdout, stderr, err := executeTestCommand(t, "init", withClipboard(fake), withStdin(input))
+	stdout, stderr, err := executeTestCommand(t, "task", withClipboard(fake), withStdin(input))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -196,7 +196,7 @@ func TestInitCopiesStdoutToClipboard(t *testing.T) {
 func TestInitRetriesEmptyAnswers(t *testing.T) {
 	fake := &fakeClipboard{}
 	input := "\n   \nShip it.\nContext stays.\nInvariants stay.\nConstraints stay.\nDone stays.\n"
-	stdout, stderr, err := executeTestCommand(t, "init", withClipboard(fake), withStdin(input))
+	stdout, stderr, err := executeTestCommand(t, "task", withClipboard(fake), withStdin(input))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -222,7 +222,7 @@ func TestInitCancelAfterPartialAnswersDoesNotTouchClipboard(t *testing.T) {
 func TestInitClipboardFailureDoesNotPrintPrompt(t *testing.T) {
 	fake := &fakeClipboard{verifyErr: errors.New("verify failed")}
 	input := "Obj.\nCtx.\nInv.\nCon.\nDone.\n"
-	stdout, stderr, err := executeTestCommand(t, "init", withClipboard(fake), withStdin(input))
+	stdout, stderr, err := executeTestCommand(t, "task", withClipboard(fake), withStdin(input))
 	if ExitCode(err) != ExitSystem {
 		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
 	}
@@ -234,21 +234,8 @@ func TestInitClipboardFailureDoesNotPrintPrompt(t *testing.T) {
 	}
 }
 
-func TestNewRejectsReservedInitName(t *testing.T) {
-	_, _, err := executeTestCommand(t,
-		"new", "init",
-		withEditor(func(string, []string, string) error { return nil }),
-	)
-	if ExitCode(err) != ExitUser {
-		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
-	}
-	if err == nil || !strings.Contains(err.Error(), "reserved prompt name") {
-		t.Fatalf("err = %v, want reserved prompt name", err)
-	}
-}
-
 func TestInitRejectsExtraArgs(t *testing.T) {
-	_, _, err := executeTestCommand(t, "init", "extra")
+	_, _, err := executeTestCommand(t, "task", "extra")
 	if ExitCode(err) != ExitUser {
 		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
 	}
@@ -263,7 +250,7 @@ func TestInitStdoutWriteFailure(t *testing.T) {
 			return nil
 		},
 	})
-	cmd.SetArgs([]string{"init", "--output-only"})
+	cmd.SetArgs([]string{"task", "--output-only"})
 	err := cmd.Execute()
 	if ExitCode(err) != ExitSystem {
 		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
@@ -281,7 +268,7 @@ func (w errWriter) Write([]byte) (int, error) {
 func assertInitCancelLeavesClipboardUntouched(t *testing.T, input string) {
 	t.Helper()
 	var factoryCalled bool
-	stdout, _, err := executeTestCommand(t, "init", func(opts *Options) {
+	stdout, _, err := executeTestCommand(t, "task", func(opts *Options) {
 		opts.ClipboardFactory = func() clipboard.Clipboard {
 			factoryCalled = true
 			return &fakeClipboard{}

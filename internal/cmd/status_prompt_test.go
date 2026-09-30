@@ -14,7 +14,7 @@ import (
 const approvedStatusSHA256 = "04d3d25f29feeafb63e486f4187d0aebd5a80eab8c3aa3c2a2ff27a101c7e6e0"
 
 func TestStatusPromptPrintsApprovedInstructions(t *testing.T) {
-	stdout, stderr, err := executeTestCommand(t, "status", "--print")
+	stdout, stderr, err := executeTestCommand(t, "v0", "status", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestStatusPromptPrintsApprovedInstructions(t *testing.T) {
 }
 
 func TestStatusPromptRequiresSuccinctAuditContract(t *testing.T) {
-	stdout, _, err := executeTestCommand(t, "status", "--print")
+	stdout, _, err := executeTestCommand(t, "v0", "status", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func TestStatusPromptRequiresSuccinctAuditContract(t *testing.T) {
 
 func approvedStatusBody(t *testing.T) string {
 	t.Helper()
-	content, err := os.ReadFile(filepath.Join("..", "..", "prompts", "status.md"))
+	content, err := os.ReadFile(filepath.Join("..", "..", "prompts", "v0", "status.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
