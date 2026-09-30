@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/jamesonstone/kp/internal/clipboard"
-	"github.com/jamesonstone/kp/internal/prompt"
+	"github.com/jamesonstone/kp/internal/picker"
 )
 
 func executeTestCommand(t *testing.T, args ...any) (string, string, error) {
@@ -61,29 +61,23 @@ func withStdin(input string) func(*Options) {
 	}
 }
 
-func withFZF(selection string, runErr error) func(*Options) {
+// withPicker replaces the interactive picker with run, failing the test if
+// any preview still carries prompt frontmatter.
+func withPicker(t *testing.T, run func(items []picker.Item) (string, error)) func(*Options) {
 	return func(opts *Options) {
-		opts.LookPath = func(string) (string, error) {
-			return "/usr/local/bin/fzf", nil
-		}
-		opts.FZFRunner = func(prompts []prompt.Prompt) (string, error) {
-			if len(prompts) < 2 {
-				return "", errors.New("unexpected prompt count")
-			}
-			for _, p := range prompts {
-				if strings.Contains(p.Body, "---") {
-					return "", errors.New("frontmatter leaked into picker body")
+		opts.PickerRunner = func(items []picker.Item) (string, error) {
+			for _, item := range items {
+				if strings.HasPrefix(item.Preview, "---") {
+					t.Fatalf("frontmatter leaked into preview for %q", item.ID)
 				}
 			}
-			return selection, runErr
+			return run(items)
 		}
 	}
 }
 
-func withLauncher(run func(items []LauncherItem) (string, error)) func(*Options) {
-	return func(opts *Options) {
-		opts.LauncherRunner = run
-	}
+func selectItem(id string) func([]picker.Item) (string, error) {
+	return func([]picker.Item) (string, error) { return id, nil }
 }
 
 func withPortLookup(processes []PortProcess, lookupErr error) func(*Options) {

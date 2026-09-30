@@ -20,14 +20,15 @@
 
 | Suite | Type | Environment | Command | Automation | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| CLI prompt acceptance | component | local | Build, then run `./bin/kp --config <empty-temp-dir> <prompt> --print`, `list --plain`, and `--help` | manual fallback | terminal output recorded in the feature spec |
+| CLI prompt acceptance | component | local | Build, then run `./bin/kp --config <empty-temp-dir> <prompt> --print`, `v0 <prompt> --print`, `list --plain`, and `--help` | manual fallback | terminal output recorded in the feature spec |
+| Picker TTY acceptance | component | local pseudo-terminal | Build, then drive `./bin/kp` in a pty (for example Python `pty` plus `pyte`): navigate, filter, scroll, resize, Enter, Esc | manual fallback | screen snapshots and exit codes recorded in the feature spec |
 
 Production end-to-end and live-integration suites are `NOT_APPLICABLE`; `kp`
 is a local CLI with no deployed service or production environment.
 
 ## Environment Preflights
 
-- Use Go 1.22 or newer.
+- Use Go 1.26 or newer (required by Bubble Tea v2).
 - Use an empty temporary `--config` directory for CLI prompt acceptance so a
   user override cannot shadow the built-in under test.
 - macOS is required for real clipboard acceptance; unit tests inject clipboard

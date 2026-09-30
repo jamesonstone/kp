@@ -8,7 +8,7 @@ import (
 )
 
 func TestPromptPrint(t *testing.T) {
-	stdout, stderr, err := executeTestCommand(t, "clarify", "--print")
+	stdout, stderr, err := executeTestCommand(t, "v0", "clarify", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -25,7 +25,7 @@ func TestPromptPrint(t *testing.T) {
 }
 
 func TestPRPromptPrintsApprovedInstructions(t *testing.T) {
-	stdout, stderr, err := executeTestCommand(t, "pr", "--print")
+	stdout, stderr, err := executeTestCommand(t, "v0", "pr", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -112,7 +112,7 @@ Do not include a chronological log, repeated checks, unchanged polling, routine 
 }
 
 func TestContinuePromptPrintsApprovedInstructions(t *testing.T) {
-	stdout, stderr, err := executeTestCommand(t, "continue", "--print")
+	stdout, stderr, err := executeTestCommand(t, "v0", "continue", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -128,7 +128,7 @@ func TestContinuePromptPrintsApprovedInstructions(t *testing.T) {
 
 func TestPromptCopy(t *testing.T) {
 	fake := &fakeClipboard{}
-	stdout, stderr, err := executeTestCommand(t, "clarify", "--copy", withClipboard(fake))
+	stdout, stderr, err := executeTestCommand(t, "v0", "clarify", "--copy", withClipboard(fake))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -152,7 +152,7 @@ func TestPromptCopy(t *testing.T) {
 
 func TestPromptDefaultShowsClipboardInstructionsWithSpacing(t *testing.T) {
 	fake := &fakeClipboard{}
-	stdout, stderr, err := executeTestCommand(t, "clarify", withClipboard(fake))
+	stdout, stderr, err := executeTestCommand(t, "v0", "clarify", withClipboard(fake))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -170,7 +170,7 @@ func TestPromptDefaultShowsClipboardInstructionsWithSpacing(t *testing.T) {
 
 func TestPromptDefaultPrintsAndCopiesWithoutPaste(t *testing.T) {
 	fake := &fakeClipboard{}
-	stdout, _, err := executeTestCommand(t, "clarify", withClipboard(fake))
+	stdout, _, err := executeTestCommand(t, "v0", "clarify", withClipboard(fake))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,7 +191,7 @@ func TestPromptDefaultPrintsAndCopiesWithoutPaste(t *testing.T) {
 
 func TestPromptCopyVerifyFailureExitsSystem(t *testing.T) {
 	fake := &fakeClipboard{verifyErr: clipboard.ErrVerifyFailed}
-	_, _, err := executeTestCommand(t, "clarify", "--copy", withClipboard(fake))
+	_, _, err := executeTestCommand(t, "v0", "clarify", "--copy", withClipboard(fake))
 	if ExitCode(err) != ExitSystem {
 		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
 	}
@@ -202,7 +202,7 @@ func TestPromptCopyVerifyFailureExitsSystem(t *testing.T) {
 
 func TestPromptDefaultVerifyFailureExitsSystem(t *testing.T) {
 	fake := &fakeClipboard{verifyErr: clipboard.ErrVerifyFailed}
-	_, _, err := executeTestCommand(t, "clarify", withClipboard(fake))
+	_, _, err := executeTestCommand(t, "v0", "clarify", withClipboard(fake))
 	if ExitCode(err) != ExitSystem {
 		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
 	}
@@ -213,7 +213,7 @@ func TestPromptDefaultVerifyFailureExitsSystem(t *testing.T) {
 
 func TestPromptVerboseLogsToStderr(t *testing.T) {
 	fake := &fakeClipboard{}
-	_, stderr, err := executeTestCommand(t, "clarify", "--copy", "--verbose", withClipboard(fake))
+	_, stderr, err := executeTestCommand(t, "v0", "clarify", "--copy", "--verbose", withClipboard(fake))
 	if err != nil {
 		t.Fatal(err)
 	}

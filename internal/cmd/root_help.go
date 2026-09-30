@@ -49,14 +49,15 @@ func renderRootHelp(cmd *cobra.Command) error {
 		return err
 	}
 
-	promptRows := builtInPromptRows(cmd.CommandPath())
+	promptRows := append(builtInPromptRows(cmd.CommandPath()),
+		helpRow{command: cmd.CommandPath() + " task", summary: "Start a task from scratch in your editor"},
+		helpRow{command: cmd.CommandPath() + " task --output-only", summary: "Print the blank task template"},
+	)
 	if err := renderHelpSection(out, style, "🧠", "Prompt Commands", promptRows); err != nil {
 		return err
 	}
 
 	libraryRows := []helpRow{
-		{command: cmd.CommandPath() + " init", summary: "Construct a coding-agent prompt"},
-		{command: cmd.CommandPath() + " init --output-only", summary: "Print the blank prompt template"},
 		{command: cmd.CommandPath() + " list", summary: "Pick a prompt interactively"},
 		{command: cmd.CommandPath() + " list --plain", summary: "Print prompt names"},
 		{command: cmd.CommandPath() + " list --verbose", summary: "Print name, label, and source"},
@@ -81,6 +82,13 @@ func renderRootHelp(cmd *cobra.Command) error {
 		{command: cmd.CommandPath() + " scaffold --dry-run", summary: "Preview scaffold actions"},
 	}
 	if err := renderHelpSection(out, style, "🏗️", "Repo Setup", setupRows); err != nil {
+		return err
+	}
+
+	legacyRows := []helpRow{
+		{command: cmd.CommandPath() + " v0 <command>", summary: "Legacy prompts; list them with \"" + cmd.CommandPath() + " v0 --help\""},
+	}
+	if err := renderHelpSection(out, style, "🗄️", "Legacy v0 Prompts", legacyRows); err != nil {
 		return err
 	}
 
@@ -115,10 +123,9 @@ func builtInPromptRows(commandPath string) []helpRow {
 	builtIns, err := prompt.BuiltIns()
 	if err != nil {
 		return []helpRow{
-			{command: commandPath + " clarify", summary: "Clarify before implementing"},
-			{command: commandPath + " agent-handoff", summary: "Agent-to-agent handoff"},
-			{command: commandPath + " chat-handoff", summary: "Chat-to-agent handoff"},
-			{command: commandPath + " pr", summary: "Pull request workflow"},
+			{command: commandPath + " merge", summary: "Context-aware PR merge and deployment"},
+			{command: commandPath + " review", summary: "Independent branch/PR review"},
+			{command: commandPath + " ship", summary: "Pre-authorize task delivery"},
 		}
 	}
 

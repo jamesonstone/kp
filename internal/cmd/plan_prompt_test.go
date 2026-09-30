@@ -14,7 +14,7 @@ import (
 const approvedPlanSHA256 = "d36013bd21e8167bd41fa112fe2cb04ac8465cdf3f3f5568236ad7cb9cab64c2"
 
 func TestPlanPromptPrintsApprovedInstructions(t *testing.T) {
-	stdout, stderr, err := executeTestCommand(t, "plan", "--print")
+	stdout, stderr, err := executeTestCommand(t, "v0", "plan", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestPlanPromptPrintsApprovedInstructions(t *testing.T) {
 }
 
 func TestPlanPromptRequiresConvergenceContract(t *testing.T) {
-	stdout, _, err := executeTestCommand(t, "plan", "--print")
+	stdout, _, err := executeTestCommand(t, "v0", "plan", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,7 +73,7 @@ func TestPlanPromptRequiresConvergenceContract(t *testing.T) {
 
 func approvedPlanBody(t *testing.T) string {
 	t.Helper()
-	content, err := os.ReadFile(filepath.Join("..", "..", "prompts", "plan.md"))
+	content, err := os.ReadFile(filepath.Join("..", "..", "prompts", "v0", "plan.md"))
 	if err != nil {
 		t.Fatal(err)
 	}

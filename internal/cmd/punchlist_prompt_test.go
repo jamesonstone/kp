@@ -14,7 +14,7 @@ import (
 const approvedPunchlistSHA256 = "7efd70f586a3f959f1365d8bc9af95ff4789f99f19d9466266b9d3dee6335423"
 
 func TestPunchlistPromptPrintsApprovedInstructions(t *testing.T) {
-	stdout, stderr, err := executeTestCommand(t, "punchlist", "--print")
+	stdout, stderr, err := executeTestCommand(t, "v0", "punchlist", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestPunchlistPromptPrintsApprovedInstructions(t *testing.T) {
 }
 
 func TestPunchlistPromptRequiresControlLoopContract(t *testing.T) {
-	stdout, _, err := executeTestCommand(t, "punchlist", "--print")
+	stdout, _, err := executeTestCommand(t, "v0", "punchlist", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +75,7 @@ func TestPunchlistPromptRequiresControlLoopContract(t *testing.T) {
 
 func approvedPunchlistBody(t *testing.T) string {
 	t.Helper()
-	content, err := os.ReadFile(filepath.Join("..", "..", "prompts", "punchlist.md"))
+	content, err := os.ReadFile(filepath.Join("..", "..", "prompts", "v0", "punchlist.md"))
 	if err != nil {
 		t.Fatal(err)
 	}

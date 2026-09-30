@@ -14,7 +14,7 @@ import (
 const approvedGoalSHA256 = "ac318360ff5f848bf8fc9d673ebb22515f4aa13d6bfe3ec1aeda1e2043a8e308"
 
 func TestGoalPromptPrintsApprovedInstructions(t *testing.T) {
-	stdout, stderr, err := executeTestCommand(t, "goal", "--print")
+	stdout, stderr, err := executeTestCommand(t, "v0", "goal", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestGoalPromptPrintsApprovedInstructions(t *testing.T) {
 }
 
 func TestGoalPromptRequiresGoalConstructionContracts(t *testing.T) {
-	stdout, stderr, err := executeTestCommand(t, "goal", "--print")
+	stdout, stderr, err := executeTestCommand(t, "v0", "goal", "--print")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +65,7 @@ func TestGoalPromptRequiresGoalConstructionContracts(t *testing.T) {
 
 func approvedGoalBody(t *testing.T) string {
 	t.Helper()
-	content, err := os.ReadFile(filepath.Join("..", "..", "prompts", "goal.md"))
+	content, err := os.ReadFile(filepath.Join("..", "..", "prompts", "v0", "goal.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
