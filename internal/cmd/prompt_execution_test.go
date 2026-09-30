@@ -51,11 +51,11 @@ func TestMergePromptPrintsApprovedInstructions(t *testing.T) {
 
 ## Analysis and approval
 
-1. Before any mutation, load ~docs/agents/GUARDRAILS.md~, ~work-lane-gating~, and other applicable merge, infrastructure, orchestration, testing, and completion rules, explicitly including ~docs/references/rules/testing-and-environment-validation.md~ and the project's ~docs/references/testing.md~ before implementation or validation. Complete read-only safety reconnaissance.
-2. For repository or delivery work, verify that the lane rule's exact consent question was answered for the current lane. If not, ask it verbatim and wait; generic approval is not lane consent.
+1. Before any mutation, load ~docs/agents/GUARDRAILS.md~, ~work-lane-gating~, ~github-pr-merge~, and other applicable merge, infrastructure, orchestration, testing, and completion rules that the repository defines, explicitly including ~docs/references/rules/testing-and-environment-validation.md~ and the project's ~docs/references/testing.md~ before implementation or validation. Where this prompt conflicts with a repository rule, follow the rule and name the conflict; the merged-branch cleanup permission and the deadline validation budget below are my explicit instructions and still apply. Complete read-only safety reconnaissance.
+2. Treat each in-scope pull request as continuation of its existing lane, and make any scope-preserving repair on its own head branch rather than in a new, coordination, or corrective pull request.
 3. Build the dependency/deployment graph from authoritative evidence. Derive edge direction only from an explicit base relationship, producer/consumer contract (for example, a backend endpoint a frontend PR calls), or stated prerequisite — never from shared files or proximity alone — and never merge a consumer ahead of its producer. Classify every node as ~MERGE_READY~, ~BLOCKED~, or ~UNKNOWN~; missing, stale, pending, conflicted, unattributable, or open-review-feedback evidence never passes — route open feedback through ~pr-feedback-repair~ before reclassifying.
 4. Record each node's repository, PR, exact head/base, method, dependencies, infrastructure effects, recovery, and acceptance signal. Keep merge, CI, deployment, runtime, and production acceptance distinct.
-5. Before the first merge or infrastructure mutation, present one consolidated approval request for the exact frontier and known effects unless equivalent exact approval remains valid.
+5. Merge only under explicit authority. If no standing authority from the user already covers the full in-scope set and its known effects, present one consolidated approval request for them before the first merge or infrastructure mutation. Head SHAs are readiness evidence, not authority: never ask to approve one, and do not re-ask because a PR number or head was unknown when authority was granted.
 6. Never delete, destroy, purge, remove, or destructively replace infrastructure. Isolate such work for separate explicit authorization.
 7. Run one complete preflight immediately before each consequential mutation. Repeat only after material change to head/base, policy, actor, checks/reviews, dependencies, target/effect, approval, or acceptance window.
 
@@ -85,7 +85,7 @@ Use operational correctness, not exhaustive correctness.
 - Merge only the authorized ready frontier using permitted methods and required queues. Never bypass policy, switch identity, force-push, or weaken gates. Deleting a just-merged PR's own head branch is routine cleanup, not infrastructure, and needs no separate confirmation; never delete any other branch without separate authorization.
 - Monitor with event-driven waits or bounded backoff; do not repeat unchanged polling.
 - Reconcile failures autonomously inside approved scope. Do not retry blindly or introduce a new PR, target, method, infrastructure effect, or authority boundary.
-- A changed head returns to ~UNKNOWN~ and requires fresh exact-head evidence and authorization. Continue independent valid nodes; stop only when safe recovery cannot progress.
+- A changed head returns to ~UNKNOWN~ and needs fresh exact-head evidence, not new approval, unless it changes scope or effects. Continue independent valid nodes; stop only when safe recovery cannot progress.
 
 ## Acceptance
 

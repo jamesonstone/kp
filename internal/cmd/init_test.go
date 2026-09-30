@@ -38,7 +38,7 @@ func TestRenderInitPromptPinsExactBody(t *testing.T) {
 		"\n" +
 		"kp init prints and copies the prompt.\n" +
 		"\n" +
-		"Independently investigate. Do not assume my suspected implementation or root cause is correct.\n"
+		"Independently investigate. Do not assume my suspected implementation or root cause is correct.\nWhen you finish, show the evidence for each part of the definition of done, marking anything unmet or unverified, and list work the objective does not require as follow-ups rather than doing it. If the definition of done conflicts with an invariant or constraint, stop and tell me instead of choosing.\n"
 	if got != want {
 		t.Fatalf("renderInitPrompt = %q, want %q", got, want)
 	}
@@ -123,7 +123,7 @@ func TestInitOutputOnlyPrintsBlankTemplate(t *testing.T) {
 		"\n" +
 		"✅  Definition of done\n" +
 		"\n" +
-		"Independently investigate. Do not assume my suspected implementation or root cause is correct.\n"
+		"Independently investigate. Do not assume my suspected implementation or root cause is correct.\nWhen you finish, show the evidence for each part of the definition of done, marking anything unmet or unverified, and list work the objective does not require as follow-ups rather than doing it. If the definition of done conflicts with an invariant or constraint, stop and tell me instead of choosing.\n"
 	if stdout != want {
 		t.Fatalf("stdout = %q, want %q", stdout, want)
 	}
@@ -176,7 +176,7 @@ func TestInitCopiesStdoutToClipboard(t *testing.T) {
 		}
 		previous = index
 	}
-	if !strings.Contains(stderr, "    What outcome are you trying to achieve?") {
+	if !strings.Contains(stderr, "    What outcome do you want, and why does it matter?") {
 		t.Fatalf("stderr missing indented question:\n%s", stderr)
 	}
 	if !strings.Contains(stderr, initPromptPrefix) {
@@ -185,7 +185,7 @@ func TestInitCopiesStdoutToClipboard(t *testing.T) {
 	if !strings.Contains(stderr, "✅ 📋 Prompt copied to clipboard.") {
 		t.Fatalf("stderr = %q", stderr)
 	}
-	if strings.Contains(stdout, "What outcome are you trying to achieve?") {
+	if strings.Contains(stdout, "What outcome do you want, and why does it matter?") {
 		t.Fatalf("questionnaire leaked into stdout: %q", stdout)
 	}
 	if strings.Contains(stderr, "Shift+Enter") {

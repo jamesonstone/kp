@@ -11,7 +11,7 @@ import (
 	"github.com/jamesonstone/kp/internal/prompt"
 )
 
-const approvedReviewSHA256 = "ab9233c17c44e46658d68f82d90e229319806d5085bbde7d315e7ae159234999"
+const approvedReviewSHA256 = "9089c22d09d920182bfa4318eb4b2deaf89df130cea68ab44d264da45938b036"
 
 func TestReviewPromptPrintsApprovedInstructions(t *testing.T) {
 	stdout, stderr, err := executeTestCommand(t, "review", "--print")
@@ -65,6 +65,18 @@ func TestReviewPromptRequiresCorrectnessContract(t *testing.T) {
 		"Do not manufacture findings",
 		"If the implementation is correct, say so explicitly",
 		"identify any remaining validation gaps or residual risks",
+		"review the merge-base diff against its remote copy",
+		"read the change's stated intent",
+		"behavior that differs from the change's stated intent",
+		"without modifying tracked files or external state",
+		"If a check cannot run, say which one and why",
+		"Search broadly, then confirm each finding before reporting it",
+		"a scratch test in a temporary copy of the repository",
+		"List concerns you cannot confirm as open questions rather than dropping them",
+		"Report problems this change introduces or makes reachable",
+		"list pre-existing issues you notice separately as follow-ups",
+		"Skip style or preference nits unless a repository rule requires them or they create correctness risk",
+		"P0 for data loss, an exploitable security flaw, or an outage",
 	}
 	for _, text := range required {
 		if !strings.Contains(stdout, text) {

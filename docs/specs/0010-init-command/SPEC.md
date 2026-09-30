@@ -32,6 +32,14 @@ references:
     read_policy: "must"
     used_for: "follow-up issue, branch, commit, and pull-request traceability"
     status: "active"
+  - id: "github-issue-68"
+    name: "Review kp prompts against current coding-agent prompting practice"
+    type: "external"
+    target: "https://github.com/jamesonstone/kp/issues/68"
+    relation: "supports"
+    read_policy: "must"
+    used_for: "closing evidence-report line and sharper guidance questions"
+    status: "active"
   - id: "v0-init-utility"
     name: "v0 init utility"
     type: "feature_artifact"
@@ -104,7 +112,17 @@ stdout, and copies the identical body to the macOS clipboard.
 <definition of done>
 
 Independently investigate. Do not assume my suspected implementation or root cause is correct.
+When you finish, show the evidence for each part of the definition of done, marking anything unmet or unverified, and list work the objective does not require as follow-ups rather than doing it. If the definition of done conflicts with an invariant or constraint, stop and tell me instead of choosing.
 ```
+
+- Issue #68 added the finishing instruction after reviewing the template
+  against current coding-agent prompting guidance. The rendered prompt had no
+  instruction to show evidence for each part of the definition of done, to
+  mark unmet or unverified parts, to keep work the objective does not require
+  as follow-ups, or to stop when the definition of done conflicts with an
+  invariant or constraint. The guidance questions shown while
+  filling the template also ask for the objective's reason, the reason behind
+  invariants, what is out of scope, and a check the agent can run.
 
 - On success, write that exact body to stdout and copy it through the existing
   clipboard `Copy` plus `Verify` path. Stdout and clipboard bytes must match.
@@ -135,7 +153,7 @@ Independently investigate. Do not assume my suspected implementation or root cau
 - `kp init` with five non-empty answers prints the rendered prompt on stdout
   and copies the same bytes after clipboard verification.
 - Rendered output preserves user text including internal newlines, keeps the
-  specified emoji-prefixed section order, and always ends with the
+  specified emoji-prefixed section order, and always ends with the evidence-report line after the
   independent-investigation sentence.
 - On a TTY, Shift+Enter inserts a newline in the current section and Enter
   continues. Piped stdin does not show the TTY key hint.
