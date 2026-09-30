@@ -227,6 +227,30 @@ func TestInitRejectsExtraArgs(t *testing.T) {
 	}
 }
 
+func TestInitStdoutWriteFailure(t *testing.T) {
+	cmd := NewRoot(Options{
+		Stdout: errWriter{err: errors.New("write failed")},
+		Stdin:  strings.NewReader(""),
+		ClipboardFactory: func() clipboard.Clipboard {
+			t.Fatal("clipboard factory was called")
+			return nil
+		},
+	})
+	cmd.SetArgs([]string{"init", "--output-only"})
+	err := cmd.Execute()
+	if ExitCode(err) != ExitSystem {
+		t.Fatalf("ExitCode = %d, err = %v", ExitCode(err), err)
+	}
+}
+
+type errWriter struct {
+	err error
+}
+
+func (w errWriter) Write([]byte) (int, error) {
+	return 0, w.err
+}
+
 func assertInitCancelLeavesClipboardUntouched(t *testing.T, input string) {
 	t.Helper()
 	var factoryCalled bool

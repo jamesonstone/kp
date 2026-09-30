@@ -71,8 +71,7 @@ func (a *app) newInitCommand() *cobra.Command {
 
 func (a *app) runInit(outputOnly bool) error {
 	if outputOnly {
-		fmt.Fprint(a.stdout, renderInitPrompt(initAnswers{}))
-		return nil
+		return a.writeInitPrompt(renderInitPrompt(initAnswers{}))
 	}
 
 	answers, err := a.collectInitAnswers()
@@ -89,7 +88,13 @@ func (a *app) runInit(outputOnly bool) error {
 		return NewExitError(ExitSystem, err)
 	}
 	fmt.Fprintf(a.stderr, "✅ 📋 Prompt copied to clipboard.\n")
-	fmt.Fprint(a.stdout, body)
+	return a.writeInitPrompt(body)
+}
+
+func (a *app) writeInitPrompt(body string) error {
+	if _, err := fmt.Fprint(a.stdout, body); err != nil {
+		return NewExitError(ExitSystem, err)
+	}
 	return nil
 }
 
