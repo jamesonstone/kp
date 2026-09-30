@@ -91,10 +91,12 @@ func parseInitDraft(content string) (answers initAnswers, problems []string, emp
 	bodies := make([][]string, len(initFields))
 	seen := make([]bool, len(initFields))
 	current := -1
-	stray := false
+	stray, inFence := false, false
 	for _, line := range strings.Split(stripInitComments(content), "\n") {
 		line = strings.TrimSuffix(line, "\r")
-		if i := initHeadingIndex(line); i >= 0 {
+		if isInitFence(line) {
+			inFence = !inFence
+		} else if i := initHeadingIndex(line); i >= 0 && !inFence {
 			current, seen[i] = i, true
 			continue
 		}
@@ -139,12 +141,27 @@ func initHeadingIndex(line string) int {
 	return -1
 }
 
+// isInitFence reports whether line opens or closes a fenced code block.
+// Fenced content is answer text: no headings are matched and no comments are
+// removed inside it.
+func isInitFence(line string) bool {
+	trimmed := strings.TrimSpace(line)
+	return strings.HasPrefix(trimmed, "```") || strings.HasPrefix(trimmed, "~~~")
+}
+
 // stripInitComments removes <!-- ... --> spans, dropping lines that held only
 // comments so guidance does not leave extra blank lines behind.
 func stripInitComments(content string) string {
 	var out []string
-	inComment := false
+	inComment, inFence := false, false
 	for _, line := range strings.Split(content, "\n") {
+		if !inComment && isInitFence(line) {
+			inFence = !inFence
+		}
+		if inFence || (!inComment && isInitFence(line)) {
+			out = append(out, line)
+			continue
+		}
 		var kept strings.Builder
 		rest, touched := line, inComment
 		for rest != "" {

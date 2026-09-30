@@ -178,6 +178,19 @@ func TestParseInitDraftKeepsListAndQuoteLinesAsAnswerText(t *testing.T) {
 	}
 }
 
+func TestParseInitDraftKeepsFencedExamplesAsAnswerText(t *testing.T) {
+	fenced := "Build it.\n```md\n# Constraints\n<!-- kept -->\n```"
+	content := "Objective\n" + fenced + "\nKnown business/domain context\nB\nInvariants\nC\n" +
+		"Constraints\nD\nDefinition of done\nE\n"
+	answers, problems, _ := parseInitDraft(content)
+	if len(problems) != 0 {
+		t.Fatalf("problems = %v", problems)
+	}
+	if answers.objective != fenced || answers.constraints != "D" {
+		t.Fatalf("objective = %q, constraints = %q", answers.objective, answers.constraints)
+	}
+}
+
 func TestParseInitDraftKeepsTrailingSpaces(t *testing.T) {
 	content := "Objective\nline one  \r\nline two\nKnown business/domain context\nB\nInvariants\nC\nConstraints\nD\nDefinition of done\nE\n"
 	answers, _, _ := parseInitDraft(content)

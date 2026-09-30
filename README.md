@@ -183,7 +183,8 @@ Prompt names are bare commands. There is no `kp prompt ...` namespace.
 
 Reserved names cannot be used for prompts: `help`, `init`, `list`, `new`,
 `edit`, `rm`, `scaffold`, `prompt`, `task`, `v0`, and `version`. Rename a user
-prompt named `init` or `task` before upgrading; reserved files cannot load.
+prompt named `init`, `task`, or `v0` before upgrading; reserved files cannot
+load.
 
 ## Your Prompt Library
 
