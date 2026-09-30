@@ -114,7 +114,7 @@ utility command reference.
 | -------------------------- | ----------------------------------------------------------------- | --------------------------------- | --------------- |
 | `kp`                       | Open the focused launcher for prompts, Find port, and Help.       | Interactive terminals             | ✅ ready        |
 | `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
-| `kp init`                  | Construct a coding-agent prompt from five short answers.          | Starting a coding-agent task      | ✅ ready        |
+| `kp init`                  | Construct a coding-agent prompt from five short answers. On a TTY, Shift+Enter inserts a newline. | Starting a coding-agent task      | ✅ ready        |
 | `kp init --output-only`    | Print the blank prompt template without copying.                  | Pipes, scripts, local files       | ✅ ready        |
 | `kp clarify`               | Print and copy the clarify-before-implementing prompt.            | Coding-agent chats                | ✅ ready        |
 | `kp continue`              | Print and copy the autonomous-continuation prompt.                | Coding-agent chats                | ✅ ready        |

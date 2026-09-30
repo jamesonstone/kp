@@ -18,19 +18,19 @@ func TestRenderInitPromptPinsExactBody(t *testing.T) {
 	})
 
 	want := "" +
-		"Objective:\n" +
+		"🎯 Objective:\n" +
 		"Ship the init command.\n" +
 		"\n" +
-		"Known business/domain context:\n" +
+		"🧭 Known business/domain context:\n" +
 		"kp is a local macOS prompt CLI.\n" +
 		"\n" +
-		"Invariants:\n" +
+		"🔒 Invariants:\n" +
 		"Clipboard verification stays exact.\n" +
 		"\n" +
-		"Constraints:\n" +
+		"🚧 Constraints:\n" +
 		"Do not add network calls.\n" +
 		"\n" +
-		"Definition of done:\n" +
+		"✅ Definition of done:\n" +
 		"kp init prints and copies the prompt.\n" +
 		"\n" +
 		"Independently investigate. Do not assume my suspected implementation or root cause is correct.\n"
@@ -39,11 +39,11 @@ func TestRenderInitPromptPinsExactBody(t *testing.T) {
 	}
 
 	order := []string{
-		"Objective:",
-		"Known business/domain context:",
-		"Invariants:",
-		"Constraints:",
-		"Definition of done:",
+		"🎯 Objective:",
+		"🧭 Known business/domain context:",
+		"🔒 Invariants:",
+		"🚧 Constraints:",
+		"✅ Definition of done:",
 		initInvestigationSentence,
 	}
 	previous := -1
@@ -56,6 +56,19 @@ func TestRenderInitPromptPinsExactBody(t *testing.T) {
 			t.Fatalf("section %q out of order", section)
 		}
 		previous = index
+	}
+}
+
+func TestRenderInitPromptPreservesMultilineAnswers(t *testing.T) {
+	got := renderInitPrompt(initAnswers{
+		objective:   "Ship it.\nCover the happy path.",
+		context:     "Local CLI.",
+		invariants:  "Exact clipboard bytes.",
+		constraints: "No network.",
+		done:        "Prompt prints and copies.",
+	})
+	if !strings.Contains(got, "Ship it.\nCover the happy path.") {
+		t.Fatalf("multiline objective not preserved:\n%s", got)
 	}
 }
 
@@ -95,15 +108,15 @@ func TestInitOutputOnlyPrintsBlankTemplate(t *testing.T) {
 		t.Fatal(err)
 	}
 	want := "" +
-		"Objective:\n" +
+		"🎯 Objective:\n" +
 		"\n" +
-		"Known business/domain context:\n" +
+		"🧭 Known business/domain context:\n" +
 		"\n" +
-		"Invariants:\n" +
+		"🔒 Invariants:\n" +
 		"\n" +
-		"Constraints:\n" +
+		"🚧 Constraints:\n" +
 		"\n" +
-		"Definition of done:\n" +
+		"✅ Definition of done:\n" +
 		"\n" +
 		"Independently investigate. Do not assume my suspected implementation or root cause is correct.\n"
 	if stdout != want {
@@ -146,11 +159,11 @@ func TestInitCopiesStdoutToClipboard(t *testing.T) {
 	}
 	previous := -1
 	for _, title := range []string{
-		"Objective",
-		"Known business/domain context",
-		"Invariants",
-		"Constraints",
-		"Definition of done",
+		"🎯 Objective",
+		"🧭 Known business/domain context",
+		"🔒 Invariants",
+		"🚧 Constraints",
+		"✅ Definition of done",
 	} {
 		index := strings.Index(stderr, title+"\n")
 		if index < 0 || index <= previous {
@@ -163,6 +176,9 @@ func TestInitCopiesStdoutToClipboard(t *testing.T) {
 	}
 	if strings.Contains(stdout, "What outcome are you trying to achieve?") {
 		t.Fatalf("questionnaire leaked into stdout: %q", stdout)
+	}
+	if strings.Contains(stderr, "Shift+Enter") {
+		t.Fatalf("TTY hint leaked into piped stdin:\n%s", stderr)
 	}
 }
 
