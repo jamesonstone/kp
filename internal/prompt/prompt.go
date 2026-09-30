@@ -48,6 +48,7 @@ var namePattern = regexp.MustCompile(`^[a-z][a-z0-9-]*$`)
 var reservedNames = map[string]struct{}{
 	"edit":     {},
 	"help":     {},
+	"init":     {},
 	"list":     {},
 	"new":      {},
 	"prompt":   {},

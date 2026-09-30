@@ -30,7 +30,8 @@ user-facing README documentation.
 The current implementation ships the initial `v0-init-utility` surface: bare
 prompt commands such as `kp clarify`, an interactive `kp list` selector,
 prompt CRUD commands, user prompt overrides under the resolved config
-directory, and exact clipboard verification on macOS. Release packaging,
+directory, exact clipboard verification on macOS, and `kp init` for constructing
+a coding-agent prompt from a short local questionnaire. Release packaging,
 Homebrew publishing, Linux support, Windows support, and automatic paste remain
 out of scope until a future feature spec changes that contract.
 

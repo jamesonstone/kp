@@ -62,6 +62,7 @@ func TestRootLauncherShowsStaticHelp(t *testing.T) {
 		"command:new":      false,
 		"command:edit":     false,
 		"command:rm":       false,
+		"command:init":     false,
 		"command:scaffold": false,
 		"command:version":  false,
 	}

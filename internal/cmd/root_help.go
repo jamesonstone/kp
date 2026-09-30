@@ -55,6 +55,8 @@ func renderRootHelp(cmd *cobra.Command) error {
 	}
 
 	libraryRows := []helpRow{
+		{command: cmd.CommandPath() + " init", summary: "Construct a coding-agent prompt"},
+		{command: cmd.CommandPath() + " init --output-only", summary: "Print the blank prompt template"},
 		{command: cmd.CommandPath() + " list", summary: "Pick a prompt interactively"},
 		{command: cmd.CommandPath() + " list --plain", summary: "Print prompt names"},
 		{command: cmd.CommandPath() + " list --verbose", summary: "Print name, label, and source"},
