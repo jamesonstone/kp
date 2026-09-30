@@ -23,24 +23,33 @@ func (a *app) runLauncher(cmd *cobra.Command) error {
 	return a.runLauncherSelection(cmd, selection)
 }
 
-// buildLauncherItems lists root prompts, then the few commands that make sense
-// to start from the launcher. Legacy `kp v0` prompts are not listed.
+// buildLauncherItems lists the prompts, including the constructed init
+// prompt in name order, then the few tool commands that make sense to start
+// from the launcher. Legacy `kp v0` prompts are not listed.
 func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []picker.Item {
+	initItem := picker.Item{
+		ID:      "command:init",
+		Title:   "Start a task from scratch",
+		Command: commandPath + " init",
+		Group:   "prompts",
+		Preview: "Construct a prompt for a new conversation, or a new task inside an existing thread.\n\nOpens the template in your editor ($KP_EDITOR, $EDITOR, nvim, or vi) with sections for:\n\n- Objective\n- Known business/domain context\n- Invariants\n- Constraints\n- Definition of done\n\nWrite as much as you like under each heading, then save and quit. The finished prompt is printed and copied. An empty file cancels.",
+	}
+
 	items := make([]picker.Item, 0, len(prompts)+3)
 	for _, p := range prompts {
+		if initItem.ID != "" && p.Name > "init" {
+			items = append(items, initItem)
+			initItem.ID = ""
+		}
 		item := promptItem(commandPath, p)
 		item.ID = "prompt:" + p.Name
 		items = append(items, item)
 	}
+	if initItem.ID != "" {
+		items = append(items, initItem)
+	}
 
 	return append(items,
-		picker.Item{
-			ID:      "command:init",
-			Title:   "Init",
-			Command: commandPath + " init",
-			Group:   "commands",
-			Preview: "Construct a coding-agent prompt.\n\nOpens the prompt template in your editor ($KP_EDITOR, $EDITOR, nvim, or vi) with sections for:\n\n- Objective\n- Known business/domain context\n- Invariants\n- Constraints\n- Definition of done\n\nWrite as much as you like under each heading, then save and quit. The finished prompt is printed and copied. An empty file cancels.",
-		},
 		picker.Item{
 			ID:      "command:find-port",
 			Title:   "Find port",

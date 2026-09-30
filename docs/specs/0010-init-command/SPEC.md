@@ -118,7 +118,8 @@ Independently investigate. Do not assume my suspected implementation or root cau
 - Preserve the bare-command CLI model. Do not add a `prompt` namespace.
 - Reserve `init` so user prompts cannot shadow the command.
 - Document the command in grouped `--help` and README.
-- Add `init` to the focused `kp` launcher as a command row. Selecting it runs
+- List `init` in the `kp` launcher with the prompts (issue #66 moved it out of
+  the commands group; it constructs a prompt). Selecting it runs
   the same questionnaire as `kp init`.
 - Piped-mode chrome uses aligned emoji titles, an indented question, and the
   `›` prompt on stderr. The TTY editor draft carries its guidance in

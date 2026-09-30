@@ -101,7 +101,8 @@ names can be reused.
 
 ## ACCEPTANCE CRITERIA
 
-- AC1: Launcher items are the root prompts, then Init, Find port, and Help,
+- AC1: Launcher items are the prompts, with `kp init` ("Start a task from
+  scratch") among them in name order, then Find port and Help,
   with no emoji, each carrying its command, grouped under headings.
 - AC7: `kp init` on a TTY preloads the template in the editor, keeps
   multi-line answers and spacing, reopens incomplete drafts with a notice,

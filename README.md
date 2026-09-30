@@ -90,10 +90,10 @@ kp scaffold --dry-run
 
 The launcher is a two-pane picker: prompts and commands on the left, each with
 the command that runs it directly (`kp review`, `kp init`), and a live preview
-of the selection on the right. It lists the current prompts plus Init, Find
-port, and Help; legacy `v0` prompts stay out of it. Colors come from your
-terminal theme's basic palette, so they suit light and dark backgrounds, and
-`NO_COLOR` turns them off.
+of the selection on the right. Prompts, including `kp init`, come first;
+Find port and Help sit under commands; legacy `v0` prompts stay out. Colors
+come from your terminal theme's basic palette, so they suit light and dark
+backgrounds, and `NO_COLOR` turns them off.
 
 `kp init` opens the prompt template in your editor (`$KP_EDITOR`, `$EDITOR`,
 then `nvim`, then `vi`). Write as much as you like under each heading; blank
@@ -117,7 +117,7 @@ prompt. Select Help for the complete command reference.
 
 | Command                    | What It Does                                                      | Best Used In                      | Status          |
 | -------------------------- | ----------------------------------------------------------------- | --------------------------------- | --------------- |
-| `kp`                       | Open the focused launcher for prompts, Init, Find port, and Help. | Interactive terminals             | ✅ ready        |
+| `kp`                       | Open the launcher for prompts (including `kp init`), Find port, and Help. | Interactive terminals             | ✅ ready        |
 | `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
 | `kp init`                  | Fill in the prompt template in your editor, then print and copy it. Piped stdin reads one line per section. | Starting a coding-agent task      | ✅ ready        |
 | `kp init --output-only`    | Print the blank prompt template without copying.                  | Pipes, scripts, local files       | ✅ ready        |
