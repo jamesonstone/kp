@@ -98,6 +98,8 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"kp ship",
 		"kp status",
 		"Prompt Library",
+		"kp init",
+		"kp init --output-only",
 		"kp list",
 		"kp list --plain",
 		"Port Tools",

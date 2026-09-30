@@ -21,6 +21,7 @@ that feel good in a shell.
 ## Why Use It?
 
 - 🧠 Keep high-signal prompts in one predictable place.
+- ✍️ Construct a coding-agent prompt from five short answers with `kp init`.
 - 📋 Copy prompt bodies only after `pbpaste` matches the expected text.
 - 🪶 Use bare commands such as `kp clarify`, not a heavy command tree.
 - 🧰 Create and edit your own Markdown prompts.
@@ -83,6 +84,12 @@ kp review
 # pre-authorize shipping the current task through merge and deploy
 kp ship
 
+# construct a coding-agent prompt
+kp init
+
+# print the blank prompt template
+kp init --output-only > prompt.txt
+
 # browse prompts interactively
 kp list
 
@@ -107,6 +114,8 @@ utility command reference.
 | -------------------------- | ----------------------------------------------------------------- | --------------------------------- | --------------- |
 | `kp`                       | Open the focused launcher for prompts, Find port, and Help.       | Interactive terminals             | ✅ ready        |
 | `kp --help`                | Show the grouped help page without opening the launcher.          | Terminal discovery, docs, scripts | ✅ ready        |
+| `kp init`                  | Construct a coding-agent prompt from five short answers.          | Starting a coding-agent task      | ✅ ready        |
+| `kp init --output-only`    | Print the blank prompt template without copying.                  | Pipes, scripts, local files       | ✅ ready        |
 | `kp clarify`               | Print and copy the clarify-before-implementing prompt.            | Coding-agent chats                | ✅ ready        |
 | `kp continue`              | Print and copy the autonomous-continuation prompt.                | Coding-agent chats                | ✅ ready        |
 | `kp goal`                  | Construct an evidence-backed executable goal.                     | Vague or consequential engineering objectives | ✅ ready        |
@@ -157,8 +166,9 @@ utility command reference.
 
 Prompt names are bare commands. There is no `kp prompt ...` namespace.
 
-Reserved names cannot be used for prompts: `help`, `list`, `new`, `edit`,
-`rm`, `scaffold`, `prompt`, and `version`.
+Reserved names cannot be used for prompts: `help`, `init`, `list`, `new`,
+`edit`, `rm`, `scaffold`, `prompt`, and `version`. Rename a user prompt named
+`init` before upgrading; reserved files cannot load.
 
 ## Your Prompt Library
 

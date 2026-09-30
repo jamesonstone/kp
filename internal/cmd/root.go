@@ -104,6 +104,7 @@ func NewRoot(opts Options) *cobra.Command {
 	cmd.Flags().BoolVar(&app.printOnly, "print", false, "print without clipboard side effects")
 
 	cmd.AddCommand(app.newListCommand())
+	cmd.AddCommand(app.newInitCommand())
 	cmd.AddCommand(app.newNewCommand())
 	cmd.AddCommand(app.newEditCommand())
 	cmd.AddCommand(app.newRMCommand())
