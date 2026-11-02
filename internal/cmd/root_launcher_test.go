@@ -26,19 +26,23 @@ func TestRootLauncherListsCurrentActions(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	wantIDs := []string{"prompt:merge", "prompt:review", "prompt:ship", "command:task", "command:find-port", "command:help"}
+	wantIDs := []string{"command:cursor:env-setup", "prompt:merge", "prompt:review", "prompt:ship", "command:task", "command:find-port", "command:help"}
 	if strings.Join(itemIDs(got), ",") != strings.Join(wantIDs, ",") {
 		t.Fatalf("launcher items = %v, want %v", itemIDs(got), wantIDs)
 	}
 
-	review := got[1]
+	cursor := got[0]
+	if cursor.Title != "Set up a Cursor cloud environment" || cursor.Command != "kp cursor env-setup" || cursor.Group != "prompts" {
+		t.Fatalf("cursor item = %+v", cursor)
+	}
+	review := got[2]
 	if review.Title != "Independent branch/PR review" || review.Command != "kp review" || review.Group != "prompts" {
 		t.Fatalf("review item = %+v", review)
 	}
-	if got[3].Title != "Start a task from scratch" || got[3].Command != "kp task" || got[3].Group != "prompts" {
-		t.Fatalf("task item = %+v", got[3])
+	if got[4].Title != "Start a task from scratch" || got[4].Command != "kp task" || got[4].Group != "prompts" {
+		t.Fatalf("task item = %+v", got[4])
 	}
-	for _, item := range got[4:] {
+	for _, item := range got[5:] {
 		if item.Group != "commands" {
 			t.Fatalf("tool item %q in group %q", item.ID, item.Group)
 		}

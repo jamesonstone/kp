@@ -69,6 +69,10 @@ func renderRootHelp(cmd *cobra.Command) error {
 		return err
 	}
 
+	if err := renderHelpSection(out, style, "🖱️", "Cursor", cursorPromptRows(cmd.CommandPath())); err != nil {
+		return err
+	}
+
 	portRows := []helpRow{
 		{command: cmd.CommandPath() + " find-port <port>", summary: "Inspect a process on a port"},
 		{command: cmd.CommandPath() + " port-find <port>", summary: "Alias for find-port"},
@@ -136,6 +140,28 @@ func builtInPromptRows(commandPath string) []helpRow {
 			summary: p.Label,
 		})
 	}
+	return rows
+}
+
+func cursorPromptRows(commandPath string) []helpRow {
+	builtIns, err := prompt.CursorBuiltIns()
+	if err != nil {
+		return []helpRow{
+			{command: commandPath + " cursor env-setup", summary: "Set up a Cursor cloud environment"},
+		}
+	}
+
+	rows := make([]helpRow, 0, len(builtIns)+1)
+	for _, p := range builtIns {
+		rows = append(rows, helpRow{
+			command: commandPath + " cursor " + p.Name,
+			summary: p.Label,
+		})
+	}
+	rows = append(rows, helpRow{
+		command: commandPath + " cursor --help",
+		summary: "List Cursor commands",
+	})
 	return rows
 }
 

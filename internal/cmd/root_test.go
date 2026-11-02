@@ -59,6 +59,9 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 		"kp review",
 		"kp ship",
 		"Prompt Library",
+		"Cursor",
+		"kp cursor env-setup",
+		"kp cursor --help",
 		"kp task",
 		"kp task --output-only",
 		"kp list",
@@ -90,6 +93,10 @@ func TestRootHelpShowsHelpWithoutSideEffects(t *testing.T) {
 	if strings.Index(stdout, "Legacy v0 Prompts") < strings.Index(stdout, "Repo Setup") {
 		t.Fatalf("legacy section appears before current commands:\n%s", stdout)
 	}
+	if strings.Index(stdout, "Cursor") < strings.Index(stdout, "Prompt Library") ||
+		strings.Index(stdout, "Cursor") > strings.Index(stdout, "Port Tools") {
+		t.Fatalf("cursor section is out of order:\n%s", stdout)
+	}
 	if strings.Contains(stdout, "kp clarify ") || strings.Contains(stdout, "kp handoff") {
 		t.Fatalf("stdout includes removed legacy command: %q", stdout)
 	}
@@ -114,6 +121,7 @@ func TestRootHelpUsesKitStyleWhenTerminal(t *testing.T) {
 		"\x1b[1;37m🚀 Usage\x1b[0m",
 		"\x1b[1;37m🧠 Prompt Commands\x1b[0m",
 		"\x1b[1;37m🧰 Prompt Library\x1b[0m",
+		"\x1b[1;37m🖱️ Cursor\x1b[0m",
 		"\x1b[1;37m🔍 Port Tools\x1b[0m",
 		"\x1b[1;37m🏗️ Repo Setup\x1b[0m",
 		"\x1b[1;37m🗄️ Legacy v0 Prompts\x1b[0m",

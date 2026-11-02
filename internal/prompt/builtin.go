@@ -32,6 +32,16 @@ func V0BuiltIns() ([]Prompt, error) {
 	return loadBuiltIns(fsys)
 }
 
+// CursorBuiltIns returns the prompts served by the `kp cursor` namespace.
+// They are not part of the root registry.
+func CursorBuiltIns() ([]Prompt, error) {
+	fsys, err := fs.Sub(kp.PromptFS, "prompts/cursor")
+	if err != nil {
+		return nil, fmt.Errorf("open cursor prompts: %w", err)
+	}
+	return loadBuiltIns(fsys)
+}
+
 func loadBuiltInSource(name string) ([]byte, error) {
 	if err := ValidateName(name); err != nil {
 		return nil, err

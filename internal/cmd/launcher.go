@@ -35,8 +35,14 @@ func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []picker.It
 		Preview: "Construct a prompt for a new conversation, or a new task inside an existing thread.\n\nOpens the template in your editor ($KP_EDITOR, $EDITOR, nvim, or vi) with sections for:\n\n- Objective\n- Known business/domain context\n- Invariants\n- Constraints\n- Definition of done\n\nWrite as much as you like under each heading, then save and quit. The finished prompt is printed and copied. An empty file cancels.",
 	}
 
-	items := make([]picker.Item, 0, len(prompts)+3)
+	cursorItems := cursorLauncherItems(commandPath)
+	cursorInserted := false
+	items := make([]picker.Item, 0, len(prompts)+len(cursorItems)+3)
 	for _, p := range prompts {
+		if !cursorInserted && p.Name > "cursor" {
+			items = append(items, cursorItems...)
+			cursorInserted = true
+		}
 		if initItem.ID != "" && p.Name > "task" {
 			items = append(items, initItem)
 			initItem.ID = ""
@@ -44,6 +50,9 @@ func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []picker.It
 		item := promptItem(commandPath, p)
 		item.ID = "prompt:" + p.Name
 		items = append(items, item)
+	}
+	if !cursorInserted {
+		items = append(items, cursorItems...)
 	}
 	if initItem.ID != "" {
 		items = append(items, initItem)
@@ -62,7 +71,7 @@ func buildLauncherItems(commandPath string, prompts []prompt.Prompt) []picker.It
 			Title:   "Help",
 			Command: commandPath + " --help",
 			Group:   "commands",
-			Preview: "Show all commands.\n\nEvery command, including prompt management, repo scaffolding, legacy v0 prompts, and version information.",
+			Preview: "Show all commands.\n\nEvery command, including prompt management, repo scaffolding, Cursor commands, legacy v0 prompts, and version information.",
 		},
 	)
 }
@@ -82,9 +91,27 @@ func promptItem(commandPath string, p prompt.Prompt) picker.Item {
 	return item
 }
 
+func cursorLauncherItems(commandPath string) []picker.Item {
+	prompts, err := prompt.CursorBuiltIns()
+	if err != nil {
+		return nil
+	}
+	items := make([]picker.Item, 0, len(prompts))
+	for _, p := range prompts {
+		item := promptItem(commandPath+" cursor", p)
+		item.ID = "command:cursor:" + p.Name
+		items = append(items, item)
+	}
+	return items
+}
+
 func (a *app) runLauncherSelection(cmd *cobra.Command, selection string) error {
 	if name, ok := strings.CutPrefix(selection, "prompt:"); ok {
 		return a.runPrompt(name)
+	}
+
+	if name, ok := strings.CutPrefix(selection, "command:cursor:"); ok {
+		return a.emitCursorPrompt(name)
 	}
 
 	switch selection {
