@@ -75,6 +75,9 @@ kp task --output-only > prompt.txt
 # browse prompts interactively
 kp list
 
+# set up a Cursor cloud environment
+kp cursor env-setup
+
 # run a legacy prompt from the v0 compatibility namespace
 kp v0 clarify
 
@@ -89,9 +92,10 @@ kp scaffold --dry-run
 ```
 
 The launcher is a two-pane picker: prompts and commands on the left, each with
-the command that runs it directly (`kp review`, `kp task`), and a live preview
-of the selection on the right. Prompts, including `kp task`, come first;
-Find port and Help sit under commands; legacy `v0` prompts stay out. Colors
+the command that runs it directly (`kp review`, `kp task`, `kp cursor env-setup`),
+and a live preview of the selection on the right. Prompts, including `kp task`
+and Cursor prompts, come first; Find port and Help sit under commands; legacy
+`v0` prompts stay out. Colors
 come from your terminal theme's basic palette, so they suit light and dark
 backgrounds, and `NO_COLOR` turns them off.
 
@@ -131,6 +135,8 @@ prompt. Select Help for the complete command reference.
 | `kp merge`                 | Print and copy the context-aware merge/deployment prompt.         | Cross-repo release coordination   | ✅ ready        |
 | `kp review`                | Print and copy a read-only correctness review of the branch/PR against its target and stated intent. | Coding-agent chats              | ✅ ready        |
 | `kp ship`                  | Print and copy the task-delivery pre-authorization prompt.        | Coding-agent chats that should land through merge | ✅ ready        |
+| `kp cursor env-setup`     | Print and copy the Cursor cloud environment setup prompt.         | Cursor cloud environments         | ✅ ready        |
+| `kp cursor`                | List Cursor-specific commands.                                     | Terminal discovery                | ✅ ready        |
 | `kp v0 <name>`             | Print and copy a legacy prompt, unchanged from its former root command. | Existing habits and scripts       | ✅ ready        |
 | `kp <name> --copy`         | Copy a prompt without printing it.                                | Shell aliases, scripts            | ✅ ready        |
 | `kp <name> --print`        | Print a prompt without touching the clipboard.                    | Pipes, inspection                 | ✅ ready        |
@@ -159,6 +165,15 @@ prompt. Select Help for the complete command reference.
 | `review` | Independent branch/PR review          | ✅ embedded |
 | `ship`   | Pre-authorize task delivery           | ✅ embedded |
 
+### Cursor Prompts
+
+`kp cursor` is the submenu for Cursor-specific commands. Each command prints
+and copies its prompt, including `--print` and `--copy`.
+
+| Command                 | Label                              |
+| ----------------------- | ---------------------------------- |
+| `kp cursor env-setup`   | Set up a Cursor cloud environment  |
+
 ### Legacy `v0` Prompts
 
 These prompts moved under `kp v0` so their names are free for new root
@@ -185,8 +200,8 @@ prompts, your copy in the prompt library now answers at the root (for example
 
 Prompt names are bare commands. There is no `kp prompt ...` namespace.
 
-Reserved names cannot be used for prompts: `help`, `init`, `list`, `new`,
-`edit`, `rm`, `scaffold`, `prompt`, `task`, `v0`, and `version`. Rename a user
+Reserved names cannot be used for prompts: `cursor`, `help`, `init`, `list`,
+`new`, `edit`, `rm`, `scaffold`, `prompt`, `task`, `v0`, and `version`. Rename a user
 prompt named `init`, `task`, or `v0` before upgrading; reserved files cannot
 load.
 

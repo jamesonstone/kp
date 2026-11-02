@@ -55,8 +55,21 @@ func TestBuiltIn_V0LoadsLegacyPrompts(t *testing.T) {
 	}
 }
 
+func TestBuiltIn_CursorLoadsEnvSetup(t *testing.T) {
+	prompts, err := CursorBuiltIns()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(prompts) != 1 || prompts[0].Name != "env-setup" || prompts[0].Source != SourceBuiltIn || prompts[0].Label != "Set up a Cursor cloud environment" {
+		t.Fatalf("prompts = %+v", prompts)
+	}
+	if !strings.HasPrefix(prompts[0].Body, "/env-setup ") {
+		t.Fatalf("body = %q", prompts[0].Body)
+	}
+}
+
 func TestBuiltIn_SourceFilesAreUsablePromptDocuments(t *testing.T) {
-	for _, name := range []string{"v0/agent-handoff.md", "v0/chat-handoff.md", "v0/clarify.md", "v0/continue.md", "v0/goal.md", "merge.md", "v0/parentthread.md", "v0/plan.md", "v0/pr.md", "v0/punchlist.md", "review.md", "ship.md", "v0/status.md"} {
+	for _, name := range []string{"cursor/env-setup.md", "v0/agent-handoff.md", "v0/chat-handoff.md", "v0/clarify.md", "v0/continue.md", "v0/goal.md", "merge.md", "v0/parentthread.md", "v0/plan.md", "v0/pr.md", "v0/punchlist.md", "review.md", "ship.md", "v0/status.md"} {
 		t.Run(name, func(t *testing.T) {
 			got, err := os.ReadFile(filepath.Join("..", "..", "prompts", name))
 			if err != nil {

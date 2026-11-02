@@ -112,6 +112,7 @@ func NewRoot(opts Options) *cobra.Command {
 	cmd.AddCommand(app.newRMCommand())
 	cmd.AddCommand(app.newFindPortCommand())
 	cmd.AddCommand(app.newScaffoldCommand())
+	cmd.AddCommand(app.newCursorCommand())
 	cmd.AddCommand(app.newV0Command())
 	configureRootHelp(cmd)
 
